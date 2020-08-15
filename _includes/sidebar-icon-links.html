@@ -1,0 +1,52 @@
+<nav id="sidebar-icon-links">
+  <a id="github-link" class="icon" title="Github" aria-label="Github" href="https://github.com/{{ site.github.name }}">
+    {% include {{ site.github.icon }} %}
+  </a>
+
+  <a id="linkedin-link" class="icon" title="LinkedIn" aria-label="LinkedIn"
+    href="https://linkedin.com/{{ site.linkedin.name }}">
+    {% include {{ site.linkedin.icon }} %}
+  </a>
+
+  <a id="leetcode-link" class="icon" title="LeetCode" aria-label="LeetCode"
+    href="https://linkedin.com/{{ site.leetcode.name }}">
+    {% include {{ site.leetcode.icon }} %}
+  </a>
+
+  <a id="hackerrank-link" class="icon" title="HackerRank" aria-label="HackerRank"
+    href="https://hackerrank.com/{{ site.hackerrank.name }}">
+    {% include {{ site.hackerrank.icon }} %}
+  </a>
+
+  <a id="subscribe-link" class="icon" title="Subscribe" aria-label="Subscribe"
+    href="{{ site.feed.path | default: 'feed.xml' | relative_url }}">
+    {% include svg/feed.svg %}
+  </a>
+
+  {% comment %}
+  Check if we have tag or search pages page active before linking to it.
+  {% endcomment %}
+  {% assign tags_page = false %}
+  {% assign search_page = false %}
+  {% for node in site.pages %}
+    {% if node.layout == "tags" %}
+      {% assign tags_page = node %}
+    {% elsif node.layout == "search" %}
+      {% assign search_page = node %}
+    {% endif %}
+  {% endfor %}
+
+  {% if tags_page %}
+  <a id="tags-link" class="icon{% if page.url == '/tags' %} active{% endif %}" title="Tags" aria-label="Tags"
+    href="{{ tags_page.url | relative_url }}">
+    {% include svg/tags.svg %}
+  </a>
+  {% endif %}
+
+  {% if search_page %}
+  <a id="search-link" class="icon{% if page.url == '/search' %} active{% endif %}" title="Search" aria-label="Search"
+    href="{{ search_page.url | relative_url }}">
+    {% include svg/search.svg %}
+  </a>
+  {% endif %}
+</nav>
