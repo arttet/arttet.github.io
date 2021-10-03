@@ -10,7 +10,5 @@ permalink: /about/
 {% endcomment %}
 
 <p align="justify">
-Hello, my name is Artyom Tetyukhin and I'm a Software Engineer at Wärtsilä.Transas.
-This blog explores a variety of topics that I’ve stumbled across in my journey as a software engineer.
-Even though mostly written for my own understanding, my hope is that the curious programmer finds my writings entertaining.
+Hello! My name is Artyom Tetyukhin, and I am a Software Development Engineer based in Russia. This blog explores a variety of topics that I’ve stumbled across in my journey as a software engineer. Even though mostly written for my own understanding, my hope is that the curious programmer finds my writings entertaining.
 </p>
