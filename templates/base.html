@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+
+    <style>
+      :root {
+        --accent-color: {{ config.extra.accent }};
+        --accent-color-light: {{ config.extra.accent_light }};
+        --accent-overlay-color: #fff;
+        --body-bg: #fff;
+        --body-color: #000;
+        --heading-color: #000;
+        --table-bg-even: #f3f3f3;
+        --table-border-bottom: #dddddd;
+      }
+      {% if config.extra.dark_mode %}
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --accent-overlay-color: #dee2e6;
+            --body-bg: #212529;
+            --body-color: #abb2bf;
+            --heading-color: #dee2e6;
+            --table-bg-even: #2d3237;
+            --table-border-bottom: #697077;
+          }
+          img {
+            opacity: .75;
+            transition: opacity .5s ease-in-out;
+          }
+          img:hover {
+            opacity: 1;
+          }
+        }
+      {% endif %}
+    </style>
+
+    <meta name="theme-color" content="{{ config.extra.accent }}" />
+
+    {% if config.extra.gtag %}
+      <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.extra.gtag }}"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ config.extra.gtag }}');
+      </script>
+    {% endif %}
+
+    <meta property="og:type" content="website">
+
+    {% for link in config.extra.nav %}
+      <link rel="prerender" href="{{ link.path }}" />
+    {% endfor %}
+
+    <link rel=icon href="{{ config.base_url ~ "/icons/favicon.png" }}" sizes="144x144" type="image/png">
+
+    <title>
+      {% block title %}
+        {% if page.title %}
+          {{ page.title }}
+        {% else %}
+          {{ config.title }}
+        {% endif %}
+      {% endblock title %}
+    </title>
+
+    {% block head %}{% endblock head %}
+    {% block styles %}
+      <link rel="stylesheet" href="{{ get_url(path="blog.css") | safe }}">
+    {% endblock styles %}
+    {% block posthead %}{% endblock posthead %}
+  </head>
+
+  <body>
+    {% block header %}
+      <header>
+        <a class="profile-icon" href="/">
+          <img src="{{ config.base_url ~ "/icons/favicon.png" }}" alt="profile picture">
+        </a>
+        <nav>
+          {% for link in config.extra.nav %}
+            <a href="{{ link.path }}">{{ link.name }}</a>
+          {% endfor %}
+        </nav>
+      </header>
+    {% endblock header %}
+    <main>
+    {% block content %} {% endblock content %}
+    </main>
+    <footer class="footer-page">
+    {% block footer %}
+      {% if config.extra.footer_page %}
+        {{ config.extra.footer_page | markdown | safe }}
+      {% endif %}
+    {% endblock footer %}
+    </footer>
+  </body>
+</html>
