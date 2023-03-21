@@ -27,7 +27,6 @@ defaults:
 
 jobs:
   build:
-    name: GitHub Pages
     runs-on: ubuntu-latest
     env:
       ZOLA_VERSION: 0.17.2
@@ -50,11 +49,11 @@ jobs:
           path: ./public
 
   deploy:
+    runs-on: ubuntu-latest
+    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
