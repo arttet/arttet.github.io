@@ -1,19 +1,19 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Update",
+            "label": "Zola: serve",
             "type": "shell",
-            "command": "bundle update",
+            "command": "zola",
+            "args": ["serve"],
             "group": "build",
             "problemMatcher": []
         },
         {
-            "label": "Run",
+            "label": "Zola: build",
             "type": "shell",
-            "command": "bundle exec jekyll serve",
+            "command": "zola",
+            "args": ["build"],
             "group": "build",
             "problemMatcher": []
         }
