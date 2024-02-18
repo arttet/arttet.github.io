@@ -38,7 +38,7 @@ accent = "#05a081"
 accent_light = "#82d0c0"
 
 footer_page = """
-© 2023 All Rights Reserved
+© 2024 Artyom Tetyukhin
 """
 
 not_found_message = """
