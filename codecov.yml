@@ -1,0 +1,51 @@
+coverage:
+  precision: 2
+  round: down
+  range: "60...100"
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+        base: auto
+        flags:
+          - unittests
+        paths:
+          - "src"
+        if_ci_failed: error
+        informational: false
+        only_pulls: false
+
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+        threshold: 5%
+        informational: false
+        if_ci_failed: error
+  individual_components:
+    - component_id: routes
+      name: routes
+      paths:
+        - "src/routes/**"
+    - component_id: features
+      name: features
+      paths:
+        - "src/features/**"
+    - component_id: widgets
+      name: widgets
+      paths:
+        - "src/widgets/**"
+    - component_id: shared
+      name: shared
+      paths:
+        - "src/shared/**"
+    - component_id: entities
+      name: entities
+      paths:
+        - "src/entities/**"
+    - component_id: lib
+      name: lib
+      paths:
+        - "src/lib/**"
