@@ -13,6 +13,16 @@ export const site = {
     github: 'arttet',
     linkedin: 'arttet',
   },
+  licenses: {
+    code: {
+      label: 'GPL-3.0-or-later',
+      href: 'https://www.gnu.org/licenses/gpl-3.0.en.html',
+    },
+    content: {
+      label: 'CC BY-NC-SA 4.0',
+      href: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+    },
+  },
   nav: {
     links: [
       { label: 'Blog', href: '/blog' },
