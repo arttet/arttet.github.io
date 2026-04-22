@@ -56,4 +56,41 @@ fn main() {}
     expect(result?.code).toContain('func main() {}');
     expect(result?.code).toContain("lang: 'rust'");
   });
+
+  it('does not parse $-prefixed code inside :::code-tabs as math', async () => {
+    const content = `Inline math: $E = mc^2$
+
+:::code-tabs
+\`\`\`ts title="Svelte"
+const count = $state(0);
+const home = '$HOME';
+\`\`\`
+:::`;
+    const result = await markup({ content, filename: 'test.md' });
+
+    expect(result?.code).toContain("import CodeTabs from '$shared/ui/CodeTabs.svelte';");
+    expect(result?.code).toContain("import MathCopy from '$shared/ui/MathCopy.svelte';");
+    expect(result?.code).toContain('Inline math: <MathCopy display={false}');
+    expect(result?.code).toContain('const count = $state(0);');
+    expect(result?.code).toContain("const home = '$HOME';");
+    expect(result?.code).not.toContain('const count = <MathCopy');
+    expect(result?.code).not.toContain("const home = '<MathCopy");
+  });
+
+  it('keeps display math outside :::code-tabs while leaving tab code untouched', async () => {
+    const content = `:::code-tabs
+\`\`\`ts title="Svelte"
+const value = $derived(items.length);
+\`\`\`
+:::
+
+$$
+\\\\frac{n!}{k!(n-k)!}
+$$`;
+    const result = await markup({ content, filename: 'test.md' });
+
+    expect(result?.code).toContain('const value = $derived(items.length);');
+    expect(result?.code).toContain('<MathCopy display={true}');
+    expect(result?.code).not.toContain('const value = <MathCopy');
+  });
 });
