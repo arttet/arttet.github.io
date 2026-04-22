@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import PostList from './PostList.svelte';
 
@@ -17,5 +17,27 @@ describe('PostList', () => {
     render(PostList, { posts: mockPosts });
     expect(screen.getByText('Post 1')).toBeInTheDocument();
     expect(screen.getByText('Post 2')).toBeInTheDocument();
+  });
+
+  it('expands and collapses extra tags through parent state', async () => {
+    render(PostList, {
+      posts: [
+        {
+          slug: 'p1',
+          title: 'Post 1',
+          tags: ['t1', 't2', 't3', 't4'],
+          created: '2026-04-21',
+          readingTime: 1,
+        },
+      ],
+    });
+
+    expect(screen.queryByText('#t4')).not.toBeInTheDocument();
+
+    await fireEvent.click(screen.getByRole('button', { name: /\+1 more/i }));
+    expect(screen.getByText('#t4')).toBeInTheDocument();
+
+    await fireEvent.click(screen.getByRole('button', { name: /show less/i }));
+    expect(screen.queryByText('#t4')).not.toBeInTheDocument();
   });
 });

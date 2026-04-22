@@ -53,4 +53,43 @@ describe('mermaid action robust', () => {
     const el = node.querySelector('.mermaid');
     expect(el?.getAttribute('data-processed')).toBeNull();
   });
+
+  it('returns early when there are no diagrams to process', async () => {
+    const node = document.createElement('div');
+    document.body.appendChild(node);
+
+    mermaid(node, 'dark');
+
+    const mermaidLib = (await import('mermaid')).default as MermaidMock;
+    await Promise.resolve();
+
+    expect(mermaidLib.initialize).not.toHaveBeenCalled();
+    expect(mermaidLib.run).not.toHaveBeenCalled();
+  });
+
+  it('restores processed diagram source before rerendering on theme change', async () => {
+    const node = document.createElement('div');
+    const source = 'graph TD; A-->B;';
+    const b64 = btoa(source);
+    node.innerHTML =
+      '<div class="mermaid" data-processed="true" data-content="' +
+      b64 +
+      '" id="mermaid-1">rendered</div>';
+    document.body.appendChild(node);
+
+    const action = mermaid(node, 'dark');
+    const mermaidLib = (await import('mermaid')).default as MermaidMock;
+
+    action.update('light');
+    await vi.waitFor(() => {
+      if (mermaidLib.initialize.mock.calls.length === 0) {
+        throw new Error('Not updated yet');
+      }
+    });
+
+    const el = node.querySelector('.mermaid') as HTMLElement;
+    expect(el.textContent).toBe(source);
+    expect(el.dataset.processed).toBeUndefined();
+    expect(el.id).toBe('');
+  });
 });

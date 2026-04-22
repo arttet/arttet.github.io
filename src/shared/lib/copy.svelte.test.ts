@@ -47,4 +47,16 @@ describe('useCopy rune', () => {
     await copy.copy('');
     expect(navigator.clipboard.writeText).not.toHaveBeenCalled();
   });
+
+  it('clears the previous reset timer when copying again', async () => {
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
+    const copy = useCopy();
+
+    await copy.copy('first');
+    await copy.copy('second');
+
+    expect(writeTextMock).toHaveBeenNthCalledWith(1, 'first');
+    expect(writeTextMock).toHaveBeenNthCalledWith(2, 'second');
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+  });
 });

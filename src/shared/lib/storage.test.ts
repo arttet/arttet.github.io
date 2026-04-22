@@ -20,4 +20,17 @@ describe('storage advanced', () => {
     storage.remove('x');
     expect(storage.get('x')).toBeNull();
   });
+
+  it('returns safe defaults outside the browser', async () => {
+    vi.resetModules();
+    vi.doMock('$app/environment', () => ({
+      browser: false,
+    }));
+
+    const { storage: ssrStorage } = await import('./storage');
+
+    expect(ssrStorage.get('missing')).toBeNull();
+    expect(() => ssrStorage.set('a', 'b')).not.toThrow();
+    expect(() => ssrStorage.remove('a')).not.toThrow();
+  });
 });

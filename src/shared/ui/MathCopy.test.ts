@@ -64,4 +64,31 @@ describe('MathCopy', () => {
     const icon = document.querySelector('.lucide-check');
     expect(icon).toBeInTheDocument();
   });
+
+  it('renders safely with empty encoded values', () => {
+    render(MathCopy, {
+      display: false,
+      b64Latex: '',
+      b64Html: '',
+    });
+
+    expect(screen.getByLabelText('Copy LaTeX')).toBeInTheDocument();
+    expect(document.querySelector('.katex-inline')?.textContent?.trim()).toBe('');
+  });
+
+  it('logs and falls back when base64 decoding fails', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(MathCopy, {
+      display: true,
+      b64Latex: '%%%invalid%%%',
+      b64Html: '%%%invalid%%%',
+    });
+
+    expect(consoleSpy).toHaveBeenCalled();
+    expect(screen.getByLabelText('Copy LaTeX')).toBeInTheDocument();
+    expect(document.querySelector('.katex-display')?.textContent?.trim()).toBe('');
+
+    consoleSpy.mockRestore();
+  });
 });
