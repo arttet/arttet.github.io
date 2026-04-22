@@ -35,6 +35,6 @@
   "vite": true,
   "vitest": true,
   "playwright": true,
-  "ignoreDependencies": ["@types/katex", "@typescript/native-preview", "@webgpu/types"],
-  "ignore": ["src/features/engine/core/GPUContext.ts", "src/app.d.ts"]
+  "ignoreDependencies": ["@types/katex", "@typescript/native-preview"],
+  "ignore": ["src/app.d.ts"]
 }

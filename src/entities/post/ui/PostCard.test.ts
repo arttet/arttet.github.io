@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import PostCard from '$entities/post/ui/PostCard.svelte';
 
@@ -22,16 +22,34 @@ describe('PostCard', () => {
     expect(screen.getByText('Test Post')).toBeInTheDocument();
   });
 
-  it('handles expansion', async () => {
+  it('shows expansion button and handles expansion', async () => {
     const toggleSpy = vi.fn();
     render(PostCard, {
-      post: mockPost,
+      post: {
+        ...mockPost,
+        tags: ['t1', 't2', 't3', 't4'],
+      },
       index: 0,
       expandedTags: new Set<number>(),
       onToggleExpand: toggleSpy,
     });
 
-    // Simulate click on tag/button to expand - dependent on actual implementation
-    // Assuming a button for expansion exists if tags > limit or explicitly
+    await fireEvent.click(screen.getByRole('button', { name: /\+1 more/i }));
+    expect(toggleSpy).toHaveBeenCalledWith(0);
+  });
+
+  it('shows less button when tags are expanded', () => {
+    render(PostCard, {
+      post: {
+        ...mockPost,
+        tags: ['t1', 't2', 't3', 't4'],
+      },
+      index: 0,
+      expandedTags: new Set<number>([0]),
+      onToggleExpand: () => {},
+    });
+
+    expect(screen.getByRole('button', { name: /show less/i })).toBeInTheDocument();
+    expect(screen.getByText('#t4')).toBeInTheDocument();
   });
 });

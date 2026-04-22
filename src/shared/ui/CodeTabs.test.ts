@@ -61,5 +61,15 @@ describe('CodeTabs', () => {
       const shiki = document.querySelector('.shiki');
       expect(shiki).toBeInTheDocument();
     });
+
+    expect(document.querySelector('.shiki')).toHaveClass('m-0');
+  });
+
+  it('falls back to the language name when the label is empty', () => {
+    render(CodeTabs, {
+      tabs: [{ lang: 'bash', label: '', code: 'echo hello' }],
+    });
+
+    expect(screen.getByLabelText('Copy bash')).toBeInTheDocument();
   });
 });

@@ -20,13 +20,28 @@ describe('SearchResults', () => {
 
   it('navigates on item click', async () => {
     searchModel.results = [{ slug: 'p1', title: 'Test Post', tags: ['t1'], created: '2026-04-21' }];
+    searchModel.open = true;
 
     render(SearchResults);
     const item = screen.getByRole('button', { name: /Test Post/i });
     await fireEvent.click(item);
 
     expect(navigation.goto).toHaveBeenCalledWith('/blog/p1');
-    // Also expect searchModel.close to have been called (via handleNavigate)
-    // Note: searchModel is a singleton, need to watch it
+    expect(searchModel.open).toBe(false);
+  });
+
+  it('updates selected result on hover', async () => {
+    searchModel.results = [
+      { slug: 'p1', title: 'First', tags: ['t1'], created: '2026-04-21' },
+      { slug: 'p2', title: 'Second', tags: ['t2'], created: '2026-04-22' },
+    ];
+    searchModel.selected = 0;
+
+    render(SearchResults);
+    const second = screen.getByRole('button', { name: /Second/i });
+
+    await fireEvent.mouseEnter(second);
+
+    expect(searchModel.selected).toBe(1);
   });
 });

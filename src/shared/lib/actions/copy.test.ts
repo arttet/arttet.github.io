@@ -78,4 +78,39 @@ describe('copy action advanced', () => {
     await btn.click();
     expect(writeTextMock).toHaveBeenCalledWith('graph LR; A-->B;');
   });
+
+  it('restores button state after successful copy', async () => {
+    const node = document.createElement('div');
+    node.innerHTML = '<pre class="shiki" data-language="ts"><code>const x = 1;</code></pre>';
+
+    copy(node);
+    const btn = node.querySelector('.copy-btn') as HTMLButtonElement;
+
+    await btn.click();
+    expect(btn.dataset.copied).toBe('1');
+    expect(btn.textContent).toContain('Copied!');
+
+    vi.advanceTimersByTime(1800);
+
+    expect(btn.dataset.copied).toBeUndefined();
+    expect(btn.textContent).toContain('Ts');
+    expect(btn.style.color).toBe('');
+    expect(btn.style.borderColor).toBe('');
+    expect(btn.style.zIndex).toBe('');
+    expect(btn.style.pointerEvents).toBe('');
+  });
+
+  it('uses Copy label for plain text code blocks and skips empty copy targets', () => {
+    const node = document.createElement('div');
+    node.innerHTML = `
+      <pre class="shiki" data-language="text"><code>plain text</code></pre>
+      <div data-copy-content="" data-copy-label="Mermaid"></div>
+    `;
+
+    copy(node);
+
+    const buttons = node.querySelectorAll('.copy-btn');
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveTextContent('Copy');
+  });
 });

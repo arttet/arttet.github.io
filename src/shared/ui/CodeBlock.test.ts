@@ -38,6 +38,8 @@ describe('CodeBlock', () => {
       const shiki = document.querySelector('.shiki');
       expect(shiki).toBeInTheDocument();
     });
+
+    expect(document.querySelector('.shiki')).toHaveClass('m-0');
   });
 
   it('copies code to clipboard when clicked', async () => {
@@ -49,5 +51,12 @@ describe('CodeBlock', () => {
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(code);
     expect(screen.getByText('Copied!')).toBeInTheDocument();
+  });
+
+  it('trims fallback code rendering before highlighting resolves', () => {
+    render(CodeBlock, { code: '\nconst y = 2;\n', lang: 'typescript' });
+
+    const code = document.querySelector('pre code');
+    expect(code?.textContent).toBe('const y = 2;');
   });
 });
