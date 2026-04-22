@@ -7,16 +7,16 @@ Static site (Svelte 5 + SvelteKit + Tailwind 4), deployed to GitHub Pages.
 
 ## Stack
 
-| Layer | Choice |
-| --- | --- |
-| Framework | Svelte 5 (Runes), SvelteKit 2 (adapter-static) |
-| Bundler | Vite 8, Bun (package manager) |
-| Styling | Tailwind CSS v4 + custom CSS variables (`app.css`) |
-| Graphics Engine | WebGPU (Compute & Render pipelines) + d3-delaunay |
-| Content | mdsvex (Markdown → Svelte), Shiki (lazy-loaded syntax highlighting), KaTeX (math) |
-| Search | FlexSearch |
-| Linting & Formatting | Biome v2 (fast formatting/linting), OXlint, Stylelint, Markdownlint |
-| Testing | Vitest + Testing Library (Unit), Playwright (E2E) |
+| Layer                | Choice                                                                            |
+| -------------------- | --------------------------------------------------------------------------------- |
+| Framework            | Svelte 5 (Runes), SvelteKit 2 (adapter-static)                                    |
+| Bundler              | Vite 8, Bun (package manager)                                                     |
+| Styling              | Tailwind CSS v4 + custom CSS variables (`app.css`)                                |
+| Graphics Engine      | WebGPU (Compute & Render pipelines) + d3-delaunay                                 |
+| Content              | mdsvex (Markdown → Svelte), Shiki (lazy-loaded syntax highlighting), KaTeX (math) |
+| Search               | FlexSearch                                                                        |
+| Linting & Formatting | Oxfmt, OXlint, Stylelint, Markdownlint                                            |
+| Testing              | Vitest + Testing Library (Unit), Playwright (E2E)                                 |
 
 ---
 
@@ -28,8 +28,8 @@ bun run build        # production build → build/ (generates stats.html via vis
 bun run preview      # preview build → http://localhost:4173
 bun run check        # svelte-check type-check
 bun run test:unit    # Vitest unit tests
-just lint            # biome, oxlint, stylelint, markdownlint, knip
-just fmt             # biome format --write
+just lint            # oxfmt, oxlint, stylelint, markdownlint, knip
+just fmt             # oxfmt --write
 just ci              # fmt + lint + build (full pipeline)
 just build           # check + test-unit + bun run build (safe build)
 just test            # build + playwright run
@@ -85,12 +85,12 @@ tests/
 
 ### Path aliases
 
-| Alias | Resolves to |
-| --- | --- |
+| Alias       | Resolves to    |
+| ----------- | -------------- |
 | `$features` | `src/features` |
-| `$shared` | `src/shared` |
+| `$shared`   | `src/shared`   |
 | `$entities` | `src/entities` |
-| `$lib` | `src/lib` |
+| `$lib`      | `src/lib`      |
 
 ---
 
@@ -104,8 +104,12 @@ Example:
 ```typescript
 class ThemeState {
   #current = $state<Theme>('dark');
-  get current() { return this.#current; }
-  toggle() { /* ... */ }
+  get current() {
+    return this.#current;
+  }
+  toggle() {
+    /* ... */
+  }
 }
 export const theme = new ThemeState();
 ```
@@ -151,7 +155,7 @@ Built with Tailwind CSS v4 and custom CSS variables.
 
 ## Tooling & Workflow
 
-- **Build Pipeline**: `just build` is the gatekeeper. It runs type checking (`bun run check`) and unit tests (`bun run test:unit`) before executing the Vite build.
+- **Build Pipeline**: `just build` is the Bun-first gatekeeper. It runs type checking and unit tests before executing the Vite production build.
 - **Bundle Analysis**: `rollup-plugin-visualizer` is integrated into `vite.config.ts`. Running a build generates `stats.html` in the project root.
 - **CI**: `just ci` runs formatting, linting, and the full safe build pipeline.
 - **Testing**:

@@ -1,7 +1,7 @@
 coverage:
   precision: 2
   round: down
-  range: "60...100"
+  range: '60...100'
   status:
     project:
       default:
@@ -11,7 +11,7 @@ coverage:
         flags:
           - unittests
         paths:
-          - "src"
+          - 'src'
         if_ci_failed: error
         informational: false
         only_pulls: false
@@ -31,24 +31,24 @@ component_management:
     - component_id: routes
       name: routes
       paths:
-        - "src/routes/**"
+        - 'src/routes/**'
     - component_id: features
       name: features
       paths:
-        - "src/features/**"
+        - 'src/features/**'
     - component_id: widgets
       name: widgets
       paths:
-        - "src/widgets/**"
+        - 'src/widgets/**'
     - component_id: shared
       name: shared
       paths:
-        - "src/shared/**"
+        - 'src/shared/**'
     - component_id: entities
       name: entities
       paths:
-        - "src/entities/**"
+        - 'src/entities/**'
     - component_id: lib
       name: lib
       paths:
-        - "src/lib/**"
+        - 'src/lib/**'

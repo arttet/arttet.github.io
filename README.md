@@ -28,7 +28,7 @@ Available recipes:
     lint    # Run all blazing-fast linters
     build   # Build for production
     preview # Preview production build
-    run     # Start dev server
+    dev     # Start dev server
     clean   # Remove build artifacts
     ci      # Run CI pipeline
 
@@ -94,7 +94,7 @@ The hook configuration lives in `lefthook.yml`.
 
 Current `pre-commit` checks:
 
-- `biome`
+- `oxfmt`
 - `oxlint`
 - `stylelint`
 - `markdownlint`

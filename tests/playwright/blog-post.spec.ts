@@ -42,14 +42,21 @@ test.describe('Blog post', () => {
   test('tabbed code preserves multiline formatting', async ({ page }) => {
     await page.goto(BLOG_INIT_POST);
 
-    const tabbedCode = page.locator('[data-code-tabs-content] pre.shiki').first();
+    const tabbedPanel = page.locator('[data-code-tabs-content]').first();
+    const tabbedCode = tabbedPanel.locator('pre.shiki').first();
     await expect(tabbedCode).toBeVisible();
 
     const text = await tabbedCode.locator('code').textContent();
     expect(text).toContain('\n');
     expect(text).toContain('\tlo, hi := 0, len(nums)-1');
 
-    const whiteSpace = await tabbedCode.evaluate((node) => getComputedStyle(node).whiteSpace);
+    const whiteSpace = await tabbedPanel
+      .locator('code')
+      .first()
+      .evaluate((node) => {
+        const pre = node.closest('pre');
+        return pre ? getComputedStyle(pre).whiteSpace : '';
+      });
     expect(['pre', 'pre-wrap', 'break-spaces']).toContain(whiteSpace);
   });
 

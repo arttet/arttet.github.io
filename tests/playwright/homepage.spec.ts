@@ -1,6 +1,40 @@
 import { expect, test } from '@playwright/test';
 
 test.describe('Homepage', () => {
+  test('background initializes in preview without runtime errors', async ({ page }) => {
+    const pageErrors: string[] = [];
+    const consoleErrors: string[] = [];
+    const asset404s: string[] = [];
+
+    page.on('pageerror', (error) => {
+      pageErrors.push(error.message);
+    });
+
+    page.on('console', (message) => {
+      if (message.type() === 'error') {
+        consoleErrors.push(message.text());
+      }
+    });
+
+    page.on('response', (response) => {
+      if (response.status() === 404 && response.url().includes('/_app/immutable/')) {
+        asset404s.push(response.url());
+      }
+    });
+
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+
+    expect(pageErrors).toEqual([]);
+    expect(asset404s).toEqual([]);
+    expect(consoleErrors).not.toContain(
+      expect.stringContaining('Background scene initialization failed:')
+    );
+    expect(consoleErrors).not.toContain(
+      expect.stringContaining('Failed to fetch dynamically imported module')
+    );
+  });
+
   test('renders with title and navigation', async ({ page }) => {
     await page.goto('/');
 

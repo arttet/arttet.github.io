@@ -38,28 +38,29 @@ bump:
 [group('Development')]
 fmt:
     @echo "✨ Formatting code..."
-    just --fmt --unstable
-    bun run format
+    @echo "🔍 Running Oxfmt..."
+    bunx oxfmt --write .
     @echo "✅ Code formatted!"
 
 [doc('Type check')]
 [group('Development')]
 check:
     @echo "🔍 Type checking..."
-    bun run check
+    bunx svelte-kit sync
+    bunx svelte-check --tsconfig ./tsconfig.json --incremental
+    @echo "🧹 Checking Oxfmt..."
+    bunx oxfmt --check .
     @echo "✅ Passed!"
 
 [doc('Run all blazing-fast linters')]
 [group('Development')]
 lint:
-    @echo "🔍 Running Biome (JS/TS)..."
-    bunx biome check .
-    @echo "🔍 Running OXlint (JS/TS)..."
+    @echo "🔍 Running Oxlint..."
     bunx oxlint .
-    @echo "🔍 Running Stylelint (CSS)..."
+    @echo "🔍 Running Stylelint..."
     bunx stylelint "src/**/*.css" "src/**/*.svelte"
     @echo "🧹 Running Knip..."
-    bunx knip
+    bunx knip --no-config-hints
     @echo "🔍 Running Markdownlint..."
     bunx markdownlint-cli2 "src/content/**/*.md"
     @echo "✅ Linting complete!"

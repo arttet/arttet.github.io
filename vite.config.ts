@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vitest/config';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
     sveltekit(),
@@ -22,6 +22,13 @@ export default defineConfig({
 
   build: {
     chunkSizeWarningLimit: 600,
+    minify: 'esbuild',
+    esbuild: mode === 'production' ? { drop: ['console', 'debugger'] } : undefined,
+  },
+
+  worker: {
+    format: 'es',
+    plugins: () => [],
   },
 
   resolve: {
@@ -41,4 +48,4 @@ export default defineConfig({
       exclude: ['src/**/*.{test,spec}.{js,ts}', 'src/**/*.d.ts', 'src/**/index.ts', 'src/app.html'],
     },
   },
-});
+}));

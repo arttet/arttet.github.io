@@ -79,10 +79,10 @@ fn binarySearch(nums: []const i32, target: i32) ?usize {
 
 Math support is handled with [KaTeX](https://katex.org/), which is more than enough for the kind of notation I expect to use in future posts. If I need to draft equations in the browser, [LaTeX Editor](https://latexeditor.lagrida.com/) is a convenient option.
 
-* **Inline**: $E = mc^2$
-* **Block**:
+- **Inline**: $E = mc^2$
+- **Block**:
 
-    $$ \frac{n!}{k!(n-k)!} = \binom{n}{k} $$
+  $$ \frac{n!}{k!(n-k)!} = \binom{n}{k} $$
 
 ### Mermaid Diagrams
 
@@ -109,10 +109,10 @@ flowchart TD
 
 The blog also exposes a few useful endpoints that are already ready to use:
 
-* [Atom Feed](/atom.xml)
-* [RSS Feed](/rss.xml)
-* [Sitemap](/sitemap.xml)
-* [Search Index](/api/search.json)
+- [Atom Feed](/atom.xml)
+- [RSS Feed](/rss.xml)
+- [Sitemap](/sitemap.xml)
+- [Search Index](/api/search.json)
 
 ## Markdown Kitchen Sink
 
@@ -122,10 +122,10 @@ This section exists mostly as a reference point for the post renderer. If typogr
 
 The current markdown layer already covers the basic text structures I expect to use most often:
 
-* unordered lists for short collections
-* ordered lists for step-by-step notes
-* tables for small comparisons
-* blockquotes for emphasis or commentary
+- unordered lists for short collections
+- ordered lists for step-by-step notes
+- tables for small comparisons
+- blockquotes for emphasis or commentary
 
 That also makes it easier to keep technical posts readable without reaching for custom components too early:
 
@@ -133,12 +133,12 @@ That also makes it easier to keep technical posts readable without reaching for 
 2. switch to `CodeBlock` or `CodeTabs` when code needs more structure
 3. use math or Mermaid only when the idea genuinely needs it
 
-| Element | Purpose | Status |
-| --- | --- | --- |
-| Lists | Organize short sequences | Ready |
-| Tables | Compare small pieces of data | Ready |
-| Quotes | Highlight commentary or emphasis | Ready |
-| Code | Show snippets and examples | Ready |
+| Element | Purpose                          | Status |
+| ------- | -------------------------------- | ------ |
+| Lists   | Organize short sequences         | Ready  |
+| Tables  | Compare small pieces of data     | Ready  |
+| Quotes  | Highlight commentary or emphasis | Ready  |
+| Code    | Show snippets and examples       | Ready  |
 
 ---
 
@@ -146,9 +146,9 @@ That also makes it easier to keep technical posts readable without reaching for 
 
 These are the main tools behind the current setup:
 
-* **Framework**: [Svelte Documentation](https://svelte.dev/docs/svelte/overview)
-* **Markdown**: [Markdown Syntax Guide](https://www.markdownguide.org/)
-* **Math Editors**: [LaTeX Editor](https://latexeditor.lagrida.com/)
-* **Diagramming**: [Mermaid Live Editor](https://mermaid.ai/live/)
+- **Framework**: [Svelte Documentation](https://svelte.dev/docs/svelte/overview)
+- **Markdown**: [Markdown Syntax Guide](https://www.markdownguide.org/)
+- **Math Editors**: [LaTeX Editor](https://latexeditor.lagrida.com/)
+- **Diagramming**: [Mermaid Live Editor](https://mermaid.ai/live/)
 
 Overall, this is already enough for the kind of writing I want to publish next. The core pieces are in place, the workflow feels stable, and future posts can focus more on content than on formatting.
