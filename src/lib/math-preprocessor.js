@@ -225,11 +225,11 @@ export function mathPreprocess() {
         return;
       }
 
-      const codeTabsProcessed = processCodeTabs(content);
-      const segments = splitByCodeBlocks(codeTabsProcessed);
+      const segments = splitByCodeBlocks(content);
       let processed = segments
         .map((seg) => (seg.type === 'text' ? processMath(seg.value) : seg.value))
         .join('');
+      processed = processCodeTabs(processed);
 
       /** @type {string[]} */
       const imports = [];
