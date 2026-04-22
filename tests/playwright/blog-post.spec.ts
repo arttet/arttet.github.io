@@ -28,6 +28,29 @@ test.describe('Blog post', () => {
 
     const codeBlocks = page.locator('pre.shiki');
     await expect(codeBlocks.first()).toBeVisible();
+
+    const firstCodeBlock = codeBlocks.first();
+    await expect(firstCodeBlock).toContainText('fmt.Println("Hello, World!")');
+
+    const firstCodeText = await firstCodeBlock.locator('code').textContent();
+    expect(firstCodeText).toContain('\n');
+
+    const whiteSpace = await firstCodeBlock.evaluate((node) => getComputedStyle(node).whiteSpace);
+    expect(['pre', 'pre-wrap', 'break-spaces']).toContain(whiteSpace);
+  });
+
+  test('tabbed code preserves multiline formatting', async ({ page }) => {
+    await page.goto(BLOG_INIT_POST);
+
+    const tabbedCode = page.locator('[data-code-tabs-content] pre.shiki').first();
+    await expect(tabbedCode).toBeVisible();
+
+    const text = await tabbedCode.locator('code').textContent();
+    expect(text).toContain('\n');
+    expect(text).toContain('\tlo, hi := 0, len(nums)-1');
+
+    const whiteSpace = await tabbedCode.evaluate((node) => getComputedStyle(node).whiteSpace);
+    expect(['pre', 'pre-wrap', 'break-spaces']).toContain(whiteSpace);
   });
 
   test('math formulas are rendered', async ({ page }) => {
@@ -35,6 +58,23 @@ test.describe('Blog post', () => {
 
     await expect(page.locator('.katex-display').first()).toBeVisible();
     await expect(page.locator('.katex').first()).toBeVisible();
+  });
+
+  test('markdown kitchen sink elements are rendered', async ({ page }) => {
+    await page.goto(BLOG_INIT_POST);
+
+    const article = page.locator('article');
+
+    await expect(article.getByRole('heading', { name: 'Markdown Kitchen Sink' })).toBeVisible();
+    await expect(article.locator('blockquote')).toBeVisible();
+    await expect(article.locator('ul').first()).toBeVisible();
+    await expect(article.locator('ol')).toBeVisible();
+    await expect(article.locator('table')).toBeVisible();
+    await expect(article.locator('thead')).toBeVisible();
+    await expect(article.locator('tbody')).toBeVisible();
+    await expect(article.locator('hr')).toBeVisible();
+    await expect(article.getByRole('cell', { name: 'Lists' })).toBeVisible();
+    await expect(article.getByRole('cell', { name: 'Ready' }).first()).toBeVisible();
   });
 
   test('tag link navigates to filtered blog', async ({ page }) => {

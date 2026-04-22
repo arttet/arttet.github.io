@@ -114,6 +114,34 @@ The blog also exposes a few useful endpoints that are already ready to use:
 * [Sitemap](/sitemap.xml)
 * [Search Index](/api/search.json)
 
+## Markdown Kitchen Sink
+
+This section exists mostly as a reference point for the post renderer. If typography, spacing, or prose styles ever drift between local development and production, these are the elements that should make it obvious.
+
+> A good content pipeline should make ordinary writing feel boring in the best possible way.
+
+The current markdown layer already covers the basic text structures I expect to use most often:
+
+* unordered lists for short collections
+* ordered lists for step-by-step notes
+* tables for small comparisons
+* blockquotes for emphasis or commentary
+
+That also makes it easier to keep technical posts readable without reaching for custom components too early:
+
+1. start with plain markdown
+2. switch to `CodeBlock` or `CodeTabs` when code needs more structure
+3. use math or Mermaid only when the idea genuinely needs it
+
+| Element | Purpose | Status |
+| --- | --- | --- |
+| Lists | Organize short sequences | Ready |
+| Tables | Compare small pieces of data | Ready |
+| Quotes | Highlight commentary or emphasis | Ready |
+| Code | Show snippets and examples | Ready |
+
+---
+
 ## Links & Resources
 
 These are the main tools behind the current setup:
