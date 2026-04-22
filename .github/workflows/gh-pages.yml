@@ -126,16 +126,25 @@ jobs:
       - name: Run unit tests with coverage
         run: bunx vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=target/test-results/vitest.junit.xml
 
+      - name: Upload test results to Codecov
+        uses: codecov/codecov-action@v6
+        if: ${{ !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) }}
+        with:
+          fail_ci_if_error: true
+          files: target/test-results/vitest.junit.xml
+          flags: unittests
+          report_type: test_results
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
         with:
           fail_ci_if_error: true
-          files: target/coverage/lcov.info,target/test-results/vitest.junit.xml
+          files: target/coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
           token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
 
   build:
     name: Build Production
@@ -164,8 +173,6 @@ jobs:
 
       - name: Build site
         run: bun run build
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Analyze bundle size
         run: >

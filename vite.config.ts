@@ -1,4 +1,3 @@
-import { codecovVitePlugin } from '@codecov/vite-plugin';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -17,17 +16,6 @@ export default defineConfig({
       gzipSize: true,
       template: 'raw-data',
     }),
-    ...(process.env.CODECOV_TOKEN !== undefined
-      ? [
-          codecovVitePlugin({
-            enableBundleAnalysis: true,
-            bundleName: 'arttet.github.io',
-            uploadToken: process.env.CODECOV_TOKEN,
-            gitService: 'github',
-            telemetry: false,
-          }),
-        ]
-      : []),
   ],
 
   assetsInclude: ['**/*.glsl', '**/*.wgsl'],
