@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: true
+  group: "pages-${{ github.ref }}"
+  cancel-in-progress: false
 
 defaults:
   run:
@@ -28,14 +28,31 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
-      - name: Setup just
-        uses: taiki-e/install-action@just
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Run lint pipeline
-        run: just lint
+      - name: Run Biome
+        run: bunx biome check .
+
+      - name: Run OXlint
+        run: bunx oxlint .
+
+      - name: Run Stylelint
+        run: bunx stylelint "src/**/*.css" "src/**/*.svelte"
+
+      - name: Run Knip
+        run: bunx knip
+
+      - name: Run Markdownlint
+        run: bunx markdownlint-cli2 "src/content/**/*.md"
 
       - name: Type check
         run: bun run check
@@ -50,11 +67,27 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Restore Playwright cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
       - name: Install Playwright Browsers
-        run: bunx playwright install --with-deps
+        run: bunx playwright install --with-deps chromium
 
       - name: Build site
         run: bun run build
@@ -79,23 +112,35 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
       - name: Run unit tests with coverage
-        run: bun run test:unit:coverage
+        run: bunx vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=target/test-results/vitest.junit.xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
         with:
+          fail_ci_if_error: true
+          files: target/coverage/lcov.info,target/test-results/vitest.junit.xml
+          flags: unittests
+          name: codecov-umbrella
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: target/coverage/lcov.info
+          verbose: true
 
   build:
     name: Build Production
     runs-on: ubuntu-latest
-    needs: [ lint, test, coverage ]
+    needs: [lint, test, coverage]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -106,15 +151,30 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
       - name: Build site
         run: bun run build
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Analyze bundle size
-        run: node scripts/bundle-report.mjs check --stats target/bundle/stats.json --baseline misc/bundle-baseline.json
-          --threshold 0.3 --summary target/bundle/summary.md --json target/bundle/summary.json --fail false
+        run: >
+          node scripts/bundle-report.mjs check
+          --fail false
+          --stats target/bundle/stats.json
+          --baseline misc/bundle-baseline.json
+          --threshold 0.3 --summary target/bundle/summary.md
+          --json target/bundle/summary.json
 
       - name: Upload bundle report
         uses: actions/upload-artifact@v7
@@ -124,8 +184,14 @@ jobs:
           path: target/bundle/
 
       - name: Enforce bundle budget
-        run: |
-          node -e "const fs = require('node:fs'); const report = JSON.parse(fs.readFileSync('target/bundle/summary.json', 'utf8')); if (report.comparison.failures.length > 0) { console.error(report.comparison.failures.join('\n')); process.exit(1); }"
+        run: >
+          node -e "
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync('target/bundle/summary.json', 'utf8'));
+          if (report.comparison.failures.length > 0) {
+            console.error(report.comparison.failures.join('\n'));
+            process.exit(1);
+          }"
 
       - name: Upload artifacts
         uses: actions/upload-pages-artifact@v5
