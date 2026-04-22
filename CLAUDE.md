@@ -24,27 +24,27 @@ Pre-commit: `biome check --write`. Pre-push: `bun run check`.
 
 ## Stack
 
-| Layer | Choice |
-| --- | --- |
-| Framework | Svelte 5, SvelteKit 2 (adapter-static) |
-| Bundler | Vite 8, Bun |
-| Styling | Tailwind CSS v4 + CSS custom properties |
-| WebGPU | Pure WebGPU + d3-delaunay |
-| Content | mdsvex, Shiki (6 themes), KaTeX |
-| Search | FlexSearch |
-| Linting | Biome v2, OXlint |
-| Testing | Playwright (E2E only) |
+| Layer     | Choice                                  |
+| --------- | --------------------------------------- |
+| Framework | Svelte 5, SvelteKit 2 (adapter-static)  |
+| Bundler   | Vite 8, Bun                             |
+| Styling   | Tailwind CSS v4 + CSS custom properties |
+| WebGPU    | Pure WebGPU + d3-delaunay               |
+| Content   | mdsvex, Shiki (6 themes), KaTeX         |
+| Search    | FlexSearch                              |
+| Linting   | Biome v2, OXlint                        |
+| Testing   | Playwright (E2E only)                   |
 
 ## Architecture
 
 ### Path aliases
 
-| Alias | Resolves to |
-| --- | --- |
+| Alias       | Resolves to    |
+| ----------- | -------------- |
 | `$features` | `src/features` |
-| `$shared` | `src/shared` |
+| `$shared`   | `src/shared`   |
 | `$entities` | `src/entities` |
-| `$lib` | `src/lib` |
+| `$lib`      | `src/lib`      |
 
 ### Key files
 
