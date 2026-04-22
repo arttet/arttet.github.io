@@ -1,0 +1,37 @@
+{
+  "extends": "stylelint-config-standard",
+  "overrides": [
+    {
+      "files": ["*.svelte", "**/*.svelte"],
+      "customSyntax": "postcss-html"
+    }
+  ],
+  "rules": {
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "theme",
+          "source",
+          "utility",
+          "custom-variant",
+          "variant",
+          "plugin",
+          "tailwind",
+          "apply",
+          "layer",
+          "config"
+        ]
+      }
+    ],
+    "no-descending-specificity": null,
+    "declaration-empty-line-before": null,
+    "comment-empty-line-before": null,
+    "function-no-unknown": [
+      true,
+      {
+        "ignoreFunctions": ["theme"]
+      }
+    ]
+  }
+}

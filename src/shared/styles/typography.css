@@ -1,0 +1,214 @@
+/**
+ * Typography & Blog Post Styles
+ */
+@layer components {
+  .prose {
+    color: var(--color-text);
+    line-height: 1.8;
+    font-size: 1rem;
+
+    /* Headings */
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-heading);
+      letter-spacing: -0.025em;
+      margin: 3rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--color-heading);
+      letter-spacing: -0.02em;
+      margin: 2.25rem 0 0.75rem;
+    }
+
+    h4 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--color-heading);
+      margin: 1.75rem 0 0.5rem;
+    }
+
+    /* First paragraph — slightly larger */
+    > p:first-of-type {
+      font-size: 1.05rem;
+      color: var(--color-text);
+      line-height: 1.75;
+    }
+
+    /* Paragraphs & spacing */
+    p {
+      margin: 1.5rem 0;
+    }
+
+    /* Links */
+    a {
+      color: var(--color-accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-thickness: 1px;
+    }
+
+    a:hover {
+      opacity: 0.8;
+      text-decoration: none;
+    }
+
+    /* Lists */
+    ul {
+      list-style: disc;
+      padding-left: 1.6rem;
+      margin: 1.25rem 0;
+    }
+
+    ol {
+      list-style: decimal;
+      padding-left: 1.6rem;
+      margin: 1.25rem 0;
+    }
+
+    li {
+      margin: 0.4rem 0;
+      line-height: 1.7;
+    }
+
+    li::marker {
+      color: var(--color-accent);
+    }
+
+    /* Nested list */
+    li > ul,
+    li > ol {
+      margin: 0.4rem 0;
+    }
+
+    /* Blockquote */
+    blockquote {
+      border-left: 3px solid var(--color-accent);
+      padding: 0.25rem 0 0.25rem 1.25rem;
+      margin: 2rem 0;
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    blockquote > p {
+      margin: 0.5rem 0;
+    }
+
+    /* Inline code */
+    :not(pre) > code {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      background-color: var(--color-bg-elevated);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 0.125em 0.45em;
+      color: var(--color-accent-light);
+    }
+
+    /* Shiki code blocks */
+    pre.shiki {
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      margin: 1.75rem 0;
+      border: 1px solid var(--color-border);
+      background-color: var(--code-bg);
+      color: var(--code-fg);
+      font-size: 0.875rem;
+      line-height: 1.75;
+      position: relative;
+      transition: background-color 200ms ease;
+    }
+
+    pre.shiki code {
+      font-family: var(--font-mono);
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    /* Reset padding for Shiki inside CodeTabs — !important overrides Shiki inline styles */
+    [data-code-tabs-content] pre.shiki {
+      margin: 0 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 1.25rem 1.5rem !important;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2rem 0;
+      font-size: 0.9rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      border-bottom: 2px solid var(--color-border);
+      color: var(--color-heading);
+      font-weight: 600;
+    }
+
+    td {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: var(--color-bg-elevated);
+    }
+
+    /* Horizontal rule */
+    hr {
+      border: none;
+      border-top: 1px solid var(--color-border);
+      margin: 2.5rem 0;
+    }
+
+    /* Images */
+    img {
+      border-radius: var(--radius-md);
+      max-width: 100%;
+      height: auto;
+      margin: 1.5rem auto;
+      display: block;
+    }
+
+    img + em {
+      display: block;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-top: -0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* KaTeX */
+    .katex-display {
+      overflow: auto hidden;
+      margin: 0.5rem 0 !important;
+      padding: 0;
+    }
+
+    .katex-inline .katex {
+      font-size: 1em;
+    }
+  }
+
+  /* KaTeX display math margin reset — must override KaTeX's own inline margin */
+  .katex-display {
+    margin: 0 !important;
+  }
+}

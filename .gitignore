@@ -1,1 +1,22 @@
-**/public
+# Build outputs
+/.playwright-mcp
+/.svelte-kit
+/coverage
+/node_modules
+/public
+/target
+
+# AI
+.claude
+.qwen
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+README.local.md

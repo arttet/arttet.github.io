@@ -1,0 +1,15 @@
+# Default state for all rules
+default: true
+
+# MD013/line-length - Line length (disabled for easier writing)
+MD013: false
+
+# MD033/no-inline-html - Inline HTML (allowed for Svelte components like MathCopy)
+MD033: false
+
+# MD010/no-hard-tabs - Hard tabs (disabled because project uses tabs)
+MD010: false
+
+# MD024/no-duplicate-heading - Multiple headings with the same content
+MD024:
+  siblings_only: true

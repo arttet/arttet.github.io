@@ -1,0 +1,40 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-json.json",
+  "project": [
+    "src/**/*.{js,ts,svelte}",
+    "src/**/*.d.ts",
+    "tests/**/*.{js,ts,svelte}",
+    "*.config.{js,ts}"
+  ],
+  "paths": {
+    "$lib": ["src/lib"],
+    "$lib/*": ["src/lib/*"],
+    "$widgets": ["src/widgets"],
+    "$widgets/*": ["src/widgets/*"],
+    "$features": ["src/features"],
+    "$features/*": ["src/features/*"],
+    "$shared": ["src/shared"],
+    "$shared/*": ["src/shared/*"],
+    "$entities": ["src/entities"],
+    "$entities/*": ["src/entities/*"]
+  },
+  "svelte": {
+    "entry": [
+      "src/app.html",
+      "src/app.css",
+      "src/shared/styles/*.css",
+      "src/routes/**/+*.{js,ts,svelte}",
+      "svelte.config.js",
+      "mdsvex.config.js",
+      "playwright.config.ts",
+      "vite.config.ts"
+    ]
+  },
+  "typescript": true,
+  "sveltekit": true,
+  "vite": true,
+  "vitest": true,
+  "playwright": true,
+  "ignoreDependencies": ["@types/katex", "@typescript/native-preview", "@webgpu/types"],
+  "ignore": ["src/features/engine/core/GPUContext.ts", "src/app.d.ts"]
+}
