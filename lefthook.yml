@@ -1,0 +1,19 @@
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      glob: "*.{js,ts,svelte,json,css,md}"
+      run: bunx biome check --write --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+
+    oxlint:
+      glob: "*.{js,ts,svelte}"
+      run: bunx oxlint {staged_files}
+
+    stylelint:
+      glob: "*.{css,svelte}"
+      run: bunx stylelint {staged_files}
+
+    markdownlint:
+      glob: "src/content/**/*.md"
+      run: bunx markdownlint-cli2 {staged_files}

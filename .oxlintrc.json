@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "ignorePatterns": [".svelte-kit/**", "build/**", "node_modules/**", "**/*.css"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-console": "warn"
+  },
+  "globals": {
+    "$state": "readonly",
+    "$derived": "readonly",
+    "$effect": "readonly",
+    "$props": "readonly",
+    "$bindable": "readonly"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.svelte"],
+      "rules": {
+        "no-unused-vars": "off",
+        "prefer-const": "off",
+        "no-unused-expressions": "off"
+      }
+    },
+    {
+      "files": ["tests/**"],
+      "rules": {
+        "no-await-in-loop": "off"
+      }
+    }
+  ]
+}

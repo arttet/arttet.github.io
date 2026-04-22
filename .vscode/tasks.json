@@ -1,21 +1,26 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Zola: serve",
-            "type": "shell",
-            "command": "zola",
-            "args": ["serve"],
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "label": "Zola: build",
-            "type": "shell",
-            "command": "zola",
-            "args": ["build"],
-            "group": "build",
-            "problemMatcher": []
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "SvelteKit: dev",
+      "type": "shell",
+      "command": "bun run dev",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "SvelteKit: build",
+      "type": "shell",
+      "command": "bun run build",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "SvelteKit: preview",
+      "type": "shell",
+      "command": "bun run preview",
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
 }

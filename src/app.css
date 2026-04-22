@@ -1,0 +1,77 @@
+/**
+ * Entry point for modular CSS.
+ * Local modules MUST come BEFORE tailwindcss import
+ * to satisfy the CSS specification for @import placement.
+ */
+@import url('./shared/styles/animations.css');
+@import url('./shared/styles/base.css');
+@import url('./shared/styles/glass.css');
+@import url('./shared/styles/typography.css');
+@import url('./shared/styles/diagrams.css');
+@import url('./shared/styles/components.css');
+
+/* stylelint-disable-next-line import-notation */
+@import 'tailwindcss';
+
+/**
+ * Theme tokens & color schemes.
+ * MUST stay inline after 'tailwindcss' import for proper Tailwind v4 processing.
+ */
+@theme {
+  /* Accent — cyan-teal */
+  --color-accent: #00d4aa;
+  --color-accent-light: #39d5c7;
+  /* Dark mode base (default) — deep cosmic */
+  --color-bg: #020408;
+  --color-bg-secondary: #080d14;
+  --color-bg-elevated: #0d1520;
+  --color-border: #1a2535;
+  --color-text: #c9d1d9;
+  --color-text-muted: #8b949e;
+  --color-heading: #f0f6fc;
+
+  /* Code */
+  --color-code-bg: #0d1117;
+
+  /* Typography — monospace-first for engineering feel */
+  --font-sans: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Z-index stacking layers */
+  --z-behind: -10;
+  --z-hero: 10;
+  --z-copy: 20;
+  --z-nav: 50;
+  --z-backdrop: 100;
+  --z-modal: 110;
+}
+
+/* Dark mode variant — class-based */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Light mode token overrides — warm ivory paper */
+html:not(.dark) {
+  --color-bg: #faf8f4;
+  --color-bg-secondary: #fff;
+  --color-bg-elevated: #f2ede4;
+  --color-border: #ddd5c8;
+  --color-text: #2c2620;
+  --color-text-muted: #7a6e63;
+  --color-heading: #1a1410;
+  --color-code-bg: #f2ede4;
+  --color-accent: #7c5cbf;
+  --color-accent-light: #9b7dd4;
+}
+
+/* Light mode body — ambient colour wash */
+html:not(.dark) body {
+  background-image:
+    radial-gradient(ellipse 70% 50% at 5% 0%, rgb(124 92 191 / 10%) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 70% at 95% 100%, rgb(0 169 135 / 9%) 0%, transparent 65%);
+}
