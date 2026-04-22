@@ -79,7 +79,7 @@ preview: build
 
 [doc('Start dev server')]
 [group('Development')]
-run:
+dev:
     @echo "🚀 Starting dev server..."
     bun run dev --open
 

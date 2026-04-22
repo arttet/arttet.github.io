@@ -3,14 +3,13 @@
  * Local modules MUST come BEFORE tailwindcss import
  * to satisfy the CSS specification for @import placement.
  */
-@import url('./shared/styles/animations.css');
-@import url('./shared/styles/base.css');
-@import url('./shared/styles/glass.css');
-@import url('./shared/styles/typography.css');
-@import url('./shared/styles/diagrams.css');
-@import url('./shared/styles/components.css');
-
-/* stylelint-disable-next-line import-notation */
+/* stylelint-disable import-notation */
+@import './shared/styles/animations.css';
+@import './shared/styles/base.css';
+@import './shared/styles/glass.css';
+@import './shared/styles/typography.css';
+@import './shared/styles/diagrams.css';
+@import './shared/styles/components.css';
 @import 'tailwindcss';
 
 /**

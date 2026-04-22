@@ -4,21 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
     "build": "vite build",
-    "bundle:baseline": "node scripts/bundle-report.mjs baseline",
-    "bundle:report": "node scripts/bundle-report.mjs check --summary target/bundle/summary.md --json target/bundle/summary.json",
     "preview": "vite preview",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "dev": "vite dev",
     "format": "biome format --write .",
     "lint": "biome check .",
     "lint:fix": "biome check --apply --write .",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test:unit": "vitest run",
-    "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",
-    "test:playwright": "bun run build && playwright test",
-    "test:playwright:ui": "bun run build && playwright test --ui"
+    "test:playwright": "playwright test",
+    "test:playwright:production": "playwright test --config=playwright.production.config.ts",
+    "test:playwright:ui": "playwright test --ui"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.12",
