@@ -1,6 +1,5 @@
 <script lang="ts">
 import '@fontsource-variable/jetbrains-mono';
-import 'katex/dist/katex.min.css';
 import '../app.css';
 import { browser } from '$app/environment';
 import { afterNavigate, onNavigate } from '$app/navigation';

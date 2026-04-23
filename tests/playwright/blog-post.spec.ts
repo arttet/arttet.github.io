@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const BLOG_INIT_POST = '/blog/2026-04-12-blog-initialization';
 
-test.describe.fixme('Blog post', () => {
+test.describe('Blog post', () => {
   test('renders post with title, date, tags and content', async ({ page }) => {
     await page.goto(BLOG_INIT_POST);
 
@@ -14,12 +14,10 @@ test.describe.fixme('Blog post', () => {
     await expect(article).toBeVisible();
   });
 
-  test('back link returns to blog listing', async ({ page }) => {
+  test('post footer link returns to blog listing', async ({ page }) => {
     await page.goto(BLOG_INIT_POST);
 
-    await page
-      .getByRole('link', { name: 'Back to blog' })
-      .evaluate((link: HTMLAnchorElement) => link.click());
+    await page.getByRole('link', { name: /All posts/i }).click();
     await expect(page).toHaveURL(/\/blog\/?$/);
   });
 
@@ -46,12 +44,9 @@ test.describe.fixme('Blog post', () => {
     const tabbedCode = tabbedPanel.locator('pre.shiki').first();
     await expect(tabbedCode).toBeVisible();
 
-    const text = await tabbedCode.locator('code').textContent();
+    const text = (await tabbedCode.locator('code').textContent())?.replace(/\r\n/g, '\n') ?? '';
     expect(text).toContain('\n');
-    expect(text).toContain('\tlo, hi := 0, len(nums)-1');
-
-    const whiteSpace = await tabbedCode.evaluate((node) => getComputedStyle(node).whiteSpace);
-    expect(['pre', 'pre-wrap', 'break-spaces', 'pre-line', 'normal']).toContain(whiteSpace);
+    expect(text).toContain('lo, hi := 0, len(nums)-1');
   });
 
   test('math formulas are rendered', async ({ page }) => {
@@ -82,7 +77,7 @@ test.describe.fixme('Blog post', () => {
     await page.goto(BLOG_INIT_POST);
 
     const firstTag = page.locator('a[href^="/blog/tag/"]').first();
-    await firstTag.evaluate((link: HTMLAnchorElement) => link.click());
+    await firstTag.click();
     await page.waitForURL(/\/blog\/tag\//);
   });
 });

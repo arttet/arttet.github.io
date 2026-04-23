@@ -7,6 +7,7 @@
     "build": "vite build",
     "dev": "vite dev",
     "preview": "vite preview",
+    "serve:playwright": "bun run scripts/serve-static.ts",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "lint": "oxlint .",

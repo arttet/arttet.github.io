@@ -24,7 +24,9 @@ const AboutContent = modules['/src/content/pages/about.md']?.default;
     <h1 class="text-4xl font-bold text-[--color-heading] tracking-tight">About</h1>
   </header>
 
-  <div class="prose max-w-2xl">
+  <div
+    class="max-w-2xl text-base leading-8 text-[--color-text] [&_p]:my-6 [&_a]:text-[--color-accent] [&_a]:underline [&_a]:underline-offset-3 [&_a]:decoration-1 [&_a:hover]:no-underline [&_strong]:font-semibold [&_strong]:text-[--color-heading]"
+  >
     {#if AboutContent}
       <AboutContent />
     {/if}

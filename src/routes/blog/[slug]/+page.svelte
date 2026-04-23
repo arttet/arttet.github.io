@@ -1,4 +1,5 @@
 <script lang="ts">
+import '$shared/styles/content.css';
 import { page } from '$app/state';
 import { getPosts } from '$entities/post/api';
 import { theme } from '$features/theme/model/theme.svelte';

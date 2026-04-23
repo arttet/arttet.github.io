@@ -36,5 +36,5 @@
   "vitest": true,
   "playwright": true,
   "ignoreDependencies": ["@types/katex", "@typescript/native-preview"],
-  "ignore": ["src/app.d.ts"]
+  "ignore": ["src/app.d.ts", "src/shared/ui/KaTeXStyles.svelte"]
 }

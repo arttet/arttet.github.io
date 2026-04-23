@@ -7,9 +7,6 @@
 @import './shared/styles/animations.css';
 @import './shared/styles/base.css';
 @import './shared/styles/glass.css';
-@import './shared/styles/typography.css';
-@import './shared/styles/diagrams.css';
-@import './shared/styles/components.css';
 @import 'tailwindcss';
 
 /**

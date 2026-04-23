@@ -1,0 +1,341 @@
+/**
+ * Blog post content rendering.
+ * Loaded only on routes that render rich article content.
+ */
+@layer components {
+  .prose {
+    color: var(--color-text);
+    line-height: 1.8;
+    font-size: 1rem;
+  }
+
+  .prose h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    letter-spacing: -0.025em;
+    margin: 3rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .prose h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    letter-spacing: -0.02em;
+    margin: 2.25rem 0 0.75rem;
+  }
+
+  .prose h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-heading);
+    margin: 1.75rem 0 0.5rem;
+  }
+
+  .prose > p:first-of-type {
+    font-size: 1.05rem;
+    color: var(--color-text);
+    line-height: 1.75;
+  }
+
+  .prose p {
+    margin: 1.5rem 0;
+  }
+
+  .prose a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+
+  .prose a:hover {
+    opacity: 0.8;
+    text-decoration: none;
+  }
+
+  .prose ul {
+    list-style: disc;
+    padding-left: 1.6rem;
+    margin: 1.25rem 0;
+  }
+
+  .prose ol {
+    list-style: decimal;
+    padding-left: 1.6rem;
+    margin: 1.25rem 0;
+  }
+
+  .prose li {
+    margin: 0.4rem 0;
+    line-height: 1.7;
+  }
+
+  .prose li::marker {
+    color: var(--color-accent);
+  }
+
+  .prose li > ul,
+  .prose li > ol {
+    margin: 0.4rem 0;
+  }
+
+  .prose blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding: 0.25rem 0 0.25rem 1.25rem;
+    margin: 2rem 0;
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  .prose blockquote > p {
+    margin: 0.5rem 0;
+  }
+
+  .prose :not(pre) > code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 0.125em 0.45em;
+    color: var(--color-accent-light);
+  }
+
+  .prose pre.shiki {
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    margin: 1.75rem 0;
+    border: 1px solid var(--color-border);
+    background-color: var(--code-bg);
+    color: var(--code-fg);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    position: relative;
+    transition: background-color 200ms ease;
+  }
+
+  .prose pre.shiki code {
+    font-family: var(--font-mono);
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+  }
+
+  [data-code-tabs-content] pre.shiki {
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 1.25rem 1.5rem !important;
+  }
+
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.9rem;
+  }
+
+  .prose th {
+    text-align: left;
+    padding: 0.6rem 1rem;
+    border-bottom: 2px solid var(--color-border);
+    color: var(--color-heading);
+    font-weight: 600;
+  }
+
+  .prose td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .prose tr:last-child td {
+    border-bottom: none;
+  }
+
+  .prose tr:hover td {
+    background-color: var(--color-bg-elevated);
+  }
+
+  .prose hr {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: 2.5rem 0;
+  }
+
+  .prose img {
+    border-radius: var(--radius-md);
+    max-width: 100%;
+    height: auto;
+    margin: 1.5rem auto;
+    display: block;
+  }
+
+  .prose img + em {
+    display: block;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-top: -0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .prose .katex-display {
+    overflow: auto hidden;
+    margin: 0.5rem 0 !important;
+    padding: 0;
+  }
+
+  .prose .katex-inline .katex {
+    font-size: 1em;
+  }
+
+  .katex-display {
+    margin: 0 !important;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 150ms;
+    line-height: 1.6;
+    opacity: 0;
+    visibility: hidden;
+    z-index: var(--z-copy);
+  }
+
+  .group:hover .copy-btn,
+  pre.shiki:hover .copy-btn {
+    opacity: 0.8;
+    visibility: visible;
+  }
+
+  .group:hover .copy-btn:hover,
+  pre.shiki:hover .copy-btn:hover,
+  .copy-btn:hover {
+    opacity: 1;
+    background-color: var(--color-bg);
+    border-color: var(--color-accent);
+  }
+
+  .group:hover .copy-btn[data-copied],
+  .group:hover .copy-btn.copied,
+  pre.shiki:hover .copy-btn[data-copied],
+  .copy-btn[data-copied],
+  .copy-btn.copied {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .copy-btn svg {
+    flex-shrink: 0;
+    stroke-width: 1.5px;
+  }
+
+  .copy-btn span {
+    text-transform: capitalize;
+    color: inherit !important;
+  }
+
+  .copy-btn-inline {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 150ms;
+    opacity: 0;
+    visibility: hidden;
+    vertical-align: middle;
+    z-index: var(--z-hero);
+  }
+
+  .group:hover .copy-btn-inline {
+    opacity: 0.7;
+    visibility: visible;
+  }
+
+  .group:hover .copy-btn-inline:hover,
+  .copy-btn-inline:hover {
+    opacity: 1;
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .group:hover .copy-btn-inline.copied,
+  .copy-btn-inline.copied,
+  .copy-btn-inline[data-copied] {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .mermaid {
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin: 1.75rem 0;
+    display: flex;
+    justify-content: center;
+    transition: background-color 200ms ease;
+    overflow: auto;
+  }
+
+  .mermaid svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .mermaid svg text,
+  .mermaid svg span {
+    color: var(--color-text) !important;
+    fill: var(--color-text) !important;
+    font-family: var(--font-mono) !important;
+  }
+
+  .mermaid svg .node rect,
+  .mermaid svg .node circle,
+  .mermaid svg .node ellipse,
+  .mermaid svg .node polygon,
+  .mermaid svg .node path {
+    fill: var(--color-bg-secondary) !important;
+    stroke: var(--color-border) !important;
+  }
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .mermaid svg .edgePath path {
+    stroke: var(--color-accent) !important;
+  }
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .mermaid svg .markerPath {
+    fill: var(--color-accent) !important;
+  }
+}
