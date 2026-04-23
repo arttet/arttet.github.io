@@ -70,6 +70,8 @@ const home = '$HOME';
 
     expect(result?.code).toContain("import CodeTabs from '$shared/ui/CodeTabs.svelte';");
     expect(result?.code).toContain("import MathCopy from '$shared/ui/MathCopy.svelte';");
+    expect(result?.code).toContain("import KaTeXStyles from '$shared/ui/KaTeXStyles.svelte';");
+    expect(result?.code).toContain('<KaTeXStyles />');
     expect(result?.code).toContain('Inline math: <MathCopy display={false}');
     expect(result?.code).toContain('const count = $state(0);');
     expect(result?.code).toContain("const home = '$HOME';");
@@ -91,6 +93,7 @@ $$`;
 
     expect(result?.code).toContain('const value = $derived(items.length);');
     expect(result?.code).toContain('<MathCopy display={true}');
+    expect(result?.code).toContain('<KaTeXStyles />');
     expect(result?.code).not.toContain('const value = <MathCopy');
   });
 });

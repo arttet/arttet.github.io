@@ -3,13 +3,10 @@ import { expect, test } from '@playwright/test';
 const BLOG_INIT_POST = '/blog/2026-04-12-blog-initialization';
 const ARCHITECTURE_POST = '/blog/2026-04-20-architecture-and-stack';
 
-test.describe.fixme('Features', () => {
+test.describe('Features', () => {
   test('command palette opens and searches', async ({ page }) => {
     await page.goto('/');
-
-    await page
-      .getByRole('button', { name: 'Search (⌘K)' })
-      .evaluate((button: HTMLButtonElement) => button.click());
+    await page.getByRole('button', { name: 'Search (⌘K)' }).dispatchEvent('click');
     const dialog = page.getByRole('dialog', { name: 'Search posts' });
     await expect(dialog).toBeVisible();
 
@@ -20,7 +17,7 @@ test.describe.fixme('Features', () => {
 
     await expect(page.locator('#search-result-0')).toBeVisible();
 
-    await page.keyboard.press('Enter');
+    await input.press('Enter');
     await expect(page).toHaveURL(ARCHITECTURE_POST + '/');
     await expect(dialog).not.toBeVisible();
   });
@@ -32,30 +29,33 @@ test.describe.fixme('Features', () => {
     await expect(html).toHaveClass(/dark/);
 
     const toggle = page.getByRole('button', { name: 'Toggle theme' });
-    await toggle.evaluate((button: HTMLButtonElement) => button.click());
-    await expect(html).not.toHaveClass(/dark/);
+    await toggle.dispatchEvent('click');
+    await expect.poll(async () => (await html.getAttribute('class')) ?? '').not.toMatch(/\bdark\b/);
 
     await page.reload();
-    await expect(html).not.toHaveClass(/dark/);
+    await expect.poll(async () => (await html.getAttribute('class')) ?? '').not.toMatch(/\bdark\b/);
 
-    await page
-      .getByRole('button', { name: 'Toggle theme' })
-      .evaluate((button: HTMLButtonElement) => button.click());
+    await page.getByRole('button', { name: 'Toggle theme' }).dispatchEvent('click');
     await expect(html).toHaveClass(/dark/);
   });
 
   test('reading mode toggle simplifies layout', async ({ page }) => {
     await page.goto(BLOG_INIT_POST);
+    const backgroundLayer = page.locator(
+      'canvas, div[aria-hidden="true"][style*="background-image"]'
+    );
 
-    await page
-      .getByRole('button', { name: 'Settings' })
-      .evaluate((button: HTMLButtonElement) => button.click());
+    await page.getByRole('button', { name: 'Settings' }).dispatchEvent('click');
 
     const readingToggle = page.getByRole('button', { name: 'Toggle reading mode' });
-    await readingToggle.evaluate((button: HTMLButtonElement) => button.click());
+    await expect(readingToggle).toBeVisible();
+    await readingToggle.dispatchEvent('click');
     await expect.poll(() => page.evaluate(() => localStorage.getItem('readingMode'))).toBe('true');
+    await expect(backgroundLayer).toHaveCount(0);
 
-    await readingToggle.evaluate((button: HTMLButtonElement) => button.click());
+    await expect(readingToggle).toBeVisible();
+    await readingToggle.dispatchEvent('click');
     await expect.poll(() => page.evaluate(() => localStorage.getItem('readingMode'))).toBe('false');
+    await expect.poll(() => backgroundLayer.count()).toBeGreaterThan(0);
   });
 });

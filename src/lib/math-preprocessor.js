@@ -216,6 +216,21 @@ function prependScriptAfterFrontmatter(content, script) {
 }
 
 /**
+ * @param {string} content
+ * @param {string} markup
+ */
+function prependMarkupAfterFrontmatter(content, markup) {
+  const frontmatterMatch = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n*/);
+  if (!frontmatterMatch) {
+    return `${markup}\n\n${content}`;
+  }
+
+  const frontmatter = frontmatterMatch[0];
+  const rest = content.slice(frontmatter.length);
+  return `${frontmatter}${markup}\n\n${rest}`;
+}
+
+/**
  * @returns {import('svelte/compiler').PreprocessorGroup}
  */
 export function mathPreprocess() {
@@ -233,9 +248,11 @@ export function mathPreprocess() {
 
       /** @type {string[]} */
       const imports = [];
+      const needsKaTeXStyles = processed.includes('<MathCopy');
 
-      if (processed.includes('<MathCopy')) {
+      if (needsKaTeXStyles) {
         imports.push("  import MathCopy from '$shared/ui/MathCopy.svelte';");
+        imports.push("  import KaTeXStyles from '$shared/ui/KaTeXStyles.svelte';");
       }
 
       if (processed.includes('<CodeTabs')) {
@@ -261,6 +278,18 @@ export function mathPreprocess() {
             processed,
             `<script>\n${imports.join('\n')}\n</script>`
           );
+        }
+      }
+
+      if (needsKaTeXStyles && !processed.includes('<KaTeXStyles')) {
+        const closingScriptTag = processed.match(/<\/script>/);
+        if (closingScriptTag) {
+          processed = processed.replace(
+            closingScriptTag[0],
+            `${closingScriptTag[0]}\n\n<KaTeXStyles />`
+          );
+        } else {
+          processed = prependMarkupAfterFrontmatter(processed, '<KaTeXStyles />');
         }
       }
 

@@ -122,7 +122,7 @@ onDestroy(() => {
 
 {#if failed}
   <div
-    class="fixed inset-0 bg-[--color-bg]"
+    class="fixed inset-0 z-[-10] pointer-events-none bg-[--color-bg]"
     aria-hidden="true"
     style="background-image: radial-gradient(circle at 50% 50%, var(--color-bg-elevated) 0%, var(--color-bg) 100%)"
   ></div>
