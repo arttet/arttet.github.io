@@ -16,13 +16,14 @@ This project uses `just` as the primary task runner for managing development wor
 ### ⚡ Justfile Commands
 
 ```text
+$ just help
 Available recipes:
     default # Show help
     help    # List all commands
 
     [Development]
-    deps    # Install dependencies
-    bump    # Update dependencies
+    install # Install dependencies
+    update  # Update dependencies
     fmt     # Format code
     check   # Type check
     lint    # Run all blazing-fast linters
@@ -38,6 +39,7 @@ Available recipes:
         unit        # Run unit tests
         integration # Integration tests
         coverage    # Generate coverage
+        lhci        # Run Lighthouse CI
 ```
 
 ## Requirements

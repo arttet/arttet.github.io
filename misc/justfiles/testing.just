@@ -24,7 +24,7 @@ coverage:
     bun run test:unit:coverage
     @echo "✅ Coverage report generated"
 
-[doc("Run Lighthouse CI assertions against the static build")]
+[doc("Run Lighthouse CI")]
 [no-cd]
 lhci:
     @echo "🔦 Running Lighthouse CI..."
