@@ -1,6 +1,7 @@
 import type { Post, PostFrontmatter } from './post';
 
 type PostMetadata = PostFrontmatter & { readingTime: number };
+type ContentIssueReporter = (message: string) => void;
 
 const modules = import.meta.glob<PostMetadata>('/src/content/blog/**/*.md', {
   eager: true,
@@ -56,12 +57,15 @@ function getPostValidationErrors(metadata: PostMetadata | undefined): string[] {
   return errors;
 }
 
-export function getPosts(): Post[] {
-  const posts = Object.entries(modules)
+export function resolvePostsFromEntries(
+  entries: Iterable<[string, PostMetadata | undefined]>,
+  reportIssue: ContentIssueReporter = logContentIssue
+): Post[] {
+  const posts = Array.from(entries)
     .flatMap(([path, metadata]) => {
       const errors = getPostValidationErrors(metadata);
       if (errors.length > 0) {
-        logContentIssue(`[content] Skipping invalid post "${path}": ${errors.join('; ')}`);
+        reportIssue(`[content] Skipping invalid post "${path}": ${errors.join('; ')}`);
         return [];
       }
 
@@ -74,10 +78,14 @@ export function getPosts(): Post[] {
   const seen = new Set<string>();
   for (const post of posts) {
     if (seen.has(post.slug)) {
-      logContentIssue(`[content] Duplicate post slug detected: "${post.slug}"`);
+      reportIssue(`[content] Duplicate post slug detected: "${post.slug}"`);
     }
     seen.add(post.slug);
   }
 
   return posts;
+}
+
+export function getPosts(): Post[] {
+  return resolvePostsFromEntries(Object.entries(modules));
 }
