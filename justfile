@@ -22,14 +22,14 @@ help:
 
 [doc('Install dependencies')]
 [group('Development')]
-deps:
+install:
     @echo "📦 Installing dependencies..."
     bun install
     @echo "✅ Dependencies installed!"
 
 [doc('Update dependencies')]
 [group('Development')]
-bump:
+update:
     @echo "⬆️  Updating dependencies..."
     bun update -i
     @echo "✅ Dependencies updated!"
@@ -88,7 +88,7 @@ dev:
 [group('Development')]
 clean:
     @echo "🧹 Cleaning..."
-    rm -rf {{ build_dir }} .svelte-kit
+    rm -rf {{ build_dir }} .lighthouseci .svelte-kit node_modules
     @echo "✅ Cleaned!"
 
 [doc('Run CI pipeline')]
@@ -109,3 +109,4 @@ alias ta := test::all
 alias tu := test::unit
 alias ti := test::integration
 alias tc := test::coverage
+alias tl := test::lhci

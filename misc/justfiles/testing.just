@@ -23,3 +23,10 @@ coverage:
     @echo "📊 Running unit tests with coverage..."
     bun run test:unit:coverage
     @echo "✅ Coverage report generated"
+
+[doc("Run Lighthouse CI assertions against the static build")]
+[no-cd]
+lhci:
+    @echo "🔦 Running Lighthouse CI..."
+    bunx lhci autorun
+    @echo "✅ Lighthouse CI passed!"
