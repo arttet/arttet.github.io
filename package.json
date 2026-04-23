@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "preview": "vite preview",
     "dev": "vite dev",
+    "preview": "vite preview",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "lint": "oxlint .",
@@ -27,6 +27,7 @@
     "mermaid": "^11.14.0"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.59.1",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.57.1",
@@ -36,7 +37,7 @@
     "@testing-library/svelte": "^5.3.1",
     "@types/katex": "^0.16.8",
     "@types/node": "^24.12.2",
-    "@typescript/native-preview": "^7.0.0-dev.20260422.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260423.1",
     "@vitest/coverage-v8": "^4.1.5",
     "@webgpu/types": "^0.1.69",
     "esbuild": "^0.28.0",
@@ -50,12 +51,12 @@
     "postcss-html": "^1.8.1",
     "rollup-plugin-visualizer": "^7.0.1",
     "shiki": "^4.0.2",
-    "stylelint": "^17.8.0",
+    "stylelint": "^17.9.0",
     "stylelint-config-standard": "^40.0.0",
     "svelte": "^5.55.4",
     "svelte-check": "^4.4.6",
     "tailwindcss": "^4.2.4",
-    "vite": "^8.0.9",
+    "vite": "^8.0.10",
     "vitest": "^4.1.5"
   }
 }

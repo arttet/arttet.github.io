@@ -1,5 +1,6 @@
 # Build outputs
 /.playwright-mcp
+/.lighthouseci
 /.svelte-kit
 /coverage
 /node_modules

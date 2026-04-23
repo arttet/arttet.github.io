@@ -23,6 +23,9 @@ const config = {
       handleUnseenRoutes: 'ignore',
     },
 
+    paths: {
+      relative: false,
+    },
     alias: {
       $widgets: 'src/widgets',
       $features: 'src/features',
