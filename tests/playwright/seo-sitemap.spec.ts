@@ -9,6 +9,15 @@ test.describe('SEO & Sitemap', () => {
     expect(jsonLd).toBeDefined();
     const data = JSON.parse(jsonLd || '{}');
     expect(data['@type']).toBe('WebSite');
+
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      'https://arttet.github.io/og-image.png'
+    );
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+      'content',
+      'https://arttet.github.io/og-image.png'
+    );
   });
 
   test('blog post has Article JSON-LD', async ({ page }) => {
@@ -18,6 +27,10 @@ test.describe('SEO & Sitemap', () => {
     const data = JSON.parse(jsonLd || '{}');
     expect(data['@type']).toBe('BlogPosting');
     expect(data.headline).toBeDefined();
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary_large_image'
+    );
   });
 
   test('sitemap.xml is valid and reachable', async ({ page }) => {

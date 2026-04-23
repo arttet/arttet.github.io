@@ -2,45 +2,15 @@
 import { ArrowUpRight, GitFork } from 'lucide-svelte';
 import { site } from '$shared/config/site';
 import Logo from '$shared/ui/Logo.svelte';
+import Seo from '$shared/ui/Seo.svelte';
 
 const modules = import.meta.glob('/src/content/pages/about.md', {
   eager: true,
 }) as Record<string, { default: ConstructorOfATypedSvelteComponent }>;
 const AboutContent = modules['/src/content/pages/about.md']?.default;
-
-const projects = [
-  {
-    title: 'Dotfiles',
-    description: 'My personal development environment.',
-    href: 'https://github.com/arttet/dotfiles',
-    tags: ['nushell', 'alacritty', 'neovim', 'yazi', 'starship'],
-  },
-  {
-    title: 'envctl',
-    description:
-      'A Nushell-native configuration compiler and execution engine for environment and secrets management.',
-    href: 'https://github.com/arttet/envctl',
-    tags: ['nushell', 'configuration-management', 'secrets-management', 'environment-management'],
-  },
-] as const;
-
-const tagClasses: Record<string, string> = {
-  nushell: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-  alacritty: 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300',
-  neovim: 'border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-300',
-  yazi: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
-  starship: 'border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-300',
-  'configuration-management':
-    'border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300',
-  'secrets-management': 'border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300',
-  'environment-management': 'border-cyan-500/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300',
-};
 </script>
 
-<svelte:head>
-  <title>About — {site.title}</title>
-  <meta name="description" content="About {site.author.name}">
-</svelte:head>
+<Seo title="About" description={site.about.description} />
 
 <article class="max-w-3xl mx-auto px-6 pt-24 pb-14">
   <header class="mb-12 flex items-center gap-4">
@@ -70,7 +40,7 @@ const tagClasses: Record<string, string> = {
     </div>
 
     <div class="mt-6 grid gap-4 max-w-2xl">
-      {#each projects as project}
+      {#each site.about.projects as project}
         <a
           href={project.href}
           target="_blank"
@@ -96,7 +66,7 @@ const tagClasses: Record<string, string> = {
           <div class="mt-4 flex flex-wrap gap-2">
             {#each project.tags as tag}
               <span
-                class={`rounded-full border px-2.5 py-1 text-[11px] font-mono ${tagClasses[tag] ?? 'border-[--color-border] text-[--color-text-muted]'}`}
+                class={`rounded-full border px-2.5 py-1 text-[11px] font-mono ${site.about.projectTagClasses[tag] ?? 'border-[--color-border] text-[--color-text-muted]'}`}
               >
                 {tag}
               </span>

@@ -6,6 +6,7 @@ let {
   description = site.description,
   type = 'website',
   url = site.url,
+  image = site.images.og,
   publishedTime,
   modifiedTime,
   tags = [],
@@ -14,12 +15,21 @@ let {
   description?: string;
   type?: string;
   url?: string;
+  image?: string;
   publishedTime?: string;
   modifiedTime?: string;
   tags?: string[];
 }>();
 
 const fullTitle = $derived(title === site.title ? title : `${title} — ${site.title}`);
+const absoluteImage = $derived.by(() => {
+  if (image.startsWith('http://') || image.startsWith('https://')) {
+    return image;
+  }
+
+  const path = image.startsWith('/') ? image : `/${image}`;
+  return `${site.url}${path}`;
+});
 
 const jsonLd = $derived.by(() => {
   const base = {
@@ -28,6 +38,7 @@ const jsonLd = $derived.by(() => {
     name: fullTitle,
     description: description,
     url: url,
+    image: absoluteImage,
     author: {
       '@type': 'Person',
       name: site.author.name,
@@ -70,6 +81,7 @@ const jsonLdScript = $derived(
   <meta property="og:url" content={url}>
   <meta property="og:title" content={fullTitle}>
   <meta property="og:description" content={description}>
+  <meta property="og:image" content={absoluteImage}>
 
   {#if publishedTime}
     <meta property="article:published_time" content={publishedTime}>
@@ -82,9 +94,10 @@ const jsonLdScript = $derived(
   {/each}
 
   <!-- Twitter -->
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content={fullTitle}>
   <meta name="twitter:description" content={description}>
+  <meta name="twitter:image" content={absoluteImage}>
 
   <!-- RSS autodiscovery -->
   <link

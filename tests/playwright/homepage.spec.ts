@@ -46,6 +46,21 @@ test.describe('Homepage', () => {
     await expect(nav.getByRole('link', { name: 'GitHub' })).toBeVisible();
   });
 
+  test('skip link targets the main content container', async ({ page }) => {
+    await page.goto('/');
+
+    const skipLink = page.locator('a[href="#main-content"]');
+    await expect(skipLink).toHaveText('Skip to content');
+
+    await page.keyboard.press('Tab');
+
+    await expect(skipLink).toBeVisible();
+    await expect(skipLink).toHaveAttribute('href', '#main-content');
+
+    await skipLink.click();
+    await expect(page.locator('#main-content')).toBeFocused();
+  });
+
   test('nav links navigate correctly', async ({ page }) => {
     await page.goto('/');
 
