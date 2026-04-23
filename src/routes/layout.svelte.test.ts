@@ -76,9 +76,14 @@ describe('root layout', () => {
     render(Layout, { children: emptySnippet });
 
     expect(setThemesMock).toHaveBeenCalled();
+    expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveAttribute(
+      'href',
+      '#main-content'
+    );
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByLabelText('Search (⌘K)')).toBeInTheDocument();
     expect(document.head.querySelector('meta[name="description"]')).toBeInTheDocument();
+    expect(document.querySelector('main#main-content')).toHaveAttribute('tabindex', '-1');
 
     await fireEvent.mouseMove(window, { clientY: 10 });
     await fireEvent.mouseLeave(window);

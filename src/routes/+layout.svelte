@@ -60,12 +60,18 @@ const isBlogPage = $derived(page.url.pathname.startsWith('/blog'));
 {/if}
 
 <div class="flex flex-col min-h-dvh bg-[--color-bg] text-[--color-text]">
+  <a
+    href="#main-content"
+    class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-[--color-bg-elevated] focus:px-4 focus:py-2 focus:text-[--color-heading]"
+  >
+    Skip to content
+  </a>
   {#if !readingMode.value}
     <BackgroundCanvas mode={backgroundState.mode} />
   {/if}
   <Header />
 
-  <main class="flex-1">{@render children()}</main>
+  <main id="main-content" tabindex="-1" class="flex-1">{@render children()}</main>
 
   <ThemeManager />
   <CommandPalette />

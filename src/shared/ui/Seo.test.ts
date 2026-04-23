@@ -17,6 +17,12 @@ describe('Seo', () => {
 
     const ogTitle = document.querySelector('meta[property="og:title"]');
     expect(ogTitle?.getAttribute('content')).toContain('Custom Title');
+
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    expect(ogImage?.getAttribute('content')).toBe('https://arttet.github.io/og-image.png');
+
+    const twitterCard = document.querySelector('meta[name="twitter:card"]');
+    expect(twitterCard?.getAttribute('content')).toBe('summary_large_image');
   });
 
   it('renders JSON-LD correctly', () => {
@@ -33,5 +39,21 @@ describe('Seo', () => {
     expect(json['@type']).toBe('BlogPosting');
     expect(json.headline).toBe('Post Title');
     expect(json.datePublished).toBe('2026-04-21');
+    expect(json.image).toBe('https://arttet.github.io/og-image.png');
+  });
+
+  it('supports an explicit social image override', () => {
+    render(Seo, {
+      title: 'Custom Image',
+      image: '/posts/custom-card.png',
+    });
+
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    const twitterImage = document.querySelector('meta[name="twitter:image"]');
+
+    expect(ogImage?.getAttribute('content')).toBe('https://arttet.github.io/posts/custom-card.png');
+    expect(twitterImage?.getAttribute('content')).toBe(
+      'https://arttet.github.io/posts/custom-card.png'
+    );
   });
 });

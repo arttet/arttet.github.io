@@ -7,11 +7,18 @@ export const site = {
   title: 'Artyom Tetyukhin',
   description: 'Personal blog about software engineering — the little stuff I know.',
   url: 'https://arttet.github.io',
+  images: {
+    og: '/og-image.png',
+  },
   author: {
     name: 'Artyom Tetyukhin',
     title: 'Software Development Engineer',
     github: 'arttet',
     linkedin: 'arttet',
+  },
+  social: {
+    github: 'https://github.com/arttet',
+    // linkedin: 'https://www.linkedin.com/in/arttet/',
   },
   licenses: {
     code: {
@@ -29,6 +36,56 @@ export const site = {
       { label: 'About', href: '/about' },
     ],
     hideThreshold: 80, // px from top — nav visible when mouseY < this
+  },
+  blog: {
+    postsPerPage: 12,
+  },
+  about: {
+    description: 'About Artyom Tetyukhin',
+    links: [
+      {
+        label: 'GitHub',
+        href: 'https://github.com/arttet',
+        description: 'Code, experiments, and project source.',
+      },
+      // {
+      //   label: 'LinkedIn',
+      //   href: 'https://www.linkedin.com/in/arttet/',
+      //   description: 'Professional background and current work.',
+      // },
+    ],
+    projects: [
+      {
+        title: 'Dotfiles',
+        description: 'My personal development environment.',
+        href: 'https://github.com/arttet/dotfiles',
+        tags: ['nushell', 'alacritty', 'neovim', 'yazi', 'starship'],
+      },
+      {
+        title: 'envctl',
+        description:
+          'A Nushell-native configuration compiler and execution engine for environment and secrets management.',
+        href: 'https://github.com/arttet/envctl',
+        tags: [
+          'nushell',
+          'configuration-management',
+          'secrets-management',
+          'environment-management',
+        ],
+      },
+    ],
+    projectTagClasses: {
+      nushell: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+      alacritty: 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300',
+      neovim: 'border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-300',
+      yazi: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+      starship: 'border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-300',
+      'configuration-management':
+        'border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300',
+      'secrets-management': 'border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300',
+      'environment-management':
+        'border-cyan-500/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300',
+    } as Record<string, string>,
   },
   mermaid: {
     maxTextSize: 90000,

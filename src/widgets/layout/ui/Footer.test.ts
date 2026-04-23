@@ -1,8 +1,23 @@
 import { render, screen } from '@testing-library/svelte';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const { viewportState } = vi.hoisted(() => ({
+  viewportState: {
+    footerVisible: true,
+  },
+}));
+
+vi.mock('$shared/lib/viewport.svelte', () => ({
+  viewport: viewportState,
+}));
+
 import Footer from './Footer.svelte';
 
 describe('Footer', () => {
+  beforeEach(() => {
+    viewportState.footerVisible = true;
+  });
+
   it('renders copyright and license links', () => {
     render(Footer);
 
@@ -16,5 +31,12 @@ describe('Footer', () => {
       'https://creativecommons.org/licenses/by-nc-sa/4.0/'
     );
     expect(screen.getByText('Unless otherwise noted.')).toBeInTheDocument();
+  });
+
+  it('hides the footer when the viewport state says it should be hidden', () => {
+    viewportState.footerVisible = false;
+    const { container } = render(Footer);
+
+    expect(container.firstElementChild?.className).toContain('translate-y-[calc(100%+1rem)]');
   });
 });
