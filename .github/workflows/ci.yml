@@ -1,0 +1,568 @@
+name: CI
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 'pages-${{ github.ref }}'
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  audit:
+    name: Audit
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Review dependency changes
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/dependency-review-action@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+  lint:
+    name: Format & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun run check
+
+      - name: Run Oxfmt
+        run: bunx oxfmt --check .
+
+      - name: Run OXlint
+        run: bunx oxlint --deny-warnings .
+
+      - name: Run Stylelint
+        run: bunx stylelint "src/**/*.css" "src/**/*.svelte"
+
+      - name: Run Knip
+        run: bunx knip --no-config-hints
+
+      - name: Run Markdownlint
+        run: bunx markdownlint-cli2 "src/content/**/*.md"
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Audit dependencies
+        run: bun audit
+
+      - name: Build site
+        run: bun run build
+
+      - name: Upload Cloudflare Pages artifact
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && hashFiles('target/build/**') != '' }}
+        with:
+          name: cloudflare-pages
+          path: target/build/
+
+      - name: Upload bundle meta
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && hashFiles('target/bundle/**') != '' }}
+        with:
+          name: bundle-meta
+          path: target/bundle/
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          name: github-pages
+          path: ./target/build
+
+  playwright:
+    name: Playwright
+    runs-on: ubuntu-latest
+    needs: [audit, lint, build]
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - chrome-desktop
+          - chrome-mobile
+          - firefox-desktop
+          - firefox-mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Restore Playwright cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright Browsers
+        run: bunx playwright install --with-deps chromium firefox
+
+      - name: Download Cloudflare Pages artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: cloudflare-pages
+          path: target/build
+
+      - name: Run Playwright matrix
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:4173
+          PLAYWRIGHT_SERVER_COMMAND: bun run serve:playwright
+          PLAYWRIGHT_SERVER_URL: http://localhost:4173
+          PLAYWRIGHT_OUTPUT_DIR: target/test-results/production/${{ matrix.target }}
+          PLAYWRIGHT_REPORT_DIR: target/playwright-report-${{ matrix.target }}
+        run: >
+          bunx playwright test --config=playwright.ci.config.ts --project=${{ matrix.target }}
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && hashFiles(format('target/playwright-report-{0}/**', matrix.target)) != '' }}
+        with:
+          name: playwright-report-${{ matrix.target }}
+          path: target/playwright-report-${{ matrix.target }}/
+
+  lighthouse:
+    name: Lighthouse
+    runs-on: ubuntu-latest
+    needs: [audit, lint, build]
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - chrome-desktop
+          - chrome-mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Download Cloudflare Pages artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: cloudflare-pages
+          path: target/build
+
+      - name: Run Lighthouse matrix
+        env:
+          LIGHTHOUSE_TARGET: ${{ matrix.target }}
+        run: bun run test:lhci -- --target "${LIGHTHOUSE_TARGET}"
+
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && hashFiles(format('target/lighthouse-{0}/.lighthouseci/**', matrix.target)) != '' }}
+        with:
+          name: lighthouse-report-${{ matrix.target }}
+          path: target/lighthouse-${{ matrix.target }}/.lighthouseci/
+          include-hidden-files: true
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-slim
+    needs: [audit, lint, build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run unit tests with coverage
+        run: >
+          bunx vitest run --coverage --reporter=default --reporter=junit
+          --outputFile.junit=target/test-results/vitest.junit.xml --maxWorkers=100% --testTimeout=10000
+          --hookTimeout=10000
+
+      - name: Upload test results to Codecov
+        uses: codecov/codecov-action@v6
+        if: ${{ !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) }}
+        with:
+          fail_ci_if_error: true
+          files: target/test-results/vitest.junit.xml
+          flags: unittests
+          report_type: test_results
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v6
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+        with:
+          fail_ci_if_error: true
+          files: target/coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  bundle:
+    name: Bundle
+    runs-on: ubuntu-slim
+    needs: [audit, lint, build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Download bundle meta
+        uses: actions/download-artifact@v8
+        with:
+          name: bundle-meta
+          path: target/bundle
+
+      - name: Analyze bundle size
+        run: >
+          bun scripts/bundle-report.mjs check --fail false --stats target/bundle/stats.json --baseline
+          misc/bundle-baseline.json --threshold 0.3 --summary target/bundle/summary.md --json target/bundle/summary.json
+
+      - name: Upload bundle report
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && hashFiles('target/bundle/**') != '' }}
+        with:
+          name: bundle-report
+          path: target/bundle/
+
+      - name: Enforce bundle budget
+        run: >
+          bun --eval " const fs = require('node:fs'); const report =
+          JSON.parse(fs.readFileSync('target/bundle/summary.json', 'utf8')); if (report.comparison.failures.length > 0)
+          {
+            console.error(report.comparison.failures.join('\n'));
+            process.exit(1);
+          }"
+
+  deploy-gh-pages:
+    name: Deploy GitHub Pages
+    if:
+      ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && !cancelled() && github.actor !=
+      'dependabot[bot]' }}
+    runs-on: ubuntu-slim
+    needs: [audit, lint, build, playwright, lighthouse, coverage, bundle]
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.github_pages.outputs.page_url }}
+    steps:
+      - name: Release on GitHub Pages
+        id: github_pages
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages
+
+  deploy-cf-pages:
+    name: Deploy Cloudflare Pages
+    if: ${{ !cancelled() && github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-slim
+    needs: [audit, lint, build, playwright, lighthouse, coverage, bundle]
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CF_PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT }}
+      CF_INFRA_PAGES_PROJECT: ${{ vars.CF_INFRA_PAGES_PROJECT }}
+      CF_SITE_BRANCH: pr-${{ github.event.pull_request.number }}
+      CF_INFRA_BRANCH: pr-${{ github.event.pull_request.number }}
+      HAS_CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+      HAS_CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+      HAS_CF_SITE_PROJECT: ${{ vars.CF_PAGES_PROJECT != '' }}
+      HAS_CF_INFRA_PROJECT: ${{ vars.CF_INFRA_PAGES_PROJECT != '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Restore Bun cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Detect available artifacts
+        id: artifacts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bun scripts/detect-run-artifacts.mjs
+
+      - name: Download Cloudflare Pages artifact
+        if: ${{ steps.artifacts.outputs.has_cloudflare_pages == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: cloudflare-pages
+          path: target/build
+
+      - name: Download Chrome desktop report
+        if: ${{ steps.artifacts.outputs.has_pw_chrome_desktop == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: playwright-report-chrome-desktop
+          path: target/downloads/playwright-report-chrome-desktop
+
+      - name: Download Chrome mobile report
+        if: ${{ steps.artifacts.outputs.has_pw_chrome_mobile == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: playwright-report-chrome-mobile
+          path: target/downloads/playwright-report-chrome-mobile
+
+      - name: Download Firefox desktop report
+        if: ${{ steps.artifacts.outputs.has_pw_firefox_desktop == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: playwright-report-firefox-desktop
+          path: target/downloads/playwright-report-firefox-desktop
+
+      - name: Download Firefox mobile report
+        if: ${{ steps.artifacts.outputs.has_pw_firefox_mobile == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: playwright-report-firefox-mobile
+          path: target/downloads/playwright-report-firefox-mobile
+
+      - name: Download Lighthouse desktop report
+        if: ${{ steps.artifacts.outputs.has_lh_chrome_desktop == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: lighthouse-report-chrome-desktop
+          path: target/downloads/lighthouse-report-chrome-desktop
+
+      - name: Download Lighthouse mobile report
+        if: ${{ steps.artifacts.outputs.has_lh_chrome_mobile == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: lighthouse-report-chrome-mobile
+          path: target/downloads/lighthouse-report-chrome-mobile
+
+      - name: Download bundle report
+        if: ${{ steps.artifacts.outputs.has_bundle_report == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: bundle-report
+          path: target/downloads/bundle-report
+
+      - name: Assemble infra pages
+        run: >
+          bun scripts/assemble-infra-pages.mjs --out target/infra-pages --playwright
+          chrome-desktop=target/downloads/playwright-report-chrome-desktop --playwright
+          chrome-mobile=target/downloads/playwright-report-chrome-mobile --playwright
+          firefox-desktop=target/downloads/playwright-report-firefox-desktop --playwright
+          firefox-mobile=target/downloads/playwright-report-firefox-mobile --lighthouse
+          chrome-desktop=target/downloads/lighthouse-report-chrome-desktop --lighthouse
+          chrome-mobile=target/downloads/lighthouse-report-chrome-mobile --bundle target/downloads/bundle-report
+
+      - name: Guard infra deploy
+        id: guard
+        run: |
+          if [ -d target/infra-pages ] && [ -n "$(find target/infra-pages -mindepth 1 -print -quit)" ]; then
+            echo "has_files=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_files=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy app preview to Cloudflare Pages
+        if:
+          ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && env.HAS_CF_TOKEN ==
+          'true' && env.HAS_CF_ACCOUNT == 'true' && env.HAS_CF_SITE_PROJECT == 'true' &&
+          steps.artifacts.outputs.has_cloudflare_pages == 'true' }}
+        id: cf_site_preview
+        run: |
+          bunx wrangler pages deploy ./target/build --project-name "$CF_PAGES_PROJECT" --branch "$CF_SITE_BRANCH"
+          echo "preview_url=https://${CF_SITE_BRANCH}.${CF_PAGES_PROJECT}.pages.dev" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy app production to Cloudflare Pages
+        if:
+          ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_CF_TOKEN == 'true' &&
+          env.HAS_CF_ACCOUNT == 'true' && env.HAS_CF_SITE_PROJECT == 'true' &&
+          steps.artifacts.outputs.has_cloudflare_pages == 'true' }}
+        run: bunx wrangler pages deploy ./target/build --project-name "$CF_PAGES_PROJECT"
+
+      - name: Publish infra links
+        id: links
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            INFRA_URL="https://${CF_INFRA_BRANCH}.${CF_INFRA_PAGES_PROJECT}.pages.dev"
+          else
+            INFRA_URL="https://${CF_INFRA_PAGES_PROJECT}.pages.dev"
+          fi
+          export INFRA_URL
+          echo "infra_url=${INFRA_URL}" >> "$GITHUB_OUTPUT"
+          bun <<'EOF'
+          const fs = require('node:fs');
+          const links = JSON.parse(fs.readFileSync('target/infra-pages/links.json', 'utf8'));
+          const infra = process.env.INFRA_URL;
+          const playwright = links.playwright[0]?.href ? `${infra}${links.playwright[0].href}` : '';
+          const lighthouse = links.lighthouse?.href ? `${infra}${links.lighthouse.href}` : '';
+          fs.appendFileSync(
+            process.env.GITHUB_OUTPUT,
+            `playwright_url=${playwright}\nlighthouse_url=${lighthouse}\n`,
+          );
+          EOF
+
+      - name: Deploy infra preview to Cloudflare Pages
+        if:
+          ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && env.HAS_CF_TOKEN ==
+          'true' && env.HAS_CF_ACCOUNT == 'true' && env.HAS_CF_INFRA_PROJECT == 'true' && steps.guard.outputs.has_files
+          == 'true' }}
+        run: >
+          bunx wrangler pages deploy ./target/infra-pages --project-name "$CF_INFRA_PAGES_PROJECT" --branch
+          "$CF_INFRA_BRANCH"
+
+      - name: Deploy infra production to Cloudflare Pages
+        if:
+          ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_CF_TOKEN == 'true' &&
+          env.HAS_CF_ACCOUNT == 'true' && env.HAS_CF_INFRA_PROJECT == 'true' && steps.guard.outputs.has_files == 'true'
+          }}
+        run: >
+          bunx wrangler pages deploy ./target/infra-pages --project-name "$CF_INFRA_PAGES_PROJECT"
+
+      - name: Build sticky comment body
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false }}
+        id: body
+        env:
+          APP_PREVIEW_URL: ${{ steps.cf_site_preview.outputs.preview_url }}
+          INFRA_ROOT_URL: ${{ steps.links.outputs.infra_url }}
+          PLAYWRIGHT_URL: ${{ steps.links.outputs.playwright_url }}
+          LIGHTHOUSE_URL: ${{ steps.links.outputs.lighthouse_url }}
+        run: bun scripts/build-preview-comment.mjs
+
+      - name: Update sticky PR comment
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false }}
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: preview-deployments
+          message: ${{ steps.body.outputs.body }}

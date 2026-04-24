@@ -1,30 +1,15 @@
-import { defineConfig, devices } from '@playwright/test';
+import { createPlaywrightConfig } from './tests/playwright/playwright.shared';
 
-export default defineConfig({
-  testDir: './tests/playwright',
+export default createPlaywrightConfig({
+  baseURL: 'http://localhost:4173',
   outputDir: './target/test-results',
-  timeout: 120_000,
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
+  reportDir: 'target/playwright-report',
   retries: process.env.CI ? 2 : 0,
-  workers: 1,
-  reporter: [['html', { outputFolder: 'target/playwright-report' }]],
-  use: {
-    baseURL: 'http://localhost:4173',
-    trace: 'on-first-retry',
-  },
-  projects: [
-    // Landing runs first — basic smoke check before the rest
+  targets: [
     {
-      name: 'landing',
-      testMatch: 'homepage.spec.ts',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'chromium',
-      dependencies: ['landing'],
-      testMatch: /(?<!homepage)\.spec\.ts$/,
-      use: { ...devices['Desktop Chrome'] },
+      key: 'chrome-desktop',
+      browser: 'chrome',
+      deviceClass: 'desktop',
     },
   ],
   webServer: {
