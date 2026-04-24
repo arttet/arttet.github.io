@@ -56,7 +56,7 @@ check:
 [group('Development')]
 lint:
     @echo "🔍 Running Oxlint..."
-    bunx oxlint .
+    bunx oxlint --deny-warnings .
     @echo "🔍 Running Stylelint..."
     bunx stylelint "src/**/*.css" "src/**/*.svelte"
     @echo "🧹 Running Knip..."
@@ -103,10 +103,19 @@ ci: fmt check lint build
 [group: 'Testing']
 mod test 'misc/justfiles/testing.just'
 
-# Quick test aliases
-
 alias ta := test::all
 alias tu := test::unit
 alias ti := test::integration
 alias tc := test::coverage
 alias tl := test::lhci
+
+# ==============================================================================
+# Deployment
+# ==============================================================================
+
+[group: 'Deployment']
+mod deploy 'misc/justfiles/deployment.just'
+
+alias dl := deploy::list
+alias dc := deploy::create
+alias dd := deploy::delete
