@@ -3,19 +3,31 @@ import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vitest/config';
 
+const heavyUnitTestPatterns = [
+  'src/routes/**/*.svelte.test.ts',
+  'src/shared/ui/**/*.test.ts',
+  'src/widgets/**/ui/*.test.ts',
+  'src/features/background/ui/*.test.ts',
+  'src/widgets/search/ui/*.test.ts',
+];
+
 export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
     sveltekit(),
-    visualizer({
-      filename: 'target/bundle/stats.html',
-      gzipSize: true,
-    }),
-    visualizer({
-      filename: 'target/bundle/stats.json',
-      gzipSize: true,
-      template: 'raw-data',
-    }),
+    ...(mode !== 'test'
+      ? [
+          visualizer({
+            filename: 'target/bundle/stats.html',
+            gzipSize: true,
+          }),
+          visualizer({
+            filename: 'target/bundle/stats.json',
+            gzipSize: true,
+            template: 'raw-data',
+          }),
+        ]
+      : []),
   ],
 
   assetsInclude: ['**/*.glsl', '**/*.wgsl'],
@@ -37,12 +49,14 @@ export default defineConfig(({ mode }) => ({
 
   test: {
     include: ['src/**/*.{test,spec}.{js,ts}'],
+    exclude: process.env.VITEST_FAST === 'true' ? heavyUnitTestPatterns : [],
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./tests/setup.ts'],
+    pool: 'threads',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
+      reporter: process.env.CI ? ['text', 'lcov'] : ['text', 'json', 'html', 'lcov'],
       reportsDirectory: 'target/coverage',
       include: ['src/**/*.ts', 'src/**/*.svelte'],
       exclude: ['src/**/*.{test,spec}.{js,ts}', 'src/**/*.d.ts', 'src/**/index.ts', 'src/app.html'],

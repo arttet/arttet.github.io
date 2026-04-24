@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import type { CodeTheme } from '$entities/codeTheme/codeTheme';
 import { generateThemeCSS } from './theme-utils';

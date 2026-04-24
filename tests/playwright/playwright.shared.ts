@@ -76,7 +76,11 @@ export function createPlaywrightConfig(options: FactoryOptions) {
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: options.retries ?? 0,
-    workers: 1,
+    workers: process.env.PLAYWRIGHT_WORKERS
+      ? Number(process.env.PLAYWRIGHT_WORKERS)
+      : process.env.CI
+        ? 1
+        : undefined,
     reporter: [['html', { outputFolder: options.reportDir }]],
     use: {
       baseURL: options.baseURL,

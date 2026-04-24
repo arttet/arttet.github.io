@@ -1,3 +1,4 @@
+// @vitest-environment node
 import katex from 'katex';
 import { describe, expect, it, vi } from 'vitest';
 import { mathPreprocess } from './math-preprocessor';
