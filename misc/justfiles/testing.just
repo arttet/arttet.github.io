@@ -12,7 +12,7 @@ all: unit integration
 [no-cd]
 unit:
     @echo "🧪 Running fast Vitest tests..."
-    bunx vitest run --maxWorkers "{{ vitest_max_workers }}" --testTimeout "{{ vitest_test_timeout }}" --hookTimeout "{{ vitest_hook_timeout }}"
+    VITEST_FAST=true bunx vitest run --maxWorkers "{{ vitest_max_workers }}" --testTimeout "{{ vitest_test_timeout }}" --hookTimeout "{{ vitest_hook_timeout }}"
     @echo "✅ Unit tests passed!"
 
 [doc("Integration tests")]

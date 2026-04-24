@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it, vi } from 'vitest';
 import * as highlightLib from './highlight';
 import { useHighlighter } from './highlighter.svelte';
