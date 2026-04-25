@@ -60,4 +60,32 @@ describe('CommandPalette interactions', () => {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(searchModel.open).toBe(false);
   });
+
+  it('toggles on cmd+k / ctrl+k', async () => {
+    vi.spyOn(searchModel, 'openPalette').mockImplementation(async () => {
+      searchModel.open = true;
+    });
+
+    searchModel.open = false;
+    render(CommandPalette);
+
+    // Open
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(searchModel.open).toBe(true);
+
+    // Close
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }));
+    expect(searchModel.open).toBe(false);
+  });
+
+  it('closes on backdrop click', async () => {
+    searchModel.open = true;
+    const { container } = render(CommandPalette);
+
+    const backdrop = container.querySelector('button.fixed.inset-0') as HTMLButtonElement;
+    backdrop.click();
+
+    expect(searchModel.open).toBe(false);
+  });
 });

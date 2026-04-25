@@ -6,7 +6,7 @@ coverage:
     project:
       default:
         target: auto
-        threshold: 15%
+        threshold: 5%
         base: auto
         flags:
           - unittests
@@ -24,7 +24,7 @@ component_management:
     statuses:
       - type: project
         target: auto
-        threshold: 15%
+        threshold: 5%
         informational: false
         if_ci_failed: error
   individual_components:

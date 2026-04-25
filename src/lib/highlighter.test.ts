@@ -38,4 +38,13 @@ describe('highlighter logic', () => {
     expect(mockHl.getLoadedLanguages).toHaveBeenCalled();
     expect(mockHl.loadLanguage).toHaveBeenCalledWith('rust');
   });
+
+  it('highlights code when highlighter is ready', async () => {
+    hlModule.setThemes(['github-dark']);
+    await hlModule.getHighlighter();
+
+    const result = hlModule.highlightCode('let x = 1;', 'typescript');
+    expect(result).toContain('<pre class="shiki">');
+    expect(mockHl.codeToHtml).toHaveBeenCalled();
+  });
 });

@@ -88,4 +88,49 @@ describe('resolvePostsFromEntries', () => {
       '[content] Duplicate post slug detected: "2026-04-12-duplicate"'
     );
   });
+
+  it('uses default logContentIssue without throwing', () => {
+    const originalWrite = process.stderr.write;
+    const writeMock = vi.fn();
+    process.stderr.write = writeMock as any;
+
+    try {
+      resolvePostsFromEntries([['invalid.md', undefined]]);
+      expect(writeMock).toHaveBeenCalledWith(
+        expect.stringContaining('[content] Skipping invalid post "invalid.md": metadata is missing')
+      );
+    } finally {
+      process.stderr.write = originalWrite;
+    }
+  });
+
+  it('reports missing metadata', () => {
+    const reportIssue = vi.fn();
+    resolvePostsFromEntries([['missing.md', undefined]], reportIssue);
+    expect(reportIssue).toHaveBeenCalledWith(
+      expect.stringContaining('Skipping invalid post "missing.md": metadata is missing')
+    );
+  });
+
+  it('reports invalid updated date', () => {
+    const reportIssue = vi.fn();
+    resolvePostsFromEntries(
+      [
+        [
+          'bad-updated.md',
+          {
+            title: 'Test',
+            created: '2026-04-12',
+            tags: ['test'],
+            readingTime: 2,
+            updated: 'invalid-date',
+          } as any,
+        ],
+      ],
+      reportIssue
+    );
+    expect(reportIssue).toHaveBeenCalledWith(
+      expect.stringContaining('updated must be a valid ISO date string when provided')
+    );
+  });
 });

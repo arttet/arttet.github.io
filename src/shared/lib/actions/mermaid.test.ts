@@ -92,4 +92,32 @@ describe('mermaid action robust', () => {
     expect(el.dataset.processed).toBeUndefined();
     expect(el.id).toBe('');
   });
+
+  it('updates synchronously when not in browser', async () => {
+    vi.resetModules();
+    vi.doMock('$app/environment', () => ({
+      browser: false,
+    }));
+
+    // dynamically import mermaid to use the mocked browser
+    const { mermaid: mermaidMockedEnv } = await import('./mermaid');
+
+    const node = document.createElement('div');
+    const source = 'graph TD; A-->B;';
+    const b64 = btoa(source);
+    node.innerHTML =
+      '<div class="mermaid" data-processed="true" data-content="' + b64 + '">rendered</div>';
+    document.body.appendChild(node);
+
+    const action = mermaidMockedEnv(node, 'dark');
+    const mermaidLib = (await import('mermaid')).default as MermaidMock;
+    mermaidLib.initialize.mockClear();
+
+    action.update('light');
+
+    // synchronous update should have called initialize immediately
+    expect(mermaidLib.initialize).toHaveBeenCalled();
+
+    vi.doUnmock('$app/environment');
+  });
 });
