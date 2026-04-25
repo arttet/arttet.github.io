@@ -7,9 +7,6 @@ export const site = {
   title: 'Artyom Tetyukhin',
   description: 'Personal blog about software engineering — the little stuff I know.',
   url: 'https://arttet.github.io',
-  images: {
-    og: '/og-image.png',
-  },
   author: {
     name: 'Artyom Tetyukhin',
     title: 'Software Development Engineer',

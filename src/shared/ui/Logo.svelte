@@ -1,4 +1,6 @@
 <script lang="ts">
+import logoUrl from '$lib/assets/icons/logo.svg?url';
+
 const {
   size = 'w-10 h-10',
   shadow = '',
@@ -8,4 +10,4 @@ const {
 } = $props();
 </script>
 
-<img src="/icons/logo.svg" alt="logo" class={`invert dark:invert-0 ${size} ${shadow}`.trim()}>
+<img src={logoUrl} alt="logo" class={`invert dark:invert-0 ${size} ${shadow}`.trim()}>

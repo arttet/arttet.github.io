@@ -12,11 +12,11 @@ test.describe('SEO & Sitemap', () => {
 
     await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
       'content',
-      'https://arttet.github.io/og-image.png'
+      /^https:\/\/arttet\.github\.io\/_app\/immutable\/assets\/og-image\..+\.png$/
     );
     await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
       'content',
-      'https://arttet.github.io/og-image.png'
+      /^https:\/\/arttet\.github\.io\/_app\/immutable\/assets\/og-image\..+\.png$/
     );
   });
 
@@ -50,5 +50,15 @@ test.describe('SEO & Sitemap', () => {
 
     const atom = await page.goto('/atom.xml');
     expect(atom?.status()).toBe(200);
+  });
+
+  test('manifest.json is valid and reachable', async ({ page }) => {
+    const response = await page.goto('/manifest.json');
+    expect(response?.status()).toBe(200);
+    if (!response) throw new Error('No response from manifest.json');
+    const data = await response.json();
+    expect(data.name).toBe('Artyom Tetyukhin');
+    expect(data.icons.length).toBeGreaterThan(0);
+    expect(data.icons[0].src).toMatch(/\.png/);
   });
 });

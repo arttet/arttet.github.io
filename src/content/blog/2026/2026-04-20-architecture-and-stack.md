@@ -31,21 +31,18 @@ The frontend is built on Svelte 5 and SvelteKit 2.
 
 The important reason for choosing Svelte 5 is the Runes model. State is more explicit than the older implicit reactivity style, which makes this codebase easier to reason about once it grows beyond a toy app. This project deliberately avoids classic Svelte 4 stores and instead keeps state in class-based modules using `$state`, `$derived`, and `$effect`.
 
-That decision matters most in the theme and UI-control layers:
+### Image Optimization Pipeline
 
-- `src/features/theme/model/theme.svelte.ts`
-- `src/features/theme/model/codeTheme.svelte.ts`
-- `src/features/theme/model/readingMode.svelte.ts`
-- `src/features/background/model/background.svelte.ts`
-- `src/features/background/backgroundMode.svelte.ts`
+The site uses a modern image pipeline powered by `@sveltejs/enhanced-img`.
 
-The rule of thumb is:
+Images are treated as part of the build graph:
 
-- global or app-wide state lives in feature model files
-- UI components consume that state
-- components stay as dumb as possible unless the behavior is genuinely local
+- Source images are kept in `src/lib/assets/`
+- They are imported with the `?enhanced` query suffix
+- The pipeline automatically generates optimized versions (WebP, AVIF)
+- It provides responsive `srcset` and `sizes` automatically
 
-SvelteKit is the correct fit because the project needs file-based routing, prerendering, layouts, metadata control, and clean static export. It gives all of that without forcing a heavier runtime model.
+This approach ensures that we don't just "fix symptoms" of unoptimized images, but rather integrate optimization into the core development workflow.
 
 ### Tailwind 4 plus custom CSS variables
 

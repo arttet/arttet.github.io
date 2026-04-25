@@ -19,7 +19,9 @@ describe('Seo', () => {
     expect(ogTitle?.getAttribute('content')).toContain('Custom Title');
 
     const ogImage = document.querySelector('meta[property="og:image"]');
-    expect(ogImage?.getAttribute('content')).toBe('https://arttet.github.io/og-image.png');
+    expect(ogImage?.getAttribute('content')).toMatch(
+      /^https:\/\/arttet\.github\.io\/@imagetools\//
+    );
 
     const twitterCard = document.querySelector('meta[name="twitter:card"]');
     expect(twitterCard?.getAttribute('content')).toBe('summary_large_image');
@@ -39,7 +41,7 @@ describe('Seo', () => {
     expect(json['@type']).toBe('BlogPosting');
     expect(json.headline).toBe('Post Title');
     expect(json.datePublished).toBe('2026-04-21');
-    expect(json.image).toBe('https://arttet.github.io/og-image.png');
+    expect(json.image).toMatch(/^https:\/\/arttet\.github\.io\/@imagetools\//);
   });
 
   it('supports an explicit social image override', () => {
