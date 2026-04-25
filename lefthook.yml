@@ -8,12 +8,16 @@ pre-commit:
 
     oxlint:
       glob: '*.{js,ts,svelte}'
-      run: bunx oxlint {staged_files}
+      run: bunx oxlint --deny-warnings {staged_files}
 
     stylelint:
       glob: '*.{css,svelte}'
-      run: bunx stylelint {staged_files}
+      run: bunx stylelint --fix {staged_files}
+      stage_fixed: true
 
     markdownlint:
       glob: 'src/content/**/*.md'
       run: bunx markdownlint-cli2 {staged_files}
+
+    audit:
+      run: bun audit
