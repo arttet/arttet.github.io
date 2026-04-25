@@ -8,11 +8,16 @@ export function entries() {
 }
 
 export function load({ params }: { params: { slug: string } }) {
-  const post = getPosts().find((item) => item.slug === params.slug);
+  const posts = getPosts();
+  const index = posts.findIndex((item) => item.slug === params.slug);
 
-  if (!post) {
+  if (index === -1) {
     error(404, 'Post not found');
   }
 
-  return { slug: post.slug };
+  return {
+    post: posts[index],
+    prevPost: posts[index + 1] ?? null,
+    nextPost: posts[index - 1] ?? null,
+  };
 }
