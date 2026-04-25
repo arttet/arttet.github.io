@@ -1,3 +1,5 @@
+/// <reference types="@sveltejs/enhanced-img" />
+
 declare module '@fontsource-variable/jetbrains-mono';
 declare module '*.css?url' {
   const href: string;

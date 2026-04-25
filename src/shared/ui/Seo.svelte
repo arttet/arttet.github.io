@@ -1,4 +1,9 @@
 <script lang="ts">
+import appleTouchIcon from '$lib/assets/apple-touch-icon.png?url';
+import faviconIco from '$lib/assets/favicon.ico?url';
+import faviconPng from '$lib/assets/icons/favicon.png?url';
+import logoSvg from '$lib/assets/icons/logo.svg?url';
+import ogImage from '$lib/assets/og-image.png?url';
 import { site } from '$shared/config/site';
 
 let {
@@ -6,7 +11,7 @@ let {
   description = site.description,
   type = 'website',
   url = site.url,
-  image = site.images.og,
+  image = ogImage,
   publishedTime,
   modifiedTime,
   tags = [],
@@ -71,6 +76,13 @@ const jsonLdScript = $derived(
 <svelte:head>
   <title>{fullTitle}</title>
   <meta name="description" content={description}>
+
+  <!-- Icons -->
+  <link rel="icon" type="image/svg+xml" href={logoSvg} />
+  <link rel="icon" type="image/png" href={faviconPng} />
+  <link rel="icon" type="image/x-icon" href={faviconIco} />
+  <link rel="apple-touch-icon" href={appleTouchIcon} />
+  <link rel="manifest" href="/manifest.json" />
 
   <!-- JSON-LD -->
   {@html jsonLdScript}

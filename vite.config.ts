@@ -1,3 +1,4 @@
+import { enhancedImages } from '@sveltejs/enhanced-img';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -13,6 +14,7 @@ const heavyUnitTestPatterns = [
 
 export default defineConfig(({ mode }) => ({
   plugins: [
+    enhancedImages(),
     tailwindcss(),
     sveltekit(),
     ...(mode !== 'test'

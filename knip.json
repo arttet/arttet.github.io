@@ -35,6 +35,12 @@
   "vite": true,
   "vitest": true,
   "playwright": true,
-  "ignoreDependencies": ["@lhci/cli", "@types/katex", "@typescript/native-preview"],
+  "ignoreDependencies": [
+    "@lhci/cli",
+    "@types/katex",
+    "@typescript/native-preview",
+    "sharp",
+    "svgo"
+  ],
   "ignore": ["src/app.d.ts", "src/shared/ui/KaTeXStyles.svelte"]
 }
