@@ -74,3 +74,12 @@ vi.stubGlobal(
     disconnect = vi.fn();
   }
 );
+
+vi.stubGlobal(
+  'IntersectionObserver',
+  class {
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+  }
+);

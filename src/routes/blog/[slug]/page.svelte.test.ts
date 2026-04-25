@@ -32,8 +32,8 @@ describe('blog slug page', () => {
     });
 
     expect(screen.getByRole('heading', { name: 'Content Pipeline Is Ready' })).toBeInTheDocument();
-    expect(screen.getByText('Code Formatting')).toBeInTheDocument();
-    expect(screen.getByText('Public API & Resources')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Code Formatting' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Public API & Resources' })).toBeInTheDocument();
     expect(screen.getByText(/2 min read/i)).toBeInTheDocument();
   });
 });
