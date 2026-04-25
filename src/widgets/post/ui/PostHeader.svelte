@@ -1,20 +1,15 @@
 <script lang="ts">
 import { browser } from '$app/environment';
 import type { Post } from '$entities/post/post';
+import TagList from '$entities/post/ui/TagList.svelte';
 
 const { post } = $props<{ post: Post }>();
 
 let progress = $state(0);
-let expandedTags = $state(false);
-const MAX_VISIBLE_TAGS = 5;
 const displayDate = $derived(
   post.updated && post.updated !== post.created ? post.updated : post.created
 );
 const displayDateLabel = $derived(post.updated && post.updated !== post.created ? 'Updated ' : '');
-
-function toggleTags() {
-  expandedTags = !expandedTags;
-}
 
 $effect(() => {
   if (!browser) {
@@ -89,44 +84,7 @@ function formatDate(iso: string) {
 
     <!-- Tags centered -->
     {#if post.tags.length}
-      <div class="flex flex-wrap items-center justify-center gap-1.5 pt-2">
-        {#each post.tags as tag, ti}
-          {#if expandedTags || ti < MAX_VISIBLE_TAGS}
-            <a
-              href={`/blog/tag/${tag}`}
-              class="px-2 py-0.5 rounded text-xs font-mono
-								       bg-black/5 dark:bg-white/5 text-accent
-								       hover:bg-black/10 dark:hover:bg-white/10
-								       transition-colors duration-[150ms]"
-            >
-              #{tag}
-            </a>
-          {/if}
-        {/each}
-        {#if post.tags.length > MAX_VISIBLE_TAGS && !expandedTags}
-          <button
-            type="button"
-            onclick={toggleTags}
-            class="px-2 py-0.5 rounded text-xs font-mono
-							       bg-black/5 dark:bg-white/5 hover:opacity-70
-							       transition-opacity duration-[150ms] cursor-pointer text-accent"
-          >
-            +{post.tags.length - MAX_VISIBLE_TAGS}
-            more
-          </button>
-        {/if}
-        {#if post.tags.length > MAX_VISIBLE_TAGS && expandedTags}
-          <button
-            type="button"
-            onclick={toggleTags}
-            class="px-2 py-0.5 rounded text-xs font-mono
-							       bg-black/5 dark:bg-white/5 hover:opacity-70
-							       transition-opacity duration-[150ms] cursor-pointer text-accent"
-          >
-            show less
-          </button>
-        {/if}
-      </div>
+      <TagList tags={post.tags} max={5} />
     {/if}
   </div>
 </header>
