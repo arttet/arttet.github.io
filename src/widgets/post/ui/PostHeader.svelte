@@ -1,39 +1,55 @@
 <script lang="ts">
-import { browser } from '$app/environment';
-import type { Post } from '$entities/post/post';
-import TagList from '$entities/post/ui/TagList.svelte';
+  import { browser } from '$app/environment';
+  import type { Post } from '$entities/post/post';
+  import TagList from '$entities/post/ui/TagList.svelte';
 
-const { post } = $props<{ post: Post }>();
+  const { post } = $props<{ post: Post }>();
 
-let progress = $state(0);
-const displayDate = $derived(
-  post.updated && post.updated !== post.created ? post.updated : post.created
-);
-const displayDateLabel = $derived(post.updated && post.updated !== post.created ? 'Updated ' : '');
+  let progress = $state(0);
+  let milestones = $state<number[]>([]);
 
-$effect(() => {
-  if (!browser) {
-    return;
-  }
+  const displayDate = $derived(
+    post.updated && post.updated !== post.created ? post.updated : post.created,
+  );
+  const displayDateLabel = $derived(
+    post.updated && post.updated !== post.created ? 'Updated ' : '',
+  );
 
-  function onScroll() {
-    const el = document.documentElement;
-    const scrolled = el.scrollTop;
-    const total = el.scrollHeight - el.clientHeight;
-    progress = total > 0 ? scrolled / total : 0;
-  }
+  $effect(() => {
+    if (!browser) return;
 
-  window.addEventListener('scroll', onScroll, { passive: true });
-  return () => window.removeEventListener('scroll', onScroll);
-});
+    function onScroll() {
+      const el = document.documentElement;
+      const scrolled = el.scrollTop;
+      const total = el.scrollHeight - el.clientHeight;
+      progress = total > 0 ? scrolled / total : 0;
+    }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   });
-}
+
+  $effect(() => {
+    if (!browser) return;
+
+    const raf = requestAnimationFrame(() => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      if (total <= 0) return;
+      milestones = Array.from(document.querySelectorAll<HTMLElement>('.prose h2')).map(
+        (h) => h.offsetTop / total,
+      );
+    });
+
+    return () => cancelAnimationFrame(raf);
+  });
+
+  function formatDate(iso: string) {
+    return new Date(iso).toLocaleDateString('en', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
 </script>
 
 <!-- Reading progress bar -->
@@ -42,6 +58,21 @@ function formatDate(iso: string) {
   style="width: {progress * 100}%"
   aria-hidden="true"
 ></div>
+
+<!-- Milestone marks (full-width track behind progress bar) -->
+{#if milestones.length}
+  <div
+    class="fixed top-0 left-0 z-nav w-full h-[2px] pointer-events-none"
+    aria-hidden="true"
+  >
+    {#each milestones as pos}
+      <div
+        class="absolute top-0 h-full w-px bg-[--color-text-muted]/30"
+        style="left: {pos * 100}%"
+      ></div>
+    {/each}
+  </div>
+{/if}
 
 <!-- Back link -->
 <a
