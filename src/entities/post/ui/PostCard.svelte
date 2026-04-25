@@ -1,14 +1,8 @@
 <script lang="ts">
 import type { Post } from '$entities/post/post';
+import TagList from './TagList.svelte';
 
-const { post, index, expandedTags, onToggleExpand } = $props<{
-  post: Post;
-  index: number;
-  expandedTags: Set<number>;
-  onToggleExpand: (index: number) => void;
-}>();
-
-const MAX_VISIBLE_TAGS = 3;
+const { post } = $props<{ post: Post }>();
 </script>
 
 <!-- Clickable card -->
@@ -45,35 +39,7 @@ const MAX_VISIBLE_TAGS = 3;
   </div>
 
   <!-- Tags centered -->
-  <div class="relative z-10 flex flex-wrap items-center justify-center gap-1.5 pt-2">
-    {#each post.tags as t, ti}
-      {#if expandedTags.has(index) || ti < MAX_VISIBLE_TAGS}
-        <a
-          href={`/blog/tag/${t}`}
-          class="px-2 py-0.5 rounded text-xs font-mono bg-black/5 dark:bg-white/5 text-accent hover:bg-black/10 dark:hover:bg-white/10 transition-colors duration-150"
-        >
-          #{t}
-        </a>
-      {/if}
-    {/each}
-    {#if post.tags.length > MAX_VISIBLE_TAGS && !expandedTags.has(index)}
-      <button
-        type="button"
-        onclick={() => onToggleExpand(index)}
-        class="px-2 py-0.5 rounded text-xs font-mono bg-black/5 dark:bg-white/5 hover:opacity-70 transition-opacity duration-[150ms] cursor-pointer text-accent"
-      >
-        +{post.tags.length - MAX_VISIBLE_TAGS}
-        more
-      </button>
-    {/if}
-    {#if post.tags.length > MAX_VISIBLE_TAGS && expandedTags.has(index)}
-      <button
-        type="button"
-        onclick={() => onToggleExpand(index)}
-        class="px-2 py-0.5 rounded text-xs font-mono bg-black/5 dark:bg-white/5 hover:opacity-70 transition-opacity duration-[150ms] cursor-pointer text-accent"
-      >
-        show less
-      </button>
-    {/if}
+  <div class="relative z-10">
+    <TagList tags={post.tags} max={3} />
   </div>
 </article>
