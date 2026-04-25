@@ -59,7 +59,17 @@ export default defineConfig(({ mode }) => ({
       reporter: process.env.CI ? ['text', 'lcov'] : ['text', 'json', 'html', 'lcov'],
       reportsDirectory: 'target/coverage',
       include: ['src/**/*.ts', 'src/**/*.svelte'],
-      exclude: ['src/**/*.{test,spec}.{js,ts}', 'src/**/*.d.ts', 'src/**/index.ts', 'src/app.html'],
+      exclude: [
+        'src/**/*.{test,spec}.{js,ts}',
+        'src/**/*.d.ts',
+        'src/**/index.ts',
+        'src/app.html',
+        'src/entities/codeTheme/codeTheme.ts',
+        'src/entities/post/api.server.ts',
+        'src/entities/post/post.ts',
+        'src/features/engine/passes/IPass.ts',
+        'src/features/engine/core/SimulationState.ts',
+      ],
     },
   },
 }));

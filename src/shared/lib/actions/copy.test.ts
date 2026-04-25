@@ -104,13 +104,34 @@ describe('copy action advanced', () => {
     const node = document.createElement('div');
     node.innerHTML = `
       <pre class="shiki" data-language="text"><code>plain text</code></pre>
+      <pre class="shiki"><code>no lang</code></pre>
       <div data-copy-content="" data-copy-label="Mermaid"></div>
+      <div data-copy-content="YmFzZTY0" data-copy-label="  "></div>
+      <div data-copy-content="YmFzZTY0"></div>
     `;
 
     copy(node);
 
     const buttons = node.querySelectorAll('.copy-btn');
-    expect(buttons).toHaveLength(1);
-    expect(buttons[0]).toHaveTextContent('Copy');
+    expect(buttons).toHaveLength(4);
+    expect(buttons[0]).toHaveTextContent('Copy'); // text lang
+    expect(buttons[1]).toHaveTextContent('Copy'); // missing lang
+    expect(buttons[2]).toHaveTextContent('Copy'); // spaces label
+    expect(buttons[3]).toHaveTextContent('Copy'); // missing label
+  });
+
+  it('falls back to pre.textContent or empty string if no code element', () => {
+    const node = document.createElement('div');
+    node.innerHTML = `
+      <pre class="shiki">just text inside pre</pre>
+      <pre class="shiki"></pre>
+    `;
+    copy(node);
+
+    // The copy logic will still create buttons.
+    // The first one will copy "just text inside pre"
+    // The second one will copy ""
+    const buttons = node.querySelectorAll('.copy-btn');
+    expect(buttons).toHaveLength(2);
   });
 });

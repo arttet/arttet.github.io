@@ -35,6 +35,18 @@ describe('focusTrap action', () => {
     expect(document.activeElement).toBe(last);
     expect(preventDefaultShift).toHaveBeenCalled();
 
+    // Case 3: Shift+Tab on last element should do nothing special
+    last.focus();
+    const shiftTabLastEvent = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true });
+    node.dispatchEvent(shiftTabLastEvent);
+    expect(document.activeElement).toBe(last); // Focus stays on last unless browser natively moves it
+
+    // Case 4: Tab on first element should do nothing special
+    first.focus();
+    const tabFirstEvent = new KeyboardEvent('keydown', { key: 'Tab' });
+    node.dispatchEvent(tabFirstEvent);
+    expect(document.activeElement).toBe(first);
+
     document.body.removeChild(node);
   });
 

@@ -29,10 +29,15 @@ describe('CopyButton', () => {
     expect(screen.getByText('Copied!')).toBeInTheDocument();
   });
 
-  it('renders inline version correctly', () => {
-    render(CopyButton, { content: 'test', inline: true });
+  it('renders inline version correctly', async () => {
+    render(CopyButton, { content: 'test', inline: true, class: 'extra-class' });
     const button = screen.getByLabelText('Copy');
     expect(button).toHaveClass('copy-btn-inline');
+    expect(button).toHaveClass('extra-class');
     expect(screen.queryByText('Copied!')).not.toBeInTheDocument();
+
+    await fireEvent.click(button);
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('test');
+    expect(screen.queryByText('Copied!')).not.toBeInTheDocument(); // Still shouldn't be there since inline=true
   });
 });

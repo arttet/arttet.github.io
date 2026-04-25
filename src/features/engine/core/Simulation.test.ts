@@ -28,19 +28,81 @@ describe('Simulation exhaustive logic', () => {
   it('wraps particles at field boundaries', () => {
     const sim = new Simulation(config);
     // Boundary is 10000 (FIELD constant). Particles wrap when x > FIELD or x < -FIELD.
-    sim.data[0] = 10001;
-    sim.data[1] = 500;
+    sim.data[0] = 10001; // x > FIELD
+    sim.data[1] = 10001; // y > FIELD
     sim.data[2] = 0; // stop movement to test only wrap
     sim.data[3] = 0;
 
     sim.step(16);
-    // 10001 > 10000 -> 10001 - 20000 = -9999
     expect(sim.data[0]).toBeLessThan(0);
+    expect(sim.data[1]).toBeLessThan(0);
 
-    sim.data[0] = -10001;
+    sim.data[0] = -10001; // x < -FIELD
+    sim.data[1] = -10001; // y < -FIELD
     sim.step(16);
-    // -10001 < -10000 -> -10001 + 20000 = 9999
     expect(sim.data[0]).toBeGreaterThan(0);
+    expect(sim.data[1]).toBeGreaterThan(0);
+  });
+
+  it('applies clickBurst correctly', () => {
+    const sim = new Simulation(config);
+    sim.data[0] = 505; // close to cursor
+    sim.data[1] = 500;
+    sim.data[2] = 0; // vx
+    sim.data[3] = 0; // vy
+
+    sim.clickBurst(500, 500, 100, 10);
+
+    // Particle should have gained velocity
+    expect(sim.data[2]).not.toBe(0);
+  });
+
+  it('interacts with cursor during step', () => {
+    const sim = new Simulation(config);
+    sim.setCursor(500, 500);
+    sim.data[0] = 505;
+    sim.data[1] = 500;
+    sim.data[2] = 0;
+    sim.data[3] = 0;
+
+    sim.step(16);
+
+    // Should have gained velocity due to cursor force
+    expect(sim.data[2]).not.toBe(0);
+
+    sim.clearCursor();
+  });
+
+  it('clamps speed if it exceeds maxSpeed', () => {
+    const sim = new Simulation(config);
+    sim.data[0] = 500;
+    sim.data[1] = 500;
+    sim.data[2] = 100; // huge vx
+    sim.data[3] = 100; // huge vy
+
+    sim.step(16);
+
+    const speed = Math.hypot(sim.data[2], sim.data[3]);
+    expect(speed).toBeLessThanOrEqual(config.speed * 1.5 * 1.01); // maxBaseSpeed * 1.5 + precision
+  });
+
+  it('skips triangles with high fade (distance near maxDist)', () => {
+    const sim = new Simulation({ ...config, count: 3 }); // 3 particles to force 1 triangle
+
+    // Place them in a triangle, but one edge is very long (distance > 143, maxDist is 150)
+    sim.data[0] = 0;
+    sim.data[1] = 0;
+    sim.data[8] = 145;
+    sim.data[9] = 0; // Distance 145
+    sim.data[16] = 72;
+    sim.data[17] = 10;
+
+    // Recompute edges
+    sim.step(16);
+
+    const { count } = sim.getTriangleData();
+    // Because fade is < 0.01 (145/150^2), it should skip the triangle
+    expect(count).toBe(0);
   });
 
   it('updates colors and recomputes edges', () => {
