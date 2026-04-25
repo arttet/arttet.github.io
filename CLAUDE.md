@@ -4,36 +4,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Personal blog and portfolio of Artyom Tetyukhin. Static site (Svelte 5 + SvelteKit 2 + Tailwind 4), deployed to GitHub Pages. Active branch: `feat/svelte-migration`.
+Personal blog and portfolio. Static site (Svelte 5 + SvelteKit 2 + Tailwind 4), deployed to GitHub Pages.
 
 ## Commands
 
 ```bash
 bun run dev          # dev server → http://localhost:5173
-bun run build        # production build → build/
+bun run build        # production build → target/build/
 bun run preview      # preview build → http://localhost:4173
-bun run check        # svelte-check type-check
-just lint            # biome check + oxlint
-just fmt             # biome format --write + just --fmt
-just ci              # check + lint + build (full gate)
-just test            # build + playwright run
-just test-ui         # build + playwright interactive
+bun run check        # svelte-check + oxfmt check
+just lint            # oxlint + stylelint + knip + markdownlint
+just fmt             # oxfmt --write
+just ci              # audit + fmt + check + lint + build (full gate)
+bun run test:unit    # fast unit tests (Vitest, VITEST_FAST mode)
+just tu              # same via just alias
+just ti              # Playwright E2E tests
+just tc              # unit tests with coverage report
 ```
 
-Pre-commit: `biome check --write`. Pre-push: `bun run check`.
+Pre-commit: Lefthook (oxfmt + oxlint on staged files). Pre-push: `bun run check`.
 
 ## Stack
 
-| Layer     | Choice                                  |
-| --------- | --------------------------------------- |
-| Framework | Svelte 5, SvelteKit 2 (adapter-static)  |
-| Bundler   | Vite 8, Bun                             |
-| Styling   | Tailwind CSS v4 + CSS custom properties |
-| WebGPU    | Pure WebGPU + d3-delaunay               |
-| Content   | mdsvex, Shiki (6 themes), KaTeX         |
-| Search    | FlexSearch                              |
-| Linting   | Biome v2, OXlint                        |
-| Testing   | Playwright (E2E only)                   |
+| Layer     | Choice                                            |
+| --------- | ------------------------------------------------- |
+| Framework | Svelte 5, SvelteKit 2 (adapter-static)            |
+| Bundler   | Vite 8, Bun                                       |
+| Styling   | Tailwind CSS v4 + CSS custom properties           |
+| WebGPU    | Pure WebGPU + d3-delaunay                         |
+| Content   | mdsvex, Shiki (6 themes), KaTeX                   |
+| Search    | FlexSearch                                        |
+| Linting   | Oxfmt, OXlint, Stylelint                          |
+| Testing   | Vitest + Testing Library (Unit), Playwright (E2E) |
 
 ## Architecture
 

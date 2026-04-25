@@ -1,10 +1,14 @@
 # My personal blog
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
 ![Svelte](https://img.shields.io/badge/Svelte-FF3E00?style=flat&logo=svelte&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwind-css&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
+![Bun](https://img.shields.io/badge/Bun-000000?style=flat&logo=bun&logoColor=white)
+![WebGPU](https://img.shields.io/badge/WebGPU-AC162C?style=flat&logo=vulkan&logoColor=white)
 ![Markdown](https://img.shields.io/badge/Markdown-000000?style=flat&logo=markdown&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat&logo=vitest&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat&logo=playwright&logoColor=white)
 [![codecov](https://codecov.io/gh/arttet/arttet.github.io/graph/badge.svg?token=H5YZVPX9CK)](https://codecov.io/gh/arttet/arttet.github.io)
 
 My personal blog about the little stuff I know.
@@ -24,41 +28,40 @@ Available recipes:
     [Development]
     install # Install dependencies
     update  # Update dependencies
+    audit   # Audit dependencies
     fmt     # Format code
     check   # Type check
-    lint    # Run all blazing-fast linters
-    build   # Build for production
-    preview # Preview production build
-    dev     # Start dev server
+    lint    # Run linters
+    build   # Build production build
+    preview # Start production server
+    dev     # Start development server
     clean   # Remove build artifacts
     ci      # Run CI pipeline
 
     [Testing]
     test:
         all         # Run all test suites
-        unit        # Run unit tests
+        unit        # Run fast unit tests with ENV-driven workers/timeouts
         integration # Integration tests
         coverage    # Generate coverage
         lhci        # Run Lighthouse CI
+        bundle      # Run bundle budget
+
+    [Deployment]
+    deploy:
+        [Deployment]
+        list        # List Cloudflare Pages projects
+        create name # Create a Cloudflare Pages project
+        delete name # Delete a Cloudflare Pages project
 ```
 
 ## Requirements
 
 To build and work on this project locally, these tools need to be installed on your machine:
 
+- `git`
 - `bun`
 - `just`
-- `git`
-
-Optional but recommended:
-
-- a recent Chromium-based browser for local testing and WebGPU support
-
-Notes:
-
-- `bun` is required for installing dependencies and running project scripts
-- `just` is the main task runner used throughout the repo
-- `lefthook` does not need to be installed globally because it is already included in the project devDependencies
 
 ## Installation
 
@@ -66,12 +69,6 @@ Install project dependencies:
 
 ```bash
 bun install
-```
-
-If you use `just`, you can do the same with:
-
-```bash
-just deps
 ```
 
 For Playwright, the first local run may also require:
@@ -82,9 +79,7 @@ bunx playwright install
 
 ## Lefthook Setup
 
-`lefthook` is used for the `pre-commit` hook. The hook runs formatting and linting on staged files.
-
-After `bun install`, enable the hooks with:
+`lefthook` manages Git hooks. After `bun install`, enable the hooks with:
 
 ```bash
 bunx lefthook install
@@ -94,9 +89,38 @@ You do not need a global `lefthook` installation. The local project version is e
 
 The hook configuration lives in `lefthook.yml`.
 
-Current `pre-commit` checks:
+### Hooks
 
-- `oxfmt`
-- `oxlint`
-- `stylelint`
-- `markdownlint`
+**`pre-commit`** — runs in parallel on every commit:
+
+| Check                    | Files                          |
+| ------------------------ | ------------------------------ |
+| `oxfmt --write`          | `*.{js,ts,svelte,json,css,md}` |
+| `oxlint --deny-warnings` | `*.{js,ts,svelte}`             |
+| `stylelint --fix`        | `*.{css,svelte}`               |
+| `markdownlint`           | `src/content/**/*.md`          |
+| `bun audit`              | —                              |
+
+### Updating hooks
+
+After pulling changes to `lefthook.yml`, reinstall to apply them:
+
+```sh
+bunx lefthook install
+```
+
+## Testing
+
+### Unit tests
+
+`just tu` (alias for `test unit`) runs Vitest with `VITEST_FAST=true`, which skips heavy DOM/Svelte component tests for a fast feedback loop. Use this during development.
+
+To run the full suite including component tests:
+
+```sh
+just test coverage
+```
+
+### E2E tests
+
+`just ti` runs Playwright against the production build at `http://localhost:4173`.
