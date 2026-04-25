@@ -1,23 +1,23 @@
 <script lang="ts">
-  import "$shared/styles/content.css";
-  import type { PageData } from "./$types";
-  import { theme } from "$features/theme/model/theme.svelte";
-  import { site } from "$shared/config/site";
-  import { copy } from "$shared/lib/actions/copy";
-  import { mermaid } from "$shared/lib/actions/mermaid";
-  import Seo from "$shared/ui/Seo.svelte";
-  import PostFooter from "$widgets/post/ui/PostFooter.svelte";
-  import PostHeader from "$widgets/post/ui/PostHeader.svelte";
-  import TableOfContents from "$widgets/post/ui/TableOfContents.svelte";
+  import '$shared/styles/content.css';
+  import type { PageData } from './$types';
+  import { theme } from '$features/theme/model/theme.svelte';
+  import { site } from '$shared/config/site';
+  import { copy } from '$shared/lib/actions/copy';
+  import { mermaid } from '$shared/lib/actions/mermaid';
+  import Seo from '$shared/ui/Seo.svelte';
+  import PostFooter from '$widgets/post/ui/PostFooter.svelte';
+  import PostHeader from '$widgets/post/ui/PostHeader.svelte';
+  import TableOfContents from '$widgets/post/ui/TableOfContents.svelte';
 
   const { data } = $props<{ data: PageData }>();
 
-  const modules = import.meta.glob("/src/content/blog/**/*.md", {
+  const modules = import.meta.glob('/src/content/blog/**/*.md', {
     eager: true,
   }) as Record<string, { default: ConstructorOfATypedSvelteComponent }>;
 
   function pathToSlug(path: string): string {
-    return path.split("/").pop()?.replace(".md", "") ?? "";
+    return path.split('/').pop()?.replace('.md', '') ?? '';
   }
 
   const postContentPath = $derived(
@@ -51,9 +51,11 @@
     <PostFooter prevPost={data.prevPost} nextPost={data.nextPost} />
   </article>
 
-  <aside class="hidden lg:block w-52 shrink-0">
-    <div class="sticky top-8 pt-16">
-      <TableOfContents />
-    </div>
-  </aside>
+  {#if data.post.toc !== false}
+    <aside class="hidden lg:block w-52 shrink-0">
+      <div class="sticky top-8 pt-16">
+        <TableOfContents />
+      </div>
+    </aside>
+  {/if}
 </div>

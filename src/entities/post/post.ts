@@ -5,6 +5,7 @@ export interface PostFrontmatter {
   updated?: string;
   draft?: boolean;
   summary?: string;
+  toc?: boolean;
 }
 
 export type Post = PostFrontmatter & {
