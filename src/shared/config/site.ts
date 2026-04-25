@@ -106,11 +106,11 @@ export const site = {
         [1.0, 0.8, 0.0], // amber
       ],
       light: [
-        [1.0, 1.0, 0.0], // yellow
-        [0.0, 1.0, 1.0], // cyan
-        [1.0, 0.0, 0.67], // magenta
-        [0.0, 0.8, 1.0], // sky blue
-        [1.0, 0.8, 0.0], // amber
+        [0.55, 0.35, 0.75], // soft lavender
+        [0.75, 0.45, 0.5], // dusty rose
+        [0.8, 0.6, 0.2], // warm amber
+        [0.4, 0.65, 0.5], // sage green
+        [0.35, 0.5, 0.8], // muted blue
       ],
     } as Record<'dark' | 'light', [number, number, number][]>,
     edgeColor: [0.0, 1.0, 1.0] as [number, number, number], // #00ffff cyan edges
