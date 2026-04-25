@@ -30,7 +30,7 @@ describe('TableOfContents', () => {
     }
   });
 
-  it('renders nothing when prose has fewer than 2 headings', () => {
+  it('renders nothing when prose has fewer than 2 h2 headings', () => {
     prose.innerHTML = '<h2>Only Heading</h2>';
     render(TableOfContents);
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
@@ -43,7 +43,7 @@ describe('TableOfContents', () => {
     document.body.appendChild(prose);
   });
 
-  it('renders nav when prose has 2 or more headings', () => {
+  it('renders nav when prose has 2 or more h2 headings', () => {
     prose.innerHTML = '<h2>Section A</h2><h2>Section B</h2>';
     render(TableOfContents);
     expect(screen.getByRole('navigation', { name: 'Table of contents' })).toBeInTheDocument();
@@ -51,43 +51,34 @@ describe('TableOfContents', () => {
     expect(screen.getByRole('link', { name: 'Section B' })).toBeInTheDocument();
   });
 
-  it('renders h2 and h3 headings', () => {
+  it('ignores h3 headings', () => {
     prose.innerHTML = '<h2>Top Level</h2><h3>Sub Level</h3><h2>Another</h2>';
     render(TableOfContents);
     expect(screen.getByRole('link', { name: 'Top Level' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Sub Level' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Sub Level' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Another' })).toBeInTheDocument();
   });
 
-  it('generates slug id for headings without id', () => {
-    prose.innerHTML = '<h2>My Section</h2><h3>Sub Topic</h3>';
+  it('generates slug id for h2 headings without id', () => {
+    prose.innerHTML = '<h2>My Section</h2><h2>Another Section</h2>';
     render(TableOfContents);
     expect((prose.querySelector('h2') as HTMLElement).id).toBe('my-section');
-    expect((prose.querySelector('h3') as HTMLElement).id).toBe('sub-topic');
   });
 
-  it('preserves existing id on headings', () => {
-    prose.innerHTML = '<h2 id="custom">Custom ID</h2><h3>Second</h3>';
+  it('preserves existing id on h2 headings', () => {
+    prose.innerHTML = '<h2 id="custom">Custom ID</h2><h2>Second</h2>';
     render(TableOfContents);
     expect((prose.querySelector('h2') as HTMLElement).id).toBe('custom');
   });
 
-  it('indents h3 items with 12px padding-left relative to h2', () => {
-    prose.innerHTML = '<h2>Top</h2><h3>Nested</h3>';
-    render(TableOfContents);
-    const items = screen.getAllByRole('listitem');
-    expect(items[0]).toHaveStyle('padding-left: 0px');
-    expect(items[1]).toHaveStyle('padding-left: 12px');
-  });
-
-  it('links each heading to its id anchor', () => {
-    prose.innerHTML = '<h2 id="intro">Intro</h2><h3 id="detail">Detail</h3>';
+  it('links each h2 to its id anchor', () => {
+    prose.innerHTML = '<h2 id="intro">Intro</h2><h2 id="outro">Outro</h2>';
     render(TableOfContents);
     expect(screen.getByRole('link', { name: 'Intro' })).toHaveAttribute('href', '#intro');
-    expect(screen.getByRole('link', { name: 'Detail' })).toHaveAttribute('href', '#detail');
+    expect(screen.getByRole('link', { name: 'Outro' })).toHaveAttribute('href', '#outro');
   });
 
-  it('starts IntersectionObserver for each heading', () => {
+  it('starts IntersectionObserver for each h2 heading', () => {
     prose.innerHTML = '<h2>A</h2><h2>B</h2>';
     render(TableOfContents);
     expect(mockObserve).toHaveBeenCalledTimes(2);
