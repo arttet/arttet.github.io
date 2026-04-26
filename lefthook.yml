@@ -26,6 +26,11 @@ pre-commit:
     audit:
       run: bun audit
 
+commit-msg:
+  commands:
+    commitlint:
+      run: bunx commitlint --edit {1}
+
 pre-push:
   parallel: true
   commands:
