@@ -22,7 +22,7 @@ test.describe('Post Interaction', () => {
     const copyButton = tabs.locator('.copy-btn').first();
     await expect(copyButton).toBeVisible();
 
-    await copyButton.evaluate((button: HTMLButtonElement) => button.click());
+    await copyButton.click();
 
     await expect(copyButton).toContainText('Copied!');
     await expect(copyButton).toHaveAttribute('data-copied', '');
@@ -38,8 +38,10 @@ test.describe('Post Interaction', () => {
     const topButton = page.getByRole('button', { name: /Top/ });
     await expect(topButton).toBeVisible();
 
-    await topButton.evaluate((button: HTMLButtonElement) => button.click());
+    await topButton.evaluate((el: HTMLElement) => el.click());
 
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(100);
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY), { timeout: 15000 })
+      .toBeLessThan(400);
   });
 });

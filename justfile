@@ -1,5 +1,12 @@
 # ==============================================================================
-# Variables
+# Global Settings
+# ==============================================================================
+# Disable POSIX path conversion in Git Bash (Windows)
+
+export MSYS_NO_PATHCONV := "1"
+
+# ==============================================================================
+# Project Settings
 # ==============================================================================
 
 build_dir := "target"
@@ -24,7 +31,7 @@ help:
 [group('Development')]
 install:
     @echo "📦 Installing dependencies..."
-    bun install
+    bun install --frozen-lockfile
     @echo "✅ Dependencies installed!"
 
 [doc('Update dependencies')]
@@ -111,11 +118,20 @@ ci: audit fmt check lint build
 mod test 'misc/justfiles/testing.just'
 
 alias tt := test::unit
-
 alias ta := test::all
 alias tu := test::unit
 alias ti := test::integration
 alias tc := test::coverage
+
+# ==============================================================================
+# Baselines
+# ==============================================================================
+
+[group: 'Baselines']
+mod baseline 'misc/justfiles/baseline.just'
+
+alias bs := baseline::snapshots
+alias bb := baseline::bundle
 
 # ==============================================================================
 # Deployment
