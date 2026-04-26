@@ -6,7 +6,10 @@ const ARCHITECTURE_POST = '/blog/2026-04-20-architecture-and-stack';
 test.describe('Features', () => {
   test('command palette opens and searches', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Search (⌘K)' }).dispatchEvent('click');
+    await page.waitForTimeout(1000); // Wait for hydration and animation
+    await page
+      .getByRole('button', { name: 'Search (⌘K)' })
+      .evaluate((el: HTMLElement) => el.click());
     const dialog = page.getByRole('dialog', { name: 'Search posts' });
     await expect(dialog).toBeVisible();
 
@@ -23,38 +26,44 @@ test.describe('Features', () => {
   });
 
   test('theme toggle works and persists', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/');
+    await page.waitForTimeout(1000);
     const html = page.locator('html');
 
     await expect(html).toHaveClass(/dark/);
 
     const toggle = page.getByRole('button', { name: 'Toggle theme' });
-    await toggle.dispatchEvent('click');
+    await toggle.evaluate((el: HTMLElement) => el.click());
     await expect.poll(async () => (await html.getAttribute('class')) ?? '').not.toMatch(/\bdark\b/);
 
     await page.reload();
+    await page.waitForTimeout(1000);
     await expect.poll(async () => (await html.getAttribute('class')) ?? '').not.toMatch(/\bdark\b/);
 
-    await page.getByRole('button', { name: 'Toggle theme' }).dispatchEvent('click');
+    await page
+      .getByRole('button', { name: 'Toggle theme' })
+      .evaluate((el: HTMLElement) => el.click());
     await expect(html).toHaveClass(/dark/);
   });
 
   test('reading mode toggle simplifies layout', async ({ page }) => {
     await page.goto(BLOG_INIT_POST);
+    await page.waitForTimeout(1000);
     const backgroundLayer = page.locator(
       'canvas, div[aria-hidden="true"][style*="background-image"]'
     );
 
-    await page.getByRole('button', { name: 'Settings' }).dispatchEvent('click');
+    await page.getByRole('button', { name: 'Settings' }).evaluate((el: HTMLElement) => el.click());
 
     const readingToggle = page.getByRole('button', { name: 'Toggle reading mode' });
     await expect(readingToggle).toBeVisible();
-    await readingToggle.dispatchEvent('click');
+    await readingToggle.click();
     await expect.poll(() => page.evaluate(() => localStorage.getItem('readingMode'))).toBe('true');
     await expect(backgroundLayer).toHaveCount(0);
 
     await expect(readingToggle).toBeVisible();
-    await readingToggle.dispatchEvent('click');
+    await readingToggle.click();
     await expect.poll(() => page.evaluate(() => localStorage.getItem('readingMode'))).toBe('false');
     await expect.poll(() => backgroundLayer.count()).toBeGreaterThan(0);
   });
