@@ -72,13 +72,15 @@ check:
 [group('Development')]
 lint:
     @echo "🔍 Running Oxlint..."
-    bunx oxlint --deny-warnings .
+    bunx oxlint --fix --deny-warnings .
     @echo "🔍 Running Stylelint..."
-    bunx stylelint "src/**/*.css" "src/**/*.svelte"
+    bunx stylelint --fix "src/**/*.css" "src/**/*.svelte"
     @echo "🧹 Running Knip..."
     bunx knip --no-config-hints
     @echo "🔍 Running Markdownlint..."
-    bunx markdownlint-cli2 "src/content/**/*.md"
+    bunx markdownlint-cli2 --fix "src/content/**/*.md"
+    @echo "🔍 Running ESLint..."
+    bunx eslint "**/*.svelte" --fix --max-warnings=0
     @echo "✅ Linting complete!"
 
 [doc('Build production build')]

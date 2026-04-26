@@ -26,4 +26,5 @@ $effect(() => {
 const themeStyle = $derived(`<style>${generateThemeCSS(site.codeThemes)}</style>`);
 </script>
 
+<!-- eslint-disable-next-line svelte/no-at-html-tags -- generated <style> tag from typed site config, no user input -->
 <svelte:head> {@html themeStyle} </svelte:head>

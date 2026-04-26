@@ -45,7 +45,7 @@ onMount(async () => {
       cursorMode: 'attract',
     });
   } catch (e) {
-    // eslint-disable-next-line no-console
+     
     console.error('Background scene initialization failed:', e);
     failed = true;
     return;

@@ -20,7 +20,7 @@ function decode(b64: string) {
     // atob() with escape/decodeURIComponent for robust UTF-8 handling
     return decodeURIComponent(escape(atob(b64)));
   } catch (e) {
-    // eslint-disable-next-line no-console
+     
     console.error('Base64 decode failed:', e);
     return '';
   }
@@ -36,6 +36,7 @@ const html = $derived(decode(b64Html));
       class="katex-display-container overflow-x-auto transition-colors duration-200"
       style="background-color: var(--code-bg); padding: 0.875rem 1.5rem; border-radius: var(--radius-md);"
     >
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -- KaTeX-sanitized output -->
       <div class="katex-display m-0">{@html html}</div>
     </div>
 
@@ -46,6 +47,7 @@ const html = $derived(decode(b64Html));
   <span
     class="math-copy-wrapper relative inline-group group px-1 rounded transition-colors duration-150"
   >
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -- KaTeX-sanitized output -->
     <span class="katex-inline"> {@html html} </span>
 
     <!-- Inline copy button - small icon shown on hover -->
