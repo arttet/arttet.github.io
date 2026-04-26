@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import PostHeader from './PostHeader.svelte';
 
 describe('PostHeader', () => {
@@ -66,5 +66,67 @@ describe('PostHeader', () => {
     await fireEvent.scroll(window);
 
     expect(document.querySelector('[aria-hidden="true"]')).toHaveAttribute('style', 'width: 50%;');
+  });
+
+  it('computes milestones from .prose h2 positions via requestAnimationFrame', () => {
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
+
+    const prose = document.createElement('div');
+    prose.className = 'prose';
+    const h2 = document.createElement('h2');
+    h2.textContent = 'Section';
+    prose.appendChild(h2);
+    document.body.appendChild(prose);
+
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 1000,
+      configurable: true,
+    });
+    Object.defineProperty(window, 'innerHeight', { value: 500, configurable: true });
+
+    const { container } = render(PostHeader, { post: mockPost });
+
+    // Progress bar + back-link svg + milestone wrapper = 3
+    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(3);
+
+    document.body.removeChild(prose);
+    rafSpy.mockRestore();
+  });
+
+  it('skips milestone computation when scroll height equals viewport', () => {
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
+
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 500,
+      configurable: true,
+    });
+    Object.defineProperty(window, 'innerHeight', { value: 500, configurable: true });
+
+    const { container } = render(PostHeader, { post: mockPost });
+
+    // Progress bar + back-link svg = 2 (milestone wrapper absent because total === 0)
+    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(2);
+
+    rafSpy.mockRestore();
+  });
+
+  it('renders without a summary block when post.summary is missing', () => {
+    const { container } = render(PostHeader, {
+      post: { ...mockPost, summary: undefined },
+    });
+    expect(container.querySelector('header p')).toBeNull();
+  });
+
+  it('renders without a TagList when post.tags is empty', () => {
+    render(PostHeader, {
+      post: { ...mockPost, tags: [] },
+    });
+    expect(screen.queryByText(/^#/)).not.toBeInTheDocument();
   });
 });

@@ -15,4 +15,14 @@ describe('BlogHeader', () => {
     expect(screen.getByText('(2 posts)')).toBeInTheDocument();
     expect(screen.getByText('✕ clear filter')).toBeInTheDocument();
   });
+
+  it('uses singular "post" when count is 1', () => {
+    render(BlogHeader, { count: 1 });
+    expect(screen.getByText('1 post')).toBeInTheDocument();
+  });
+
+  it('uses singular "post" in tag filter when count is 1', () => {
+    render(BlogHeader, { tag: 'svelte', count: 1 });
+    expect(screen.getByText('(1 post)')).toBeInTheDocument();
+  });
 });

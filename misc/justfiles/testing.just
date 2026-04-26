@@ -5,7 +5,7 @@ bundle_budget_threshold := env('BUNDLE_BUDGET_THRESHOLD', '0.3')
 
 [doc("Run all test suites")]
 [no-cd]
-all: unit integration
+all: unit integration coverage
     @echo "✅ Fast local tests passed"
 
 [doc("Run fast unit tests")]
