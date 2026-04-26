@@ -1,5 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import { page } from '$app/state';
 
   let headings = $state<Array<{ id: string; text: string }>>([]);
   let activeId = $state('');
@@ -13,14 +14,19 @@
   }
 
   $effect(() => {
+    // Re-run on route change so navigating between posts rescans headings.
+    void page.params.slug;
+
     if (!browser) return;
 
     const prose = document.querySelector('.prose');
-    if (!prose) return;
+    const nodes = prose
+      ? (Array.from(prose.querySelectorAll('h2')) as HTMLElement[])
+      : [];
 
-    const nodes = Array.from(prose.querySelectorAll('h2')) as HTMLElement[];
     if (nodes.length < 2) {
       headings = [];
+      activeId = '';
       return;
     }
 
@@ -34,6 +40,7 @@
       id: node.id,
       text: node.textContent ?? '',
     }));
+    activeId = '';
 
     const observer = new IntersectionObserver(
       (entries) => {

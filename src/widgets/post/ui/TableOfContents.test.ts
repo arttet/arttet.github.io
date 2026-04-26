@@ -2,6 +2,10 @@ import { render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import TableOfContents from './TableOfContents.svelte';
 
+vi.mock('$app/state', () => ({
+  page: { params: { slug: 'test-post' }, url: new URL('http://localhost/') },
+}));
+
 const mockObserve = vi.fn();
 const mockDisconnect = vi.fn();
 
