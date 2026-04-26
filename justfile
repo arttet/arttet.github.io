@@ -134,8 +134,8 @@ alias tc := test::coverage
 [group: 'Baselines']
 mod baseline 'misc/justfiles/baseline.just'
 
-alias bs := baseline::snapshots
 alias bb := baseline::bundle
+alias bs := baseline::snapshots
 
 # ==============================================================================
 # Deployment

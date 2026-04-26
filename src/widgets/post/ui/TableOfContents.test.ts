@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/svelte';
+import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import TableOfContents from './TableOfContents.svelte';
 
@@ -8,10 +9,14 @@ vi.mock('$app/state', () => ({
 
 const mockObserve = vi.fn();
 const mockDisconnect = vi.fn();
+let capturedCallback: IntersectionObserverCallback | null = null;
 
 vi.stubGlobal(
   'IntersectionObserver',
   class {
+    constructor(cb: IntersectionObserverCallback) {
+      capturedCallback = cb;
+    }
     observe = mockObserve;
     unobserve = vi.fn();
     disconnect = mockDisconnect;
@@ -25,6 +30,7 @@ describe('TableOfContents', () => {
     prose = document.createElement('div');
     prose.className = 'prose';
     document.body.appendChild(prose);
+    capturedCallback = null;
     vi.clearAllMocks();
   });
 
@@ -86,5 +92,46 @@ describe('TableOfContents', () => {
     prose.innerHTML = '<h2>A</h2><h2>B</h2>';
     render(TableOfContents);
     expect(mockObserve).toHaveBeenCalledTimes(2);
+  });
+
+  it('marks a heading active when the observer reports it intersecting', () => {
+    prose.innerHTML = '<h2 id="alpha">Alpha</h2><h2 id="beta">Beta</h2>';
+    render(TableOfContents);
+
+    expect(capturedCallback).toBeTruthy();
+    flushSync(() => {
+      capturedCallback?.(
+        [
+          {
+            isIntersecting: true,
+            target: { id: 'beta' } as Element,
+          } as IntersectionObserverEntry,
+        ],
+        {} as IntersectionObserver
+      );
+    });
+
+    const activeLink = screen.getByRole('link', { name: 'Beta' });
+    expect(activeLink.className).toContain('border-accent');
+  });
+
+  it('ignores observer entries that are not intersecting', () => {
+    prose.innerHTML = '<h2 id="alpha">Alpha</h2><h2 id="beta">Beta</h2>';
+    render(TableOfContents);
+
+    flushSync(() => {
+      capturedCallback?.(
+        [
+          {
+            isIntersecting: false,
+            target: { id: 'beta' } as Element,
+          } as IntersectionObserverEntry,
+        ],
+        {} as IntersectionObserver
+      );
+    });
+
+    const link = screen.getByRole('link', { name: 'Beta' });
+    expect(link.className).not.toContain('border-accent');
   });
 });

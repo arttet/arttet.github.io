@@ -24,6 +24,7 @@ describe('copy action advanced', () => {
       <pre class="shiki"><button class="copy-code-btn"></button><code>code</code></pre>
     `;
     copy(node);
+    vi.runAllTimers();
     const btns = node.querySelectorAll('.copy-code-btn');
     expect(btns.length).toBe(1);
   });
@@ -32,6 +33,7 @@ describe('copy action advanced', () => {
     const node = document.createElement('div');
     node.innerHTML = '<pre class="shiki"><code>code</code></pre>';
     copy(node);
+    vi.runAllTimers();
     const btn = node.querySelector('.copy-btn') as HTMLButtonElement;
 
     const err = new Error('clipboard fail');
@@ -47,6 +49,7 @@ describe('copy action advanced', () => {
     const node = document.createElement('div');
     node.innerHTML = '<pre class="shiki"><code>code</code></pre>';
     const action = copy(node);
+    vi.runAllTimers();
     const btn = node.querySelector('.copy-btn') as HTMLButtonElement;
     const removeSpy = vi.spyOn(btn, 'removeEventListener');
 
@@ -59,10 +62,12 @@ describe('copy action advanced', () => {
     const node = document.createElement('div');
     node.innerHTML = '<pre class="shiki"><code>1</code></pre>';
     const action = copy(node);
+    vi.runAllTimers();
     expect(node.querySelectorAll('.copy-btn').length).toBe(1);
 
     node.innerHTML += '<pre class="shiki"><code>2</code></pre>';
     action.update();
+    vi.runAllTimers();
     expect(node.querySelectorAll('.copy-btn').length).toBe(2);
   });
 
@@ -72,6 +77,7 @@ describe('copy action advanced', () => {
       '<div class="mermaid-block group" data-copy-content="Z3JhcGggTFI7IEEtLT5COw==" data-copy-label="Mermaid"><div class="mermaid"></div></div>';
 
     copy(node);
+    vi.runAllTimers();
     const btn = node.querySelector('.copy-btn') as HTMLButtonElement;
 
     expect(btn).toBeTruthy();
@@ -84,6 +90,7 @@ describe('copy action advanced', () => {
     node.innerHTML = '<pre class="shiki" data-language="ts"><code>const x = 1;</code></pre>';
 
     copy(node);
+    vi.runAllTimers();
     const btn = node.querySelector('.copy-btn') as HTMLButtonElement;
 
     await btn.click();
@@ -111,6 +118,7 @@ describe('copy action advanced', () => {
     `;
 
     copy(node);
+    vi.runAllTimers();
 
     const buttons = node.querySelectorAll('.copy-btn');
     expect(buttons).toHaveLength(4);
@@ -127,6 +135,7 @@ describe('copy action advanced', () => {
       <pre class="shiki"></pre>
     `;
     copy(node);
+    vi.runAllTimers();
 
     // The copy logic will still create buttons.
     // The first one will copy "just text inside pre"

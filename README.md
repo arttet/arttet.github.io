@@ -41,11 +41,17 @@ Available recipes:
     [Testing]
     test:
         all         # Run all test suites
-        unit        # Run fast unit tests with ENV-driven workers/timeouts
+        unit        # Run fast unit tests
         integration # Integration tests
         coverage    # Generate coverage
         lhci        # Run Lighthouse CI
         bundle      # Run bundle budget
+
+    [Baselines]
+    baseline:
+        bundle    # Update bundle baseline
+        snapshots # Update snapshots
+        ci        # Update snapshots for CI
 
     [Deployment]
     deploy:

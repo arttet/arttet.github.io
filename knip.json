@@ -39,6 +39,7 @@
     "@lhci/cli",
     "@types/katex",
     "@typescript/native-preview",
+    "lefthook",
     "sharp",
     "svgo"
   ],
