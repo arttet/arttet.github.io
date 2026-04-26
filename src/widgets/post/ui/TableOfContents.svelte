@@ -53,7 +53,7 @@
 
 {#if headings.length >= 2}
   <nav aria-label="Table of contents">
-    <p class="text-xs font-mono text-[--color-text-muted] uppercase tracking-wider mb-3">
+    <p class="text-xs font-mono text-[--color-text-muted] mb-3">
       On this page
     </p>
     <ul class="space-y-0.5">
