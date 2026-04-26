@@ -1,3 +1,7 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/evilmartians/lefthook/refs/heads/master/internal/config/jsonschema.json
+
+min_version: 2.0.0
+
 pre-commit:
   parallel: true
   commands:
@@ -8,7 +12,7 @@ pre-commit:
 
     oxlint:
       glob: '*.{js,ts,svelte}'
-      run: bunx oxlint --deny-warnings {staged_files}
+      run: bunx oxlint --fix --deny-warnings {staged_files}
 
     stylelint:
       glob: '*.{css,svelte}'
@@ -17,7 +21,13 @@ pre-commit:
 
     markdownlint:
       glob: 'src/content/**/*.md'
-      run: bunx markdownlint-cli2 {staged_files}
+      run: bunx markdownlint-cli2 --fix {staged_files}
 
     audit:
       run: bun audit
+
+pre-push:
+  parallel: true
+  commands:
+    gitleaks:
+      run: gitleaks protect --redact --no-banner --staged
