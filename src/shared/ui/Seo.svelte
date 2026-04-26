@@ -85,6 +85,7 @@ const jsonLdScript = $derived(
   <link rel="manifest" href="/manifest.json" />
 
   <!-- JSON-LD -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -- JSON-LD built from typed config, no user input -->
   {@html jsonLdScript}
 
   <!-- Open Graph -->

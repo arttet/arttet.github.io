@@ -46,6 +46,7 @@ $effect(() => {
     <CopyButton content={tabs[active].code} label={tabs[active].label || tabs[active].lang} />
 
     {#if hl.value}
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -- Shiki SSR output, not user input -->
       {@html hl.value.replace('class="shiki', 'class="shiki m-0')}
     {:else}
       <pre class="shiki m-0 font-mono"><code>{tabs[active].code.trim()}</code></pre>
