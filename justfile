@@ -62,6 +62,8 @@ check:
     @echo "🔍 Type checking..."
     bunx svelte-kit sync
     bunx svelte-check --tsconfig ./tsconfig.json --incremental
+    @echo "🔍 Checking lefthook..."
+    bunx lefthook validate
     @echo "🧹 Checking Oxfmt..."
     bunx oxfmt --check .
     @echo "✅ Passed!"
