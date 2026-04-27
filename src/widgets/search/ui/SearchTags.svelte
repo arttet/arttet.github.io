@@ -1,9 +1,10 @@
 <script lang="ts">
 import { goto } from '$app/navigation';
+import { resolve } from '$app/paths';
 import { searchModel } from '$features/search/model/searchModel.svelte';
 
 async function handleNavigate(tag: string) {
-  await goto(`/blog/tag/${tag}`);
+  await goto(resolve('/blog/tag/[tag]', { tag }));
   searchModel.close();
 }
 </script>
@@ -17,9 +18,9 @@ async function handleNavigate(tag: string) {
     <div class="px-4 pt-3 pb-2 border-b border-[--color-border]/50">
       <p class="text-xs font-mono text-[--color-text-muted] mb-2">Browse by tag</p>
       <div class="flex flex-wrap gap-2">
-        {#each searchModel.showAllTags ? searchModel.tags : searchModel.tags.slice(0, 3) as t}
+        {#each searchModel.showAllTags ? searchModel.tags : searchModel.tags.slice(0, 3) as t (t.name)}
           <a
-            href={`/blog/tag/${t.name}`}
+            href={resolve('/blog/tag/[tag]', { tag: t.name })}
             onclick={(e) => {
               e.preventDefault();
               handleNavigate(t.name);

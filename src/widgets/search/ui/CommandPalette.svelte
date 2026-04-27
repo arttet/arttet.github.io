@@ -1,6 +1,7 @@
 <script lang="ts">
 import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
+import { resolve } from '$app/paths';
 import { searchModel } from '$features/search/model/searchModel.svelte';
 import { focusTrap } from '$shared/lib/actions/focusTrap';
 import SearchFooter from './SearchFooter.svelte';
@@ -39,7 +40,9 @@ $effect(() => {
       searchModel.selected = Math.max(searchModel.selected - 1, 0);
     }
     if (e.key === 'Enter' && searchModel.results[searchModel.selected]) {
-      await goto(`/blog/${searchModel.results[searchModel.selected].slug}`);
+      await goto(
+        resolve('/blog/[slug]', { slug: searchModel.results[searchModel.selected].slug })
+      );
       searchModel.close();
     }
   };

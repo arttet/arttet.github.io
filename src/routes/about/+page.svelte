@@ -1,5 +1,6 @@
 <script lang="ts">
 import { ArrowUpRight, GitFork } from 'lucide-svelte';
+import { resolve } from '$app/paths';
 import { site } from '$shared/config/site';
 import Logo from '$shared/ui/Logo.svelte';
 import Seo from '$shared/ui/Seo.svelte';
@@ -15,7 +16,7 @@ const AboutContent = modules['/src/content/pages/about.md']?.default;
 <article class="max-w-3xl mx-auto px-6 pt-24 pb-14">
   <header class="mb-12 flex items-center gap-4">
     <a
-      href="/"
+      href={resolve('/')}
       aria-label="Home"
       class="shrink-0 hover:scale-105 transition-transform duration-200"
     >
@@ -42,9 +43,9 @@ const AboutContent = modules['/src/content/pages/about.md']?.default;
     </div>
 
     <div class="mt-6 grid gap-4 max-w-2xl">
-      {#each site.about.projects as project}
-        <a
-          href={project.href}
+      {#each site.about.projects as project (project.title)}
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- project.href is an external GitHub URL -->
+        <a href={project.href}
           target="_blank"
           rel="noopener noreferrer"
           class="group rounded-2xl border border-[--color-border] bg-[--color-bg-secondary] p-5 transition-colors duration-150 hover:bg-[--color-bg-elevated]"
@@ -66,7 +67,7 @@ const AboutContent = modules['/src/content/pages/about.md']?.default;
           </div>
 
           <div class="mt-4 flex flex-wrap gap-2">
-            {#each project.tags as tag}
+            {#each project.tags as tag (tag)}
               <span
                 class={`rounded-full border px-2.5 py-1 text-[11px] font-mono ${site.about.projectTagClasses[tag] ?? 'border-[--color-border] text-[--color-text-muted]'}`}
               >

@@ -16,8 +16,8 @@ import { viewport } from '$shared/lib/viewport.svelte';
       <span class="hidden sm:inline">•</span>
       <span>
         Code:
-        <a
-          href={site.licenses.code.href}
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external license URL -->
+        <a href={site.licenses.code.href}
           target="_blank"
           rel="noopener noreferrer"
           class="text-accent hover:text-heading transition-colors"
@@ -28,8 +28,8 @@ import { viewport } from '$shared/lib/viewport.svelte';
       <span class="hidden sm:inline">•</span>
       <span>
         Content:
-        <a
-          href={site.licenses.content.href}
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external license URL -->
+        <a href={site.licenses.content.href}
           target="_blank"
           rel="noopener noreferrer"
           class="text-accent hover:text-heading transition-colors"

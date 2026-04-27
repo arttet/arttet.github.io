@@ -24,7 +24,7 @@ $effect(() => {
 <div class="not-prose my-6 rounded-lg border border-[--color-border] overflow-hidden">
   <!-- Tab bar — language tabs only, no copy here -->
   <div class="flex items-center bg-[--code-bg] border-b border-[--color-border] px-1">
-    {#each tabs as tab, i}
+    {#each tabs as tab, i (tab.lang)}
       <button
         type="button"
         class="px-4 py-2 text-xs font-mono transition-colors duration-[100ms]

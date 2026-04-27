@@ -68,7 +68,7 @@
       On this page
     </p>
     <ul class="space-y-0.5">
-      {#each headings as h}
+      {#each headings as h (h.id)}
         <li>
           <a
             href={`#${h.id}`}

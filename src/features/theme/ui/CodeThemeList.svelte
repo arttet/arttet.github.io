@@ -17,7 +17,7 @@ function selectCodeTheme(id: string) {
 </script>
 
 <p class="px-3 pt-2 pb-1 text-xs font-mono text-[--color-text-muted]">Code theme</p>
-{#each themes as t}
+{#each themes as t (t.id)}
   <button
     type="button"
     onclick={() => selectCodeTheme(t.id)}

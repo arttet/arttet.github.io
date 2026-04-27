@@ -1,5 +1,6 @@
 <script lang="ts">
 import { Search } from 'lucide-svelte';
+import { resolve } from '$app/paths';
 import { searchModel } from '$features/search/model/searchModel.svelte';
 import { navAnchored, navAnchorPositions } from '$features/theme/model/navAnchor.svelte';
 import ThemeToggle from '$features/theme/ui/ThemeToggle.svelte';
@@ -43,7 +44,7 @@ const isVisible = $derived(viewport.navVisible || navAnchored.value);
     <nav bind:this={navEl} class="px-3 h-12 flex items-center gap-1">
       <!-- Logo icon -->
       <a
-        href="/"
+        href={resolve('/')}
         aria-label="Home"
         class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/5 transition-colors duration-150"
       >
@@ -53,9 +54,9 @@ const isVisible = $derived(viewport.navVisible || navAnchored.value);
       <div class="w-px h-4 bg-white/10 mx-1"></div>
 
       <!-- Nav links -->
-      {#each site.nav.links as { label, href }}
+      {#each site.nav.links as { label, href } (href)}
         <a
-          {href}
+          href={resolve(href)}
           class="px-3 py-1.5 text-sm text-accent visited:text-accent
                  hover:text-heading transition-colors duration-150"
         >
