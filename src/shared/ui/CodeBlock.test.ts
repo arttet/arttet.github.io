@@ -59,4 +59,14 @@ describe('CodeBlock', () => {
     const code = document.querySelector('pre code');
     expect(code?.textContent).toBe('const y = 2;');
   });
+
+  it('renders fallback if highlighter returns empty value', async () => {
+    const { highlightCode } = await import('$lib/highlighter');
+    vi.mocked(highlightCode).mockReturnValueOnce('');
+
+    render(CodeBlock, { code: 'fallback', lang: 'js' });
+
+    expect(screen.getByText('fallback')).toBeInTheDocument();
+    expect(document.querySelector('pre')).toHaveClass('shiki');
+  });
 });
