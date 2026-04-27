@@ -3,19 +3,19 @@
 min_version: 2.0.0
 
 pre-commit:
-  parallel: true
+  parallel: false
   commands:
     oxfmt:
-      glob: '*.{js,ts,svelte,json,css,md}'
+      glob: '{*.{js,ts,svelte,json,css,yml,md},**/*.{js,ts,svelte,json,css,yml,md}}'
       run: bunx oxfmt --write --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
 
     oxlint:
-      glob: '*.{js,ts,svelte}'
+      glob: '{*.{js,ts,svelte},**/*.{js,ts,svelte}}'
       run: bunx oxlint --fix --deny-warnings {staged_files}
 
     stylelint:
-      glob: '*.{css,svelte}'
+      glob: '{*.{css,svelte},**/*.{css,svelte}}'
       run: bunx stylelint --fix {staged_files}
       stage_fixed: true
 
