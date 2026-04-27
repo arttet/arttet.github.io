@@ -10,32 +10,43 @@ class SearchModel {
   query = $state('');
   results = $state<SearchResult[]>([]);
   selected = $state(0);
-  indexed = false;
+  isLoading = $state(false);
   tags = $state<{ name: string; count: number }[]>([]);
   showAllTags = $state(false);
+  private indexPromise: Promise<void> | null = null;
   private timer: ReturnType<typeof setTimeout> | undefined;
 
-  async ensureIndex() {
-    if (this.indexed) {
-      return;
+  async ensureIndex(): Promise<void> {
+    if (this.indexPromise) {
+      return this.indexPromise;
     }
 
-    const response = await fetch('/api/search.json');
-    const data: SearchPayload = await response.json();
-    await buildIndex(data);
+    this.isLoading = true;
+    this.indexPromise = (async () => {
+      try {
+        const response = await fetch('/api/search.json');
+        const data: SearchPayload = await response.json();
+        await buildIndex(data);
 
-    const tagCounts = new Map<string, number>();
-    for (const post of data.posts) {
-      for (const t of post.tags) {
-        tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
+        const tagCounts = new Map<string, number>();
+        for (const post of data.posts) {
+          for (const t of post.tags) {
+            tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
+          }
+        }
+
+        this.tags = Array.from(tagCounts.entries())
+          .map(([name, count]) => ({ name, count }))
+          .toSorted((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+      } catch (e) {
+        this.indexPromise = null;
+        throw e;
+      } finally {
+        this.isLoading = false;
       }
-    }
+    })();
 
-    this.tags = Array.from(tagCounts.entries())
-      .map(([name, count]) => ({ name, count }))
-      .toSorted((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-
-    this.indexed = true;
+    return this.indexPromise;
   }
 
   async openPalette() {
@@ -57,6 +68,10 @@ class SearchModel {
     if (!this.query.trim()) {
       this.results = [];
       return;
+    }
+
+    if (this.indexPromise) {
+      await this.indexPromise;
     }
 
     clearTimeout(this.timer);
