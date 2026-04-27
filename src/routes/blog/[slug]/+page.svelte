@@ -42,11 +42,13 @@
   <article class="min-w-0 w-full max-w-3xl">
     <PostHeader post={data.post} />
 
-    <div class="prose" use:mermaid={theme.current} use:copy>
-      {#if PostContent}
-        <PostContent />
-      {/if}
-    </div>
+    {#key data.post.slug}
+      <div class="prose" use:mermaid={theme.current} use:copy>
+        {#if PostContent}
+          <PostContent />
+        {/if}
+      </div>
+    {/key}
 
     <PostFooter prevPost={data.prevPost} nextPost={data.nextPost} />
   </article>
