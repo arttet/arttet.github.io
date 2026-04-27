@@ -99,6 +99,8 @@ $effect(() => {
 
     {#if searchModel.results.length}
       <SearchResults />
+    {:else if searchModel.isLoading}
+      <div class="px-4 py-8 text-center text-[var(--color-text-secondary)]">Indexing...</div>
     {:else}
       <SearchTags />
     {/if}

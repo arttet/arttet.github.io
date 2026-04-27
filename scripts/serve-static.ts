@@ -56,6 +56,20 @@ async function pickFile(pathname: string): Promise<Bun.BunFile | null> {
   return null;
 }
 
+const MIME_TYPES: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.wasm': 'application/wasm',
+  '.woff2': 'font/woff2',
+};
+
 const server = Bun.serve({
   port,
   async fetch(request) {
@@ -63,12 +77,26 @@ const server = Bun.serve({
     const file = await pickFile(url.pathname);
 
     if (file) {
-      return new Response(file);
+      const ext = extname(file.name || url.pathname).toLowerCase();
+      const contentType = MIME_TYPES[ext] || file.type || 'application/octet-stream';
+
+      return new Response(file, {
+        headers: {
+          'Content-Type': contentType,
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+          'X-Content-Type-Options': 'nosniff',
+        },
+      });
     }
 
     const fallback = Bun.file(fallbackPath);
     if (await fallback.exists()) {
-      return new Response(fallback, { status: 404 });
+      return new Response(fallback, {
+        status: 404,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      });
     }
 
     return new Response('Not found', { status: 404 });
