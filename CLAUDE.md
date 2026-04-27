@@ -8,7 +8,7 @@ Personal blog and portfolio. Static site (Svelte 5 + SvelteKit 2 + Tailwind 4), 
 
 ## Commands
 
-```bash
+```nushell
 bun run dev          # dev server → http://localhost:5173
 bun run build        # production build → target/build/
 bun run preview      # preview build → http://localhost:4173
