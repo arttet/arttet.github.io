@@ -1,3 +1,5 @@
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypeSlug from 'rehype-slug';
 import { getHighlighter, LANGS, setThemes } from './src/lib/highlighter.config.js';
 import { codeThemes } from './src/shared/config/codeThemes.js';
 
@@ -49,6 +51,25 @@ function remarkReadingTime() {
 const config = {
   extensions: ['.md'],
   remarkPlugins: [remarkReadingTime],
+  rehypePlugins: [
+    rehypeSlug,
+    [
+      rehypeAutolinkHeadings,
+      {
+        behavior: 'prepend',
+        test: ['h2'],
+        properties: {
+          className: ['anchor'],
+          ariaHidden: true,
+          tabIndex: -1,
+        },
+        content: {
+          type: 'text',
+          value: '#',
+        },
+      },
+    ],
+  ],
 
   highlight: {
     highlighter(code, lang) {

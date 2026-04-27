@@ -36,6 +36,7 @@
   "vitest": true,
   "playwright": true,
   "ignoreDependencies": [
+    "@commitlint/cli",
     "@lhci/cli",
     "@types/katex",
     "@typescript/native-preview",

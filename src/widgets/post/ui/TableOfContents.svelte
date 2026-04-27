@@ -36,10 +36,14 @@
       }
     }
 
-    headings = nodes.map((node) => ({
-      id: node.id,
-      text: node.textContent ?? '',
-    }));
+    headings = nodes.map((node) => {
+      const clone = node.cloneNode(true) as HTMLElement;
+      clone.querySelector('.anchor')?.remove();
+      return {
+        id: node.id,
+        text: clone.textContent?.trim() ?? '',
+      };
+    });
     activeId = '';
 
     const observer = new IntersectionObserver(
