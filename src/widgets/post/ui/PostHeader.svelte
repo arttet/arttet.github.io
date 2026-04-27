@@ -78,7 +78,7 @@
 <!-- Back link -->
 <a
   href={resolve('/blog')}
-  class="inline-flex items-center gap-1.5 text-xs font-mono text-accent
+  class="inline-flex items-center gap-1.5 text-xs text-accent
 		       hover:text-heading transition-colors mb-10"
 >
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">

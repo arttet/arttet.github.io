@@ -29,9 +29,9 @@
   /* Code */
   --color-code-bg: #0d1117;
 
-  /* Typography — monospace-first for engineering feel */
-  --font-sans: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
-  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  /* Typography — sans for prose/UI, mono for code */
+  --font-sans: 'Geist Variable', 'Geist', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
 
   /* Border radius */
   --radius-sm: 4px;

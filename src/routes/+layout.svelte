@@ -1,5 +1,7 @@
 <script lang="ts">
+import '@fontsource-variable/geist';
 import '@fontsource-variable/jetbrains-mono';
+import geistLatinUrl from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
 import '../app.css';
 import { browser } from '$app/environment';
 import { afterNavigate, onNavigate } from '$app/navigation';
@@ -67,6 +69,10 @@ const isBlogPage = $derived(page.url.pathname.startsWith('/blog'));
     viewport.updateScroll(window.scrollY);
   }}
 />
+
+<svelte:head>
+  <link rel="preload" as="font" type="font/woff2" href={geistLatinUrl} crossorigin="anonymous" />
+</svelte:head>
 
 {#if !isBlogPage}
   <Seo />
