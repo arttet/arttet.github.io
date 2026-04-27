@@ -14,7 +14,8 @@ const searchMock = vi.mocked(search);
 describe('searchModel', () => {
   beforeEach(() => {
     searchModel.close();
-    searchModel.indexed = false;
+    (searchModel as any).indexPromise = null;
+    searchModel.isLoading = false;
     searchModel.tags = [];
     buildIndexMock.mockReset();
     searchMock.mockReset();
@@ -43,7 +44,7 @@ describe('searchModel', () => {
 
     expect(globalThis.fetch).toHaveBeenCalledWith('/api/search.json');
     expect(buildIndexMock).toHaveBeenCalledWith(payload);
-    expect(searchModel.indexed).toBe(true);
+    expect(searchModel.isLoading).toBe(false);
     expect(searchModel.tags).toEqual([
       { name: 'svelte', count: 2 },
       { name: 'rust', count: 1 },
@@ -52,7 +53,7 @@ describe('searchModel', () => {
   });
 
   it('ensureIndex is idempotent — second call is a no-op', async () => {
-    searchModel.indexed = true;
+    (searchModel as any).indexPromise = Promise.resolve();
     await searchModel.ensureIndex();
     expect(globalThis.fetch).not.toHaveBeenCalled();
     expect(buildIndexMock).not.toHaveBeenCalled();
@@ -66,7 +67,7 @@ describe('searchModel', () => {
     await searchModel.openPalette();
 
     expect(searchModel.open).toBe(true);
-    expect(searchModel.indexed).toBe(true);
+    expect(searchModel.isLoading).toBe(false);
   });
 
   it('close resets every reactive field', () => {
