@@ -104,9 +104,11 @@ just ti              # run integration tests (Playwright)
 just tc              # run unit tests with coverage
 ```
 
-Pre-commit hooks (via Lefthook) run formatting and linting on staged files.
-`commit-msg` hook validates conventional commit format via commitlint.
-`pre-push` hook runs gitleaks against staged content.
+Git hooks (Lefthook):
+
+- `pre-commit`: `oxfmt`, `oxlint`, `stylelint`, `markdownlint`, `audit`.
+- `commit-msg`: `commitlint`.
+- `pre-push`: `gitleaks`.
 
 ---
 
