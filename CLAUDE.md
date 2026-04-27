@@ -1,91 +1,78 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## What this is
-
-Personal blog and portfolio. Static site (Svelte 5 + SvelteKit 2 + Tailwind 4), deployed to GitHub Pages.
+Static blog (Svelte 5 + SvelteKit 2 + Tailwind 4 → GitHub Pages).
 
 ## Commands
 
-```nushell
-bun run dev          # dev server → http://localhost:5173
-bun run build        # production build → target/build/
-bun run preview      # preview build → http://localhost:4173
-bun run check        # svelte-check + oxfmt check
+```sh
+bun run dev          # http://localhost:5173
+bun run build        # → target/build/
+bun run preview      # http://localhost:4173
+bun run check        # svelte-check + oxfmt
+bun run test:unit    # Vitest (VITEST_FAST)
 just lint            # oxlint + stylelint + knip + markdownlint
 just fmt             # oxfmt --write
-just ci              # audit + fmt + check + lint + build (full gate)
-bun run test:unit    # fast unit tests (Vitest, VITEST_FAST mode)
-just tu              # same via just alias
-just ti              # Playwright E2E tests
-just tc              # unit tests with coverage report
+just ci              # audit + fmt + check + lint + build
+just tu / ti / tc    # unit / E2E / coverage
 ```
 
-Pre-commit: Lefthook (oxfmt + oxlint on staged files). Pre-push: `bun run check`.
+Lefthook: pre-commit = oxfmt + oxlint on staged · pre-push = `bun run check`.
 
 ## Stack
 
-| Layer     | Choice                                            |
-| --------- | ------------------------------------------------- |
-| Framework | Svelte 5, SvelteKit 2 (adapter-static)            |
-| Bundler   | Vite 8, Bun                                       |
-| Styling   | Tailwind CSS v4 + CSS custom properties           |
-| WebGPU    | Pure WebGPU + d3-delaunay                         |
-| Content   | mdsvex, Shiki (6 themes), KaTeX                   |
-| Search    | FlexSearch                                        |
-| Linting   | Oxfmt, OXlint, Stylelint                          |
-| Testing   | Vitest + Testing Library (Unit), Playwright (E2E) |
+Svelte 5 (Runes) · SvelteKit 2 (adapter-static) · Vite 8 · Bun · Tailwind v4 (`@theme` in `app.css`) · WebGPU + WGSL · mdsvex + Shiki + KaTeX · FlexSearch · Oxc · Vitest + Playwright.
 
-## Architecture
+## Architecture (FSD)
 
-### Path aliases
+Imports flow upward only: `shared → entities → features → widgets → routes`.
 
-| Alias       | Resolves to    |
+| Alias       | Path           |
 | ----------- | -------------- |
+| `$widgets`  | `src/widgets`  |
 | `$features` | `src/features` |
-| `$shared`   | `src/shared`   |
 | `$entities` | `src/entities` |
+| `$shared`   | `src/shared`   |
 | `$lib`      | `src/lib`      |
 
 ### Key files
 
-- `src/shared/config/site.ts` — single source of truth for all site-wide config (nav links, particle settings, nav hide threshold)
-- `src/app.css` — design tokens (CSS vars), `.glass`, `.mesh-gradient`, `.prose`
-- `src/lib/content.ts` — `getPosts()` / `getPost(slug)` via `import.meta.glob`
+- `src/shared/config/site.ts` — site-wide config (nav, particles, hideThreshold)
+- `src/app.css` — design tokens, `.glass`, `.mesh-gradient`, `.prose`
+- `src/lib/content.ts` — `getPosts()` / `getPost(slug)`
 
-### WebGPU background — `src/features/background/`
+### WebGPU — `src/features/background/`
 
-Two classes: `BackgroundRenderer` (WebGPU init, RAF, two render passes), `Simulation` (CPU particle physics + Delaunay edges). Shaders in WGSL: `particles.wgsl`, `edges.wgsl`, `triangles.wgsl`.
+`BackgroundRenderer` + `Simulation`. WGSL: `particles.wgsl`, `edges.wgsl`, `triangles.wgsl`. STRIDE=8 `[x,y,vx,vy,r,g,b,a]`. Delaunay every 3 frames; edges filtered by `maxDist=150`. Render: edges → particles (additive). Buffers via `device.queue.writeBuffer`. Entry: `BackgroundCanvas.svelte`.
 
-Simulation STRIDE = 8: `[x, y, vx, vy, r, g, b, alpha]`. Delaunay recomputed every 3 frames via `d3-delaunay`. Edges filtered by `maxDist` (default 150 px).
+### Content
 
-Render order per frame:
+Posts: `src/content/blog/*.md` + frontmatter (`title`, `tags`, `created`, `summary`, `draft`). Pipeline: mathPreprocess → vitePreprocess → mdsvex. Math `$x$` / `$$x$$`. Diagrams: ` ```mermaid `.
 
-1. **Edge pass** — instanced triangle-strip quads, one instance per Delaunay edge (additive blend)
-2. **Particle pass** — instanced point-sprite quads (additive blend)
+### Theme
 
-GPU buffers updated CPU→GPU every frame via `device.queue.writeBuffer`. Canvas format uses `alphaMode: 'premultiplied'`.
+`src/features/theme/theme.ts` — localStorage store, toggles `.dark` on `<html>`. Switch via `startViewTransition` + circular clip-path.
 
-Entry point: `src/features/background/ui/BackgroundCanvas.svelte`.
+### Playwright
 
-### Content model
+Base `http://localhost:4173`. `landing` (homepage.spec.ts) runs first; `chromium` depends on it.
 
-Blog posts in `src/content/blog/*.md` with YAML frontmatter: `title`, `tags`, `created` (ISO 8601), `summary`, `draft`.
+## Style
 
-Preprocessing chain: **mathPreprocess** → **vitePreprocess** → **mdsvex**. Math: `$inline$` / `$$display$$`. Diagrams: ` ```mermaid `.
+Tabs · 100 cols · single quotes · es5 trailing commas · semicolons. Svelte 5 runes only. Avoid `// biome-ignore` except for `$state` reassignment. Oxlint: `noNonNullAssertion`/`no-console` → warn.
 
-### Theme system
+## Guardrails
 
-`src/features/theme/theme.ts` — Svelte store, persists to localStorage, toggles `.dark` on `<html>`. Theme switch uses `document.startViewTransition()` with circular `clip-path` reveal.
+- Coverage ≥ 90%
+- Strict TS — no `any`
+- Bun only
+- No Svelte 4 syntax/stores
+- No `tailwind.config.*`
+- No WebGL / Three.js
+- Reuse shared UI: `CodeBlock`, `CodeTabs`, `CopyButton`, `MathCopy`, `Seo`
 
-### Playwright E2E
+## Workflow
 
-Base URL: `http://localhost:4173`. Project order: `landing` (homepage.spec.ts) runs first; `chromium` depends on it and runs all other specs.
-
-## Code style
-
-- **Indent**: tabs · **Line width**: 100 · **Quotes**: single · **Trailing commas**: es5 · **Semicolons**: always
-- Svelte 5 runes only: `$state`, `$derived`, `$props`, `$effect`. No Svelte 4 stores for new code.
-- Avoid `// biome-ignore` unless a `$state` variable must be reassigned.
-- `noNonNullAssertion` → warn, `no-console` → warn (oxlint).
+- Conventional Commits; branches `<type>/<slug>`
+- Plans → `.ai/plans/<YYYY-MM-DD>-<slug>.md` (own PR first)
+- End of branch: `git push -u origin <branch>` + `gh pr create --fill`
+- Updates: `git push --force-with-lease`
