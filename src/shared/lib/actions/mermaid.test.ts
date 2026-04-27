@@ -13,6 +13,7 @@ describe('mermaid action robust', () => {
   type MermaidModule = Awaited<typeof import('mermaid')>;
   type MermaidMock = MermaidModule['default'] & {
     initialize: ReturnType<typeof vi.fn>;
+    run: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -82,7 +83,7 @@ describe('mermaid action robust', () => {
 
     action.update('light');
     await vi.waitFor(() => {
-      if (mermaidLib.initialize.mock.calls.length === 0) {
+      if (mermaidLib.run.mock.calls.length === 0) {
         throw new Error('Not updated yet');
       }
     });
