@@ -14,7 +14,7 @@ const MODES: { id: ModeName; label: string }[] = [
 
 <p class="px-3 pt-2 pb-1 text-xs font-mono text-[--color-text-muted]">Background effect</p>
 
-{#each MODES as m}
+{#each MODES as m (m.id)}
   <button
     type="button"
     onclick={() => { backgroundMode.value = m.id; }}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import type { Post } from '$entities/post/post';
 
   const { prevPost = null, nextPost = null } = $props<{
@@ -13,7 +14,7 @@
       <div>
         {#if prevPost}
           <a
-            href={`/blog/${prevPost.slug}`}
+            href={resolve('/blog/[slug]', { slug: prevPost.slug })}
             class="group flex flex-col gap-1 p-5 h-full rounded-lg border border-[--color-border]
               hover:border-accent/50 hover:bg-[--color-bg-elevated] transition-all duration-200"
           >
@@ -35,7 +36,7 @@
       <div>
         {#if nextPost}
           <a
-            href={`/blog/${nextPost.slug}`}
+            href={resolve('/blog/[slug]', { slug: nextPost.slug })}
             class="group flex flex-col gap-1 p-5 h-full rounded-lg border border-[--color-border]
               hover:border-accent/50 hover:bg-[--color-bg-elevated] transition-all duration-200 text-right"
           >
@@ -59,7 +60,7 @@
 
   <div class="flex items-center justify-between">
     <a
-      href="/blog"
+      href={resolve('/blog')}
       class="inline-flex items-center gap-1.5 text-sm text-accent hover:text-heading
         transition-colors font-mono"
     >

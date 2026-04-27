@@ -1,14 +1,16 @@
 <script lang="ts">
+import { resolve } from '$app/paths';
+
 const { tags, max = 3 } = $props<{ tags: string[]; max?: number }>();
 
 let expanded = $state(false);
 </script>
 
 <div class="flex flex-wrap items-center justify-center gap-1.5 pt-2">
-  {#each tags as tag, ti}
+  {#each tags as tag, ti (tag)}
     {#if expanded || ti < max}
       <a
-        href={`/blog/tag/${tag}`}
+        href={resolve('/blog/tag/[tag]', { tag })}
         class="px-2 py-0.5 rounded text-xs font-mono bg-black/5 dark:bg-white/5 text-accent hover:bg-black/10 dark:hover:bg-white/10 transition-colors duration-[150ms]"
       >
         #{tag}

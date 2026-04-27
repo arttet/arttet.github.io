@@ -1,5 +1,6 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import { resolve } from '$app/paths';
   import type { Post } from '$entities/post/post';
   import TagList from '$entities/post/ui/TagList.svelte';
 
@@ -65,7 +66,7 @@
     class="fixed top-0 left-0 z-nav w-full h-[2px] pointer-events-none"
     aria-hidden="true"
   >
-    {#each milestones as pos}
+    {#each milestones as pos, i (i)}
       <div
         class="absolute top-0 h-full w-px bg-[--color-text-muted]/30"
         style="left: {pos * 100}%"
@@ -76,7 +77,7 @@
 
 <!-- Back link -->
 <a
-  href="/blog"
+  href={resolve('/blog')}
   class="inline-flex items-center gap-1.5 text-xs font-mono text-accent
 		       hover:text-heading transition-colors mb-10"
 >

@@ -1,5 +1,6 @@
 <script lang="ts">
 import { goto } from '$app/navigation';
+import { resolve } from '$app/paths';
 import { searchModel } from '$features/search/model/searchModel.svelte';
 
 function handleSelect(i: number) {
@@ -7,13 +8,13 @@ function handleSelect(i: number) {
 }
 
 async function handleNavigate(slug: string) {
-  await goto(`/blog/${slug}`);
+  await goto(resolve('/blog/[slug]', { slug }));
   searchModel.close();
 }
 </script>
 
 <ul class="py-1 max-h-80 overflow-y-auto" id="search-results-list">
-  {#each searchModel.results as result, i}
+  {#each searchModel.results as result, i (result.slug)}
     <li>
       <button
         type="button"
@@ -31,7 +32,7 @@ async function handleNavigate(slug: string) {
               day: "numeric",
             })}
           </time>
-          {#each result.tags as tag}
+          {#each result.tags as tag (tag)}
             <span
               class="px-1.5 py-0.5 rounded text-xs font-mono bg-black/5 dark:bg-white/5 text-accent"
               >#{tag}</span

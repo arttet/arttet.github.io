@@ -1,4 +1,5 @@
 <script lang="ts">
+import { resolve } from '$app/paths';
 import Logo from '$shared/ui/Logo.svelte';
 
 const { tag, count } = $props<{ tag?: string; count: number }>();
@@ -9,7 +10,7 @@ const { tag, count } = $props<{ tag?: string; count: number }>();
   <div class="flex items-center justify-between gap-4 flex-wrap">
     <div class="flex items-center gap-4">
       <a
-        href="/"
+        href={resolve('/')}
         aria-label="Home"
         class="shrink-0 hover:scale-105 transition-transform duration-200"
       >
@@ -19,7 +20,7 @@ const { tag, count } = $props<{ tag?: string; count: number }>();
     </div>
     {#if tag}
       <a
-        href="/blog"
+        href={resolve('/blog')}
         class="text-sm font-mono text-text-muted hover:text-text
       transition-colors shrink-0"
       >

@@ -102,7 +102,7 @@ const jsonLdScript = $derived(
   {#if modifiedTime}
     <meta property="article:modified_time" content={modifiedTime}>
   {/if}
-  {#each tags as tag}
+  {#each tags as tag (tag)}
     <meta property="article:tag" content={tag}>
   {/each}
 

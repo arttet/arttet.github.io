@@ -12,11 +12,10 @@ export default [
     },
     rules: {
       'svelte/no-at-html-tags': 'error',
+      'svelte/no-navigation-without-resolve': 'error',
       'svelte/no-target-blank': 'error',
+      'svelte/require-each-key': 'error',
       'svelte/valid-compile': 'error',
-      // Stylistic — defer to a follow-up Svelte best-practices PR.
-      'svelte/no-navigation-without-resolve': 'off',
-      'svelte/require-each-key': 'off',
     },
   },
   {

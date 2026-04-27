@@ -1,4 +1,5 @@
 <script lang="ts">
+import { resolve } from '$app/paths';
 import GlassEffect from '$features/background/ui/GlassEffect.svelte';
 import { site } from '$shared/config/site';
 import Logo from '$shared/ui/Logo.svelte';
@@ -23,9 +24,9 @@ import Logo from '$shared/ui/Logo.svelte';
 
     <!-- Nav buttons -->
     <div class="flex flex-col w-full gap-2">
-      {#each site.nav.links as { label, href }}
+      {#each site.nav.links as { label, href } (href)}
         <a
-          {href}
+          href={resolve(href)}
           class="w-full py-2 rounded-xl text-sm text-center font-mono
                  text-accent border border-border
                  bg-black/5 dark:bg-white/5

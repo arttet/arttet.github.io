@@ -1,4 +1,5 @@
 <script lang="ts">
+import { resolve } from '$app/paths';
 import type { Post } from '$entities/post/post';
 import TagList from './TagList.svelte';
 
@@ -13,7 +14,9 @@ const { post } = $props<{ post: Post }>();
   <h2
     class="text-lg font-semibold text-[--color-heading] leading-snug group-hover:text-accent transition-colors duration-[150ms]"
   >
-    <a href={`/blog/${post.slug}`} class="after:absolute after:inset-0 after:z-0"> {post.title} </a>
+    <a
+      href={resolve('/blog/[slug]', { slug: post.slug })}
+      class="after:absolute after:inset-0 after:z-0">{post.title}</a>
   </h2>
 
   {#if post.summary}
