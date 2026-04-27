@@ -1,4 +1,5 @@
 <script lang="ts">
+import { page } from '$app/state';
 import appleTouchIcon from '$lib/assets/apple-touch-icon.png?url';
 import faviconIco from '$lib/assets/favicon.ico?url';
 import faviconPng from '$lib/assets/icons/favicon.png?url';
@@ -27,6 +28,7 @@ let {
 }>();
 
 const fullTitle = $derived(title === site.title ? title : `${title} — ${site.title}`);
+const canonicalUrl = $derived(`${site.url}${page.url.pathname}`);
 const absoluteImage = $derived.by(() => {
   if (image.startsWith('http://') || image.startsWith('https://')) {
     return image;
@@ -76,6 +78,7 @@ const jsonLdScript = $derived(
 <svelte:head>
   <title>{fullTitle}</title>
   <meta name="description" content={description}>
+  <link rel="canonical" href={canonicalUrl}>
 
   <!-- Icons -->
   <link rel="icon" type="image/svg+xml" href={logoSvg} />
