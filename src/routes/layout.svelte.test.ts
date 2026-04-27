@@ -68,7 +68,7 @@ describe('root layout', () => {
     const scrollToMock = vi.fn();
     window.scrollTo = scrollToMock;
 
-    let afterNavigateCallback: (() => void) | undefined;
+    let afterNavigateCallback: ((nav: { to: { url: URL } | null }) => void) | undefined;
     afterNavigateMock.mockImplementation((cb) => {
       afterNavigateCallback = cb;
     });
@@ -90,8 +90,14 @@ describe('root layout', () => {
     Object.defineProperty(window, 'scrollY', { value: 120, configurable: true });
     await fireEvent.scroll(window);
 
-    afterNavigateCallback?.();
+    afterNavigateCallback?.({ to: { url: new URL('https://arttet.github.io/about') } });
     expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
+
+    scrollToMock.mockClear();
+    afterNavigateCallback?.({
+      to: { url: new URL('https://arttet.github.io/about#section') },
+    });
+    expect(scrollToMock).not.toHaveBeenCalled();
   });
 
   it('registers view transition navigation hook and hides layout seo on blog pages', async () => {
