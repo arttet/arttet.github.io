@@ -1,16 +1,37 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { navAnchored } from '$features/theme/model/navAnchor.svelte';
+
+const { readingModeMock } = vi.hoisted(() => ({
+  readingModeMock: { value: false },
+}));
+
+vi.mock('$features/theme/model/readingMode.svelte', () => ({
+  readingMode: readingModeMock,
+}));
+
 import SettingsPanel from './SettingsPanel.svelte';
 
 describe('SettingsPanel', () => {
   it('toggles open state', async () => {
+    readingModeMock.value = false;
     render(SettingsPanel);
     const btn = screen.getByLabelText('Settings');
     await fireEvent.click(btn);
 
     expect(navAnchored.value).toBe(true);
     expect(screen.getByText('Code theme')).toBeInTheDocument();
+    // Background mode list should be visible
+    expect(screen.getByText('Background effect')).toBeInTheDocument();
+  });
+
+  it('hides background settings in reading mode', async () => {
+    readingModeMock.value = true;
+    render(SettingsPanel);
+    const btn = screen.getByLabelText('Settings');
+    await fireEvent.click(btn);
+
+    expect(screen.queryByText('Background effect')).toBeNull();
   });
 
   it('closes on escape key and restores focus', async () => {

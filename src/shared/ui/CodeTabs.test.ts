@@ -20,6 +20,7 @@ describe('CodeTabs', () => {
   ];
 
   beforeEach(() => {
+    vi.clearAllMocks();
     Object.assign(navigator, {
       clipboard: {
         writeText: vi.fn().mockImplementation(() => Promise.resolve()),
@@ -71,5 +72,22 @@ describe('CodeTabs', () => {
     });
 
     expect(screen.getByLabelText('Copy bash')).toBeInTheDocument();
+  });
+
+  it('updates highlighting when switching tabs', async () => {
+    const { highlightCode } = await import('$lib/highlighter');
+    render(CodeTabs, { tabs });
+
+    // Wait for initial render highlight
+    await waitFor(() => {
+      expect(highlightCode).toHaveBeenCalledWith('const x = 1;', 'ts');
+    });
+
+    vi.mocked(highlightCode).mockClear();
+    await fireEvent.click(screen.getByText('Go'));
+
+    await waitFor(() => {
+      expect(highlightCode).toHaveBeenCalledWith('package main', 'go');
+    });
   });
 });

@@ -111,6 +111,19 @@ describe('root layout', () => {
     expect(onNavigateMock).toHaveBeenCalled();
   });
 
+  it('handles missing ViewTransition support gracefully', async () => {
+    const { startViewTransition } = document;
+    (document as any).startViewTransition = undefined;
+
+    render(Layout, { children: emptySnippet });
+
+    const callback = onNavigateMock.mock.lastCall?.[0];
+    const result = callback({ complete: Promise.resolve() });
+    expect(result).toBeUndefined();
+
+    document.startViewTransition = startViewTransition;
+  });
+
   it('renders background canvas when reading mode is disabled and runs navigation callback branches', async () => {
     readingModeState.value = false;
     document.startViewTransition = createViewTransitionMock();
@@ -130,5 +143,28 @@ describe('root layout', () => {
       )
     ).resolves.toBeUndefined();
     expect(document.startViewTransition).toHaveBeenCalled();
+  });
+
+  it('handles hash scroll effect', async () => {
+    vi.useFakeTimers();
+    pageState.url = new URL('https://arttet.github.io/about#test-id');
+
+    const focusMock = vi.fn();
+    const scrollMock = vi.fn();
+    const el = document.createElement('div');
+    el.id = 'test-id';
+    el.focus = focusMock;
+    el.scrollIntoView = scrollMock;
+    document.body.appendChild(el);
+
+    render(Layout, { children: emptySnippet });
+
+    vi.advanceTimersByTime(150);
+
+    expect(focusMock).toHaveBeenCalledWith({ preventScroll: true });
+    expect(scrollMock).toHaveBeenCalled();
+
+    document.body.removeChild(el);
+    vi.useRealTimers();
   });
 });
