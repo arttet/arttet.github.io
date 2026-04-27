@@ -189,6 +189,8 @@ just tc
 just lint
 just check
 just fmt
+
+bunx playwright test --project chrome-desktop --no-deps --reporter=list
 ```
 
 ---

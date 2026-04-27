@@ -19,7 +19,7 @@ unit:
 [no-cd]
 integration:
     @echo "🧪 Running Playwright tests..."
-    bun run test:playwright
+    bun run test:playwright --reporter=list --timeout=60000
     @echo "✅ Playwright tests passed!"
 
 [doc('Generate coverage')]

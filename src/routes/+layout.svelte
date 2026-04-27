@@ -33,7 +33,21 @@ onNavigate((navigation) => {
   });
 });
 
-afterNavigate(() => {
+$effect(() => {
+  if (!browser || !page.url.hash) return;
+  const id = decodeURIComponent(page.url.hash.slice(1));
+  const timer = setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.focus({ preventScroll: true });
+      el.scrollIntoView();
+    }
+  }, 100);
+  return () => clearTimeout(timer);
+});
+
+afterNavigate((nav) => {
+  if (nav.to?.url.hash) return;
   window.scrollTo({ top: 0, behavior: 'instant' });
 });
 
