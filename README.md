@@ -97,7 +97,7 @@ The hook configuration lives in `lefthook.yml`.
 
 ### Hooks
 
-**`pre-commit`** — runs in parallel on every commit:
+- **`pre-commit`** — runs in parallel on every commit:
 
 | Check                    | Files                          |
 | ------------------------ | ------------------------------ |
@@ -106,6 +106,9 @@ The hook configuration lives in `lefthook.yml`.
 | `stylelint --fix`        | `*.{css,svelte}`               |
 | `markdownlint`           | `src/content/**/*.md`          |
 | `bun audit`              | —                              |
+
+- **`commit-msg`** — validates conventional commit format via `commitlint`.
+- **`pre-push`** — runs security scans (`gitleaks`) against staged content.
 
 ### Updating hooks
 
