@@ -16,7 +16,7 @@ async function handleNavigate(tag: string) {
 {:else}
   {#if searchModel.tags.length}
     <div class="px-4 pt-3 pb-2 border-b border-[--color-border]/50">
-      <p class="text-xs font-mono text-[--color-text-muted] mb-2">Browse by tag</p>
+      <p class="text-xs text-[--color-text-muted] mb-2">Browse by tag</p>
       <div class="flex flex-wrap gap-2">
         {#each searchModel.showAllTags ? searchModel.tags : searchModel.tags.slice(0, 3) as t (t.name)}
           <a
@@ -41,7 +41,7 @@ async function handleNavigate(tag: string) {
       </div>
     </div>
   {/if}
-  <p class="px-4 pb-6 pt-4 text-center text-sm text-[--color-text-muted] font-mono">
+  <p class="px-4 pb-6 pt-4 text-center text-sm text-[--color-text-muted]">
     Type to search posts…
   </p>
 {/if}

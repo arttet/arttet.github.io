@@ -18,7 +18,7 @@
             class="group flex flex-col gap-1 p-5 h-full rounded-lg border border-[--color-border]
               hover:border-accent/50 hover:bg-[--color-bg-elevated] transition-all duration-200"
           >
-            <span class="text-xs font-mono text-[--color-text-muted]">← Previous page</span>
+            <span class="text-xs text-[--color-text-muted]">← Previous page</span>
             <span
               class="text-sm font-semibold text-[--color-heading] group-hover:text-accent
                 transition-colors duration-150 line-clamp-2"
@@ -40,7 +40,7 @@
             class="group flex flex-col gap-1 p-5 h-full rounded-lg border border-[--color-border]
               hover:border-accent/50 hover:bg-[--color-bg-elevated] transition-all duration-200 text-right"
           >
-            <span class="text-xs font-mono text-[--color-text-muted]">Next page →</span>
+            <span class="text-xs text-[--color-text-muted]">Next page →</span>
             <span
               class="text-sm font-semibold text-[--color-heading] group-hover:text-accent
                 transition-colors duration-150 line-clamp-2"

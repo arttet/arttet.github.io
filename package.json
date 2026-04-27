@@ -24,6 +24,7 @@
     "test:playwright:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@fontsource-variable/geist": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "d3-delaunay": "^6.0.4",
     "flexsearch": "^0.8.212",

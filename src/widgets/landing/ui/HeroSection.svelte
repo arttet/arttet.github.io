@@ -17,7 +17,7 @@ import Logo from '$shared/ui/Logo.svelte';
       <h1 class="text-xl font-semibold text-heading tracking-tight drop-shadow-sm">
         {site.author.name}
       </h1>
-      <p class="text-sm text-text-muted font-mono">{site.author.title}</p>
+      <p class="text-sm text-text-muted">{site.author.title}</p>
     </div>
 
     <div class="w-full h-px bg-border"></div>
@@ -27,7 +27,7 @@ import Logo from '$shared/ui/Logo.svelte';
       {#each site.nav.links as { label, href } (href)}
         <a
           href={resolve(href)}
-          class="w-full py-2 rounded-xl text-sm text-center font-mono
+          class="w-full py-2 rounded-xl text-sm text-center
                  text-accent border border-border
                  bg-black/5 dark:bg-white/5
                  hover:text-text hover:bg-black/10 dark:hover:bg-white/10

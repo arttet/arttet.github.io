@@ -21,7 +21,7 @@ const { tag, count } = $props<{ tag?: string; count: number }>();
     {#if tag}
       <a
         href={resolve('/blog')}
-        class="text-sm font-mono text-text-muted hover:text-text
+        class="text-sm text-text-muted hover:text-text
       transition-colors shrink-0"
       >
         ✕ clear filter
