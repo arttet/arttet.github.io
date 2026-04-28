@@ -80,6 +80,24 @@ describe('BackgroundCanvas', () => {
       }))
     );
 
+    // Mock WebGPU support detection.
+    Object.defineProperty(navigator, 'gpu', {
+      configurable: true,
+      value: {
+        requestAdapter: vi.fn().mockResolvedValue({}),
+      },
+    });
+
+    // Run idle callbacks synchronously so init fires inside waitFor.
+    vi.stubGlobal(
+      'requestIdleCallback',
+      vi.fn((cb: () => void) => {
+        cb();
+        return 1;
+      })
+    );
+    vi.stubGlobal('cancelIdleCallback', vi.fn());
+
     backgroundState.glassRect = { x: 1, y: 2, w: 3, h: 4 };
   });
 
@@ -94,6 +112,8 @@ describe('BackgroundCanvas', () => {
     );
 
     const { container, unmount } = render(BackgroundCanvas, { mode: 'flow' });
+
+    await waitFor(() => expect(container.querySelector('canvas')).toBeInTheDocument());
     const canvas = container.querySelector('canvas') as HTMLCanvasElement;
 
     canvas.getBoundingClientRect = () =>
@@ -135,7 +155,24 @@ describe('BackgroundCanvas', () => {
     expect(cancelAnimationFrame).toHaveBeenCalledWith(1);
   });
 
-  it('renders static fallback when initialization fails', async () => {
+  it('renders static fallback when WebGPU adapter is unavailable', async () => {
+    Object.defineProperty(navigator, 'gpu', {
+      configurable: true,
+      value: {
+        requestAdapter: vi.fn().mockResolvedValue(null),
+      },
+    });
+
+    const { container } = render(BackgroundCanvas);
+
+    await waitFor(() =>
+      expect(container.querySelector('div[aria-hidden="true"]')).toBeInTheDocument()
+    );
+    expect(container.querySelector('div.mesh-gradient')).toBeInTheDocument();
+    expect(init).not.toHaveBeenCalled();
+  });
+
+  it('renders static fallback when scene initialization throws', async () => {
     init.mockRejectedValueOnce(new Error('gpu fail'));
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 

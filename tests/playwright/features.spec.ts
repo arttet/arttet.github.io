@@ -50,9 +50,7 @@ test.describe('Features', () => {
   test('reading mode toggle simplifies layout', async ({ page }) => {
     await page.goto(BLOG_INIT_POST);
     await page.waitForTimeout(1000);
-    const backgroundLayer = page.locator(
-      'canvas, div[aria-hidden="true"][style*="background-image"]'
-    );
+    const backgroundLayer = page.locator('canvas, div.mesh-gradient');
 
     await page.getByRole('button', { name: 'Settings' }).evaluate((el: HTMLElement) => el.click());
 
