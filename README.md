@@ -54,8 +54,8 @@ Available recipes:
     [Baselines]
     baseline:
         bundle    # Update bundle baseline
-        snapshots # Update snapshots
-        ci        # Update snapshots for CI
+        snapshots # Update testing snapshots
+        ci        # Update testing snapshots for CI
 
     [Deployment]
     deploy:
@@ -115,26 +115,60 @@ The hook configuration lives in `lefthook.yml`.
 - **`commit-msg`** — validates conventional commit format via `commitlint`.
 - **`pre-push`** — runs security scans (`gitleaks`) against staged content.
 
-### Updating hooks
-
-After pulling changes to `lefthook.yml`, reinstall to apply them:
-
-```sh
-bunx lefthook install
-```
-
 ## Testing
 
 ### Unit tests
 
-`just tu` (alias for `test unit`) runs Vitest with `VITEST_FAST=true`, which skips heavy DOM/Svelte component tests for a fast feedback loop. Use this during development.
+Fast unit tests:
 
-To run the full suite including component tests:
+```sh
+just test unit
+```
+
+This runs Vitest with `VITEST_FAST=true` for a quick development feedback loop.
+
+Full unit suite with coverage:
 
 ```sh
 just test coverage
 ```
 
-### E2E tests
+Use coverage before opening a PR when component behavior changed. Coverage must stay at or above 90%.
 
-`just ti` runs Playwright against the production build at `http://localhost:4173`.
+### Playwright tests
+
+Run Playwright integration/E2E tests:
+
+```sh
+just test integration
+```
+
+Direct Playwright command for the desktop Chrome project:
+
+```sh
+bunx playwright test --project chrome-desktop --no-deps --reporter=list
+```
+
+### All local tests
+
+Run unit, Playwright integration, and coverage:
+
+```sh
+just test all
+```
+
+### Snapshot testing
+
+Visual regression tests use Playwright `toHaveScreenshot`. Current post snapshots live under the Playwright snapshot folders and are validated on `chrome-desktop`.
+
+Update local snapshots:
+
+```sh
+just baseline snapshots
+```
+
+Update CI snapshots through Docker:
+
+```sh
+just baseline ci
+```

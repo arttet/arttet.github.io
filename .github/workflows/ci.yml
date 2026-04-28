@@ -7,6 +7,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: '0 1 * * 1' # Mondays 01:00 UTC
   workflow_dispatch:
 
 permissions:
@@ -104,7 +106,7 @@ jobs:
       - name: Run Oxfmt
         run: bunx oxfmt --check .
 
-      - name: Run OXlint
+      - name: Run Oxlint
         run: bunx --bun oxlint --deny-warnings .
 
       - name: Type check

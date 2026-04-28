@@ -6,7 +6,7 @@ bundle:
     bun scripts/bundle-report.mjs baseline --stats target/bundle/stats.json --baseline misc/bundle-baseline.json
     @echo "✅ Bundle baseline updated"
 
-[doc('Update snapshots')]
+[doc('Update testing snapshots')]
 [no-cd]
 snapshots:
     @just build
@@ -14,7 +14,7 @@ snapshots:
     bunx playwright test --update-snapshots
     @echo "✅ Snapshots updated"
 
-[doc('Update snapshots for CI')]
+[doc('Update testing snapshots for CI')]
 [no-cd]
 ci:
     @just build
