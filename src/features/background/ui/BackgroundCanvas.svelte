@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte';
+import { onDestroy, onMount, tick } from 'svelte';
 import { browser } from '$app/environment';
 import type { ModeName } from '$features/background/core/BackgroundScene';
 import { BackgroundScene } from '$features/background/core/BackgroundScene';
@@ -11,11 +11,39 @@ let { mode = $bindable<ModeName>('particles') }: { mode?: ModeName } = $props();
 
 let canvas = $state<HTMLCanvasElement | null>(null);
 let scene = $state<BackgroundScene | null>(null);
-let failed = $state(false);
+let supported = $state<boolean | null>(null);
 let rafId = 0;
 let lastTime = 0;
 let paused = false;
 let removeVisibility: (() => void) | undefined;
+let idleHandle: number | undefined;
+
+async function detectWebGPU(): Promise<boolean> {
+  if (!('gpu' in navigator) || !navigator.gpu) {
+    return false;
+  }
+  try {
+    const adapter = await navigator.gpu.requestAdapter();
+    return !!adapter;
+  } catch {
+    return false;
+  }
+}
+
+function runWhenIdle(cb: () => void): number {
+  if (typeof window.requestIdleCallback === 'function') {
+    return window.requestIdleCallback(cb);
+  }
+  return window.setTimeout(cb, 0) as unknown as number;
+}
+
+function cancelIdle(handle: number) {
+  if (typeof window.cancelIdleCallback === 'function') {
+    window.cancelIdleCallback(handle);
+    return;
+  }
+  window.clearTimeout(handle);
+}
 
 function parseBgColor(): [number, number, number] {
   const hex = getComputedStyle(document.documentElement)
@@ -29,8 +57,8 @@ function parseBgColor(): [number, number, number] {
   ];
 }
 
-onMount(async () => {
-  if (!browser || !canvas) {
+async function startScene() {
+  if (!canvas) {
     return;
   }
 
@@ -45,9 +73,9 @@ onMount(async () => {
       cursorMode: 'attract',
     });
   } catch (e) {
-     
+
     console.error('Background scene initialization failed:', e);
-    failed = true;
+    supported = false;
     return;
   }
   await s.setMode(mode);
@@ -74,6 +102,26 @@ onMount(async () => {
   };
   document.addEventListener('visibilitychange', onVisibility);
   removeVisibility = () => document.removeEventListener('visibilitychange', onVisibility);
+}
+
+onMount(async () => {
+  if (!browser) {
+    return;
+  }
+
+  const ok = await detectWebGPU();
+  supported = ok;
+  if (!ok) {
+    return;
+  }
+
+  // Wait for canvas to mount after `supported = true`, then defer init to idle.
+  await tick();
+
+  idleHandle = runWhenIdle(() => {
+    idleHandle = undefined;
+    void startScene();
+  });
 });
 
 $effect(() => {
@@ -114,23 +162,27 @@ onDestroy(() => {
   if (!browser) {
     return;
   }
+  if (idleHandle !== undefined) {
+    cancelIdle(idleHandle);
+    idleHandle = undefined;
+  }
   cancelAnimationFrame(rafId);
   scene?.destroy();
   removeVisibility?.();
 });
 </script>
 
-{#if failed}
+{#if supported === false}
   <div
-    class="fixed inset-0 z-[-10] pointer-events-none bg-[--color-bg]"
+    class="mesh-gradient fixed inset-0 z-[-10] pointer-events-none"
     aria-hidden="true"
-    style="background-image: radial-gradient(circle at 50% 50%, var(--color-bg-elevated) 0%, var(--color-bg) 100%)"
   ></div>
-{:else}
+{:else if supported === true}
   <canvas
     bind:this={canvas}
     class="fixed inset-0 w-full h-full z-[-10]"
-    onmousemove={(e) => {      const r = canvas?.getBoundingClientRect();
+    onmousemove={(e) => {
+      const r = canvas?.getBoundingClientRect();
       if (r) {
         scene?.setCursor(e.clientX - r.left, e.clientY - r.top);
       }

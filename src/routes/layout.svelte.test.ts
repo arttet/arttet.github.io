@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { Snippet } from 'svelte';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -130,9 +130,11 @@ describe('root layout', () => {
 
     render(Layout, { children: emptySnippet });
 
-    expect(
-      document.querySelector('canvas') ?? document.querySelector('div[aria-hidden="true"]')
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        document.querySelector('canvas') ?? document.querySelector('div[aria-hidden="true"]')
+      ).toBeInTheDocument();
+    });
 
     const navigation = { complete: Promise.resolve() };
     const callback = onNavigateMock.mock.lastCall?.[0];
