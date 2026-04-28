@@ -23,6 +23,10 @@ pre-commit:
       glob: 'src/content/**/*.md'
       run: bunx markdownlint-cli2 --fix {staged_files}
 
+    cspell:
+      glob: '{*.{md,svelte,ts},**/*.{md,svelte,ts}}'
+      run: bunx cspell --no-progress --no-summary --no-must-find-files {staged_files}
+
     audit:
       run: bun audit
 
