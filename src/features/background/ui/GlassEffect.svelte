@@ -12,13 +12,25 @@ function update() {
 }
 
 onMount(() => {
+  let raf = 0;
+  function onScroll() {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      update();
+    });
+  }
+
+  const ro = new ResizeObserver(update);
+  if (el?.parentElement) ro.observe(el.parentElement);
+
   update();
-  window.addEventListener('resize', update);
-  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('scroll', onScroll, { passive: true });
 
   return () => {
-    window.removeEventListener('resize', update);
-    window.removeEventListener('scroll', update);
+    if (raf) cancelAnimationFrame(raf);
+    window.removeEventListener('scroll', onScroll);
+    ro.disconnect();
     backgroundState.glassRect = null;
   };
 });
