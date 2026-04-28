@@ -22,21 +22,25 @@ This project uses `just` as the primary task runner for managing development wor
 ```text
 $ just help
 Available recipes:
-    default # Show help
-    help    # List all commands
+    default   # Show help
+    help      # List all commands
+
+    [Authoring]
+    new title # Scaffold post
+    spell     # Spell check
 
     [Development]
-    install # Install dependencies
-    update  # Update dependencies
-    audit   # Audit dependencies
-    fmt     # Format code
-    check   # Type check
-    lint    # Run linters
-    build   # Build production build
-    preview # Start production server
-    dev     # Start development server
-    clean   # Remove build artifacts
-    ci      # Run CI pipeline
+    install   # Install dependencies
+    update    # Update dependencies
+    audit     # Audit dependencies
+    fmt       # Format code
+    check     # Type check
+    lint      # Run linters
+    build     # Build production build
+    preview   # Start production server
+    dev       # Start development server
+    clean     # Remove build artifacts
+    ci        # Run CI pipeline
 
     [Testing]
     test:
@@ -55,7 +59,6 @@ Available recipes:
 
     [Deployment]
     deploy:
-        [Deployment]
         list        # List Cloudflare Pages projects
         create name # Create a Cloudflare Pages project
         delete name # Delete a Cloudflare Pages project
@@ -97,15 +100,16 @@ The hook configuration lives in `lefthook.yml`.
 
 ### Hooks
 
-- **`pre-commit`** — runs in parallel on every commit:
+- **`pre-commit`** — runs sequentially on every commit:
 
-| Check                    | Files                          |
-| ------------------------ | ------------------------------ |
-| `oxfmt --write`          | `*.{js,ts,svelte,json,css,md}` |
-| `oxlint --deny-warnings` | `*.{js,ts,svelte}`             |
-| `stylelint --fix`        | `*.{css,svelte}`               |
-| `markdownlint`           | `src/content/**/*.md`          |
-| `bun audit`              | —                              |
+| Check                    | Files                              |
+| ------------------------ | ---------------------------------- |
+| `oxfmt --write`          | `*.{js,ts,svelte,json,css,yml,md}` |
+| `oxlint --deny-warnings` | `*.{js,ts,svelte}`                 |
+| `stylelint --fix`        | `*.{css,svelte}`                   |
+| `markdownlint --fix`     | `src/content/**/*.md`              |
+| `cspell`                 | `*.{md,svelte,ts}`                 |
+| `bun audit`              | —                                  |
 
 - **`commit-msg`** — validates conventional commit format via `commitlint`.
 - **`pre-push`** — runs security scans (`gitleaks`) against staged content.

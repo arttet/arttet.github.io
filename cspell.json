@@ -1,0 +1,6 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "ignorePaths": ["node_modules", "target", "bun.lock", "package.json", ".svelte-kit"],
+  "words": ["lhci", "bunx", "oxlint"]
+}

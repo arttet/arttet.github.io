@@ -24,6 +24,34 @@ help:
     @just --list --unsorted --list-submodules
 
 # ==============================================================================
+# Authoring
+# ==============================================================================
+
+[doc('Scaffold post')]
+[group('Authoring')]
+new title:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    title='{{ title }}'
+    [[ -n "$title" ]] || { echo "Usage: just new <title>" >&2; exit 1; }
+    slug=$(echo "$title" | tr '[:upper:]' '[:lower:]' | sd '[^a-z0-9 ]' '' | sd ' +' '-')
+    date=$(date +%Y-%m-%d)
+    target="src/content/blog/${date%%-*}/${date}-${slug}.md"
+    mkdir -p "$(dirname "$target")"
+    set -C
+    sd '__TITLE__' "$title" < misc/templates/post.md.template | sd '__DATE__' "$date" > "$target"
+    echo "✅ Created: $target"
+
+[doc('Spell check')]
+[group('Authoring')]
+spell:
+    @echo "🔤 Running CSpell..."
+    bunx cspell '**/*.{md,svelte,ts}'
+    @echo "🔍 Running Markdownlint..."
+    bunx markdownlint-cli2 --fix "src/content/**/*.md"
+    @echo "✅ Spell check complete!"
+
+# ==============================================================================
 # Development
 # ==============================================================================
 
@@ -77,8 +105,6 @@ lint:
     bunx stylelint --fix "src/**/*.css" "src/**/*.svelte"
     @echo "🧹 Running Knip..."
     bunx knip --no-config-hints
-    @echo "🔍 Running Markdownlint..."
-    bunx markdownlint-cli2 --fix "src/content/**/*.md"
     @echo "🔍 Running ESLint..."
     bunx eslint "**/*.svelte" --fix --max-warnings=0
     @echo "✅ Linting complete!"
@@ -111,7 +137,7 @@ clean:
 
 [doc('Run CI pipeline')]
 [group('Development')]
-ci: audit fmt check lint build
+ci: audit fmt check spell lint build
     @echo "🚀 All systems go! Ready to push."
 
 # ==============================================================================
