@@ -33,6 +33,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
       - name: Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
@@ -41,9 +49,6 @@ jobs:
       - name: Review dependency changes
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions/dependency-review-action@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
 
       - name: Restore Bun cache
         uses: actions/cache@v5
@@ -77,6 +82,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
@@ -91,26 +101,31 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Type check
-        run: bun run check
-
       - name: Run Oxfmt
         run: bunx oxfmt --check .
 
       - name: Run OXlint
-        run: bunx oxlint --deny-warnings .
+        run: bunx --bun oxlint --deny-warnings .
+
+      - name: Type check
+        run: |
+          bunx --bun svelte-kit sync
+          bunx --bun svelte-check --tsconfig ./tsconfig.json
 
       - name: Run Stylelint
-        run: bunx stylelint "src/**/*.css" "src/**/*.svelte"
+        run: bunx --bun stylelint "src/**/*.css" "src/**/*.svelte"
 
       - name: Run Knip
         run: bunx knip --no-config-hints
 
       - name: Run Markdownlint
-        run: bunx markdownlint-cli2 "src/content/**/*.md"
+        run: bunx --bun markdownlint-cli2 "src/content/**/*.md"
+
+      - name: Run Spellcheck
+        run: bunx --bun cspell "**/*.{md,svelte,ts}"
 
       - name: Run ESLint (Svelte AST)
-        run: bunx eslint "**/*.svelte" --max-warnings=0
+        run: bunx --bun eslint "**/*.svelte" --max-warnings=0
 
   build:
     name: Build
@@ -119,11 +134,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
 
       - name: Restore Bun cache
         uses: actions/cache@v5
@@ -140,7 +160,7 @@ jobs:
         run: bun audit
 
       - name: Build site
-        run: bun run build
+        run: bun --bun run build
 
       - name: Upload Cloudflare Pages artifact
         uses: actions/upload-artifact@v7
@@ -166,6 +186,7 @@ jobs:
     name: Playwright
     runs-on: ubuntu-latest
     needs: [audit, lint, build]
+
     strategy:
       fail-fast: false
       matrix:
@@ -174,9 +195,15 @@ jobs:
           - chrome-mobile
           - firefox-desktop
           - firefox-mobile
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -230,15 +257,22 @@ jobs:
     name: Lighthouse
     runs-on: ubuntu-latest
     needs: [audit, lint, build]
+
     strategy:
       fail-fast: false
       matrix:
         target:
           - chrome-desktop
           - chrome-mobile
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -277,9 +311,15 @@ jobs:
     name: Coverage
     runs-on: ubuntu-latest
     needs: [audit, lint]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -334,6 +374,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
@@ -387,13 +432,16 @@ jobs:
       github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     needs: [audit, lint, build, playwright, lighthouse, coverage, bundle]
+
     permissions:
       contents: read
       pages: write
       id-token: write
+
     environment:
       name: github-pages
       url: ${{ steps.github_pages.outputs.page_url }}
+
     steps:
       - name: Release on GitHub Pages
         id: github_pages
@@ -411,10 +459,12 @@ jobs:
       github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     needs: [audit, lint, build, playwright, lighthouse, coverage, bundle]
+
     permissions:
       actions: read
       contents: read
       pull-requests: write
+
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -426,9 +476,15 @@ jobs:
       HAS_CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
       HAS_CF_SITE_PROJECT: ${{ vars.CF_PAGES_PROJECT != '' }}
       HAS_CF_INFRA_PROJECT: ${{ vars.CF_INFRA_PAGES_PROJECT != '' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2

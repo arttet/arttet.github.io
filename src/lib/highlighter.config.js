@@ -20,36 +20,36 @@ export const LANGS = [
 ];
 
 /** @type {string[]} */
-let _themeIds = [];
+let themeIds = [];
 /** @type {import('shiki').Highlighter | null} */
-let _hl = null;
+let hl = null;
 /** @type {Promise<import('shiki').Highlighter> | null} */
-let _promise = null;
+let promise = null;
 
 /**
  * @param {string[]} ids
  */
 export function setThemes(ids) {
-  _themeIds = ids;
+  themeIds = ids;
 }
 
 /**
  * @returns {Promise<import('shiki').Highlighter>}
  */
 export async function getHighlighter() {
-  if (_hl) {
-    return _hl;
+  if (hl) {
+    return hl;
   }
-  if (!_promise) {
-    const ids = _themeIds;
+  if (!promise) {
+    const ids = themeIds;
     const { createHighlighter } = await import('shiki');
-    _promise = createHighlighter({
+    promise = createHighlighter({
       themes: ids,
       langs: [],
     }).then((h) => {
-      _hl = h;
+      hl = h;
       return h;
     });
   }
-  return _promise;
+  return promise;
 }

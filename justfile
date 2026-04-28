@@ -1,11 +1,4 @@
 # ==============================================================================
-# Global Settings
-# ==============================================================================
-# Disable POSIX path conversion in Git Bash (Windows)
-
-export MSYS_NO_PATHCONV := "1"
-
-# ==============================================================================
 # Project Settings
 # ==============================================================================
 
@@ -46,9 +39,9 @@ new title:
 [group('Authoring')]
 spell:
     @echo "🔤 Running CSpell..."
-    bunx cspell '**/*.{md,svelte,ts}'
+    bunx --bun cspell '**/*.{md,svelte,ts}'
     @echo "🔍 Running Markdownlint..."
-    bunx markdownlint-cli2 --fix "src/content/**/*.md"
+    bunx --bun markdownlint-cli2 --fix "src/content/**/*.md"
     @echo "✅ Spell check complete!"
 
 # ==============================================================================
@@ -80,6 +73,7 @@ audit:
 [group('Development')]
 fmt:
     @echo "✨ Formatting code..."
+    just --fmt
     @echo "🔍 Running Oxfmt..."
     bunx oxfmt --write .
     @echo "✅ Code formatted!"
@@ -87,46 +81,48 @@ fmt:
 [doc('Type check')]
 [group('Development')]
 check:
-    @echo "🔍 Type checking..."
-    bunx svelte-kit sync
-    bunx svelte-check --tsconfig ./tsconfig.json --incremental
-    @echo "🔍 Checking lefthook..."
-    bunx lefthook validate
+    @echo "✨ Checking just..."
+    just --fmt --check
     @echo "🧹 Checking Oxfmt..."
     bunx oxfmt --check .
+    @echo "🔍 Type checking..."
+    bunx --bun svelte-kit sync
+    bunx --bun svelte-check --tsconfig ./tsconfig.json --incremental
+    @echo "🔍 Checking lefthook..."
+    bunx --bun lefthook validate
     @echo "✅ Passed!"
 
 [doc('Run linters')]
 [group('Development')]
 lint:
     @echo "🔍 Running Oxlint..."
-    bunx oxlint --fix --deny-warnings .
+    bunx --bun oxlint --fix --deny-warnings .
     @echo "🔍 Running Stylelint..."
-    bunx stylelint --fix "src/**/*.css" "src/**/*.svelte"
+    bunx --bun stylelint --fix "src/**/*.css" "src/**/*.svelte"
     @echo "🧹 Running Knip..."
     bunx knip --no-config-hints
     @echo "🔍 Running ESLint..."
-    bunx eslint "**/*.svelte" --fix --max-warnings=0
+    bunx --bun eslint "**/*.svelte" --fix --max-warnings=0
     @echo "✅ Linting complete!"
 
 [doc('Build production build')]
 [group('Development')]
 build:
     @echo "🔨 Building {{ site_name }}..."
-    bun run build
+    bun run --bun build
     @echo "✅ Built: {{ build_dir }}/"
 
 [doc('Start production server')]
 [group('Development')]
 preview: build
     @echo "👁  Previewing {{ site_name }}..."
-    bun run preview
+    bun run --bun preview
 
 [doc('Start development server')]
 [group('Development')]
 dev:
     @echo "🚀 Starting dev server..."
-    bun run dev --open
+    bun run --bun dev --open
 
 [doc('Remove build artifacts')]
 [group('Development')]

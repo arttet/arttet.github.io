@@ -12,7 +12,7 @@ pre-commit:
 
     oxlint:
       glob: '{*.{js,ts,svelte},**/*.{js,ts,svelte}}'
-      run: bunx oxlint --fix --deny-warnings {staged_files}
+      run: bunx --bun oxlint --fix --deny-warnings {staged_files}
 
     stylelint:
       glob: '{*.{css,svelte},**/*.{css,svelte}}'
@@ -21,11 +21,11 @@ pre-commit:
 
     markdownlint:
       glob: 'src/content/**/*.md'
-      run: bunx markdownlint-cli2 --fix {staged_files}
+      run: bunx --bun markdownlint-cli2 --fix {staged_files}
 
     cspell:
       glob: '{*.{md,svelte,ts},**/*.{md,svelte,ts}}'
-      run: bunx cspell --no-progress --no-summary --no-must-find-files {staged_files}
+      run: bunx --bun cspell --no-progress --no-summary --no-must-find-files {staged_files}
 
     audit:
       run: bun audit
@@ -36,7 +36,7 @@ commit-msg:
       run: bunx commitlint --edit {1}
 
 pre-push:
-  parallel: true
+  parallel: false
   commands:
     gitleaks:
       run: gitleaks protect --redact --no-banner --staged
