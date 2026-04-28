@@ -13,6 +13,7 @@ const { post } = $props<{ post: Post }>();
   <!-- Title -->
   <h2
     class="text-lg font-semibold text-[--color-heading] leading-snug group-hover:text-accent transition-colors duration-[150ms]"
+    style="view-transition-name: post-title-{post.slug}"
   >
     <a
       href={resolve('/blog/[slug]', { slug: post.slug })}

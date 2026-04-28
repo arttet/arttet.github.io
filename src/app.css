@@ -81,3 +81,12 @@ html:not(.dark) body {
       radial-gradient(at 70% 80%, var(--color-heading) 0%, transparent 50%);
   }
 }
+
+/* Honor reduced-motion for View Transitions (card→article title morph, theme toggle, etc.) */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

@@ -94,7 +94,10 @@
 </a>
 
 <header class="mb-12">
-  <h1 class="text-[2rem] font-bold text-heading leading-tight tracking-tight mb-5">{post.title}</h1>
+  <h1
+    class="text-[2rem] font-bold text-heading leading-tight tracking-tight mb-5"
+    style="view-transition-name: post-title-{post.slug}"
+  >{post.title}</h1>
 
   {#if post.summary}
     <p class="text-lg text-text-muted leading-relaxed mb-5">{post.summary}</p>
