@@ -10,6 +10,7 @@ import { clickOutside } from '$shared/lib/actions/clickOutside';
 let isOpen = $state(false);
 let triggerEl: HTMLButtonElement | undefined = $state();
 let panelEl: HTMLDivElement | undefined = $state();
+let restoreFocusOnClose = $state(false);
 
 $effect(() => {
   navAnchored.value = isOpen;
@@ -17,17 +18,17 @@ $effect(() => {
 
 // Restore focus when closing
 $effect(() => {
-  if (!isOpen && triggerEl && document.activeElement !== triggerEl) {
-    // Only focus if we are not already on it (e.g. initial mount)
-    // and if we are in the browser
-    if (typeof window !== 'undefined' && document.body.contains(triggerEl)) {
-        triggerEl.focus();
+  if (!isOpen && restoreFocusOnClose && triggerEl && document.activeElement !== triggerEl) {
+    if (document.body.contains(triggerEl)) {
+      triggerEl.focus();
+      restoreFocusOnClose = false;
     }
   }
 });
 
 function onKeyDown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
+    restoreFocusOnClose = isOpen;
     isOpen = false;
   }
 }
@@ -43,8 +44,10 @@ function onPanelKeyDown(e: KeyboardEvent) {
     const last = focusables[focusables.length - 1] as HTMLElement;
 
     if (e.shiftKey && document.activeElement === first) {
+      restoreFocusOnClose = false;
       isOpen = false;
     } else if (!e.shiftKey && document.activeElement === last) {
+      restoreFocusOnClose = false;
       isOpen = false;
     }
   }
@@ -53,11 +56,18 @@ function onPanelKeyDown(e: KeyboardEvent) {
 
 <svelte:window onkeydown={onKeyDown} />
 
-<div class="relative" use:clickOutside={() => (isOpen = false)}>
+<div
+  class="relative"
+  use:clickOutside={() => {
+    restoreFocusOnClose = false;
+    isOpen = false;
+  }}
+>
   <button
     bind:this={triggerEl}
     type="button"
     onclick={() => {
+      restoreFocusOnClose = isOpen;
       isOpen = !isOpen;
     }}
     aria-label="Settings"

@@ -238,12 +238,13 @@
     transition: all 150ms;
     line-height: 1.6;
     opacity: 0;
-    visibility: hidden;
+    visibility: visible;
     z-index: var(--z-copy);
   }
 
   .group:hover .copy-btn,
-  pre.shiki:hover .copy-btn {
+  pre.shiki:hover .copy-btn,
+  .copy-btn:focus-visible {
     opacity: 0.8;
     visibility: visible;
   }
@@ -291,13 +292,18 @@
     cursor: pointer;
     transition: all 150ms;
     opacity: 0;
-    visibility: hidden;
+    visibility: visible;
     vertical-align: middle;
     z-index: var(--z-hero);
   }
 
   .group:hover .copy-btn-inline {
     opacity: 0.7;
+    visibility: visible;
+  }
+
+  .copy-btn-inline:focus-visible {
+    opacity: 1;
     visibility: visible;
   }
 

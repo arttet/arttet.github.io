@@ -37,6 +37,7 @@ test.describe('Blog listing', () => {
     await page.locator('article').first().locator('h2 a').click();
 
     await expect(page).toHaveURL(/\/blog\//);
-    await expect(page.locator('article.max-w-3xl')).toBeVisible();
+    await expect(page.getByRole('article')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 });

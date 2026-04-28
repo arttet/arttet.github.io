@@ -1,4 +1,4 @@
-import { render } from '@testing-library/svelte';
+import { render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as navigation from '$app/navigation';
 import { searchModel } from '$features/search/model/searchModel.svelte';
@@ -87,5 +87,16 @@ describe('CommandPalette interactions', () => {
     backdrop.click();
 
     expect(searchModel.open).toBe(false);
+  });
+
+  it('keeps close button out of tab order', async () => {
+    vi.spyOn(searchModel, 'executeSearch').mockImplementation(async () => {});
+    searchModel.open = true;
+    searchModel.results = [{ slug: 'p1', title: 'P1', tags: [], created: '2026-04-21' }];
+
+    render(CommandPalette);
+
+    await waitFor(() => expect(screen.getByRole('button', { name: /P1/ })).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: 'Close' })).toHaveAttribute('tabindex', '-1');
   });
 });

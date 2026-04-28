@@ -27,6 +27,7 @@ import Logo from '$shared/ui/Logo.svelte';
       {#each site.nav.links as { label, href } (href)}
         <a
           href={resolve(href)}
+          data-focus-boundary-start={label === 'Blog' ? '' : undefined}
           class="w-full py-2 rounded-xl text-sm text-center
                  text-accent border border-border
                  bg-surface-1
