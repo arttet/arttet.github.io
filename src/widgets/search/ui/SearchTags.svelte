@@ -25,7 +25,7 @@ async function handleNavigate(tag: string) {
               e.preventDefault();
               handleNavigate(t.name);
             }}
-            class="px-2 py-0.5 rounded text-xs font-mono bg-black/5 dark:bg-white/5 text-accent hover:bg-black/10 dark:hover:bg-white/10 transition-colors duration-[150ms]"
+            class="px-2 py-0.5 rounded text-xs font-mono bg-surface-1 text-accent hover:bg-surface-2 transition-colors duration-[150ms]"
             >#{t.name}<span class="opacity-40 ml-1">{t.count}</span></a
           >
         {/each}
@@ -33,7 +33,7 @@ async function handleNavigate(tag: string) {
           <button
             type="button"
             onclick={() => (searchModel.showAllTags = !searchModel.showAllTags)}
-            class="px-2 py-0.5 rounded text-xs font-mono bg-black/5 dark:bg-white/5 text-accent hover:opacity-70 transition-opacity duration-150"
+            class="px-2 py-0.5 rounded text-xs font-mono bg-surface-1 text-accent hover:opacity-70 transition-opacity duration-150"
           >
             {searchModel.showAllTags ? "show less" : `+${searchModel.tags.length - 3} more`}
           </button>

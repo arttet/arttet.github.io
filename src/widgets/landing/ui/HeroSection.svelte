@@ -29,8 +29,8 @@ import Logo from '$shared/ui/Logo.svelte';
           href={resolve(href)}
           class="w-full py-2 rounded-xl text-sm text-center
                  text-accent border border-border
-                 bg-black/5 dark:bg-white/5
-                 hover:text-text hover:bg-black/10 dark:hover:bg-white/10
+                 bg-surface-1
+                 hover:text-text hover:bg-surface-2
                  transition-all duration-[150ms]"
         >
           {label}

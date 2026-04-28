@@ -46,12 +46,12 @@ const isVisible = $derived(viewport.navVisible || navAnchored.value);
       <a
         href={resolve('/')}
         aria-label="Home"
-        class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/5 transition-colors duration-150"
+        class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-1 transition-colors duration-150"
       >
         <Logo size="w-5 h-5" />
       </a>
 
-      <div class="w-px h-4 bg-white/10 mx-1"></div>
+      <div class="w-px h-4 bg-surface-2 mx-1"></div>
 
       <!-- Nav links -->
       {#each site.nav.links as { label, href } (href)}
@@ -64,21 +64,21 @@ const isVisible = $derived(viewport.navVisible || navAnchored.value);
         </a>
       {/each}
 
-      <div class="w-px h-4 bg-white/10 mx-1"></div>
+      <div class="w-px h-4 bg-surface-2 mx-1"></div>
 
       <!-- Actions -->
       <button
         type="button"
         onclick={() => searchModel.openPalette()}
         aria-label="Search (⌘K)"
-        class="flex items-center justify-center w-8 h-8 rounded-lg text-accent hover:text-heading hover:bg-white/5 transition-colors duration-150"
+        class="flex items-center justify-center w-8 h-8 rounded-lg text-accent hover:text-heading hover:bg-surface-1 transition-colors duration-150"
       >
         <Search size={14} strokeWidth={2} />
       </button>
       <SettingsPanel />
       <ThemeToggle />
 
-      <div class="w-px h-4 bg-white/10 mx-1"></div>
+      <div class="w-px h-4 bg-surface-2 mx-1"></div>
 
       <!-- GitHub — separate group at end -->
       <a
@@ -86,7 +86,7 @@ const isVisible = $derived(viewport.navVisible || navAnchored.value);
         target="_blank"
         rel="noopener noreferrer"
         aria-label="GitHub"
-        class="flex items-center justify-center w-8 h-8 rounded-lg text-accent hover:text-heading hover:bg-white/5 transition-colors duration-[150ms]"
+        class="flex items-center justify-center w-8 h-8 rounded-lg text-accent hover:text-heading hover:bg-surface-1 transition-colors duration-[150ms]"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path

@@ -27,7 +27,7 @@ function toggle(e: MouseEvent) {
   aria-label="Toggle theme"
   aria-pressed={theme.current === "dark"}
   class="flex items-center justify-center w-8 h-8 rounded-md text-accent
-	       hover:text-text hover:bg-white/5
+	       hover:text-text hover:bg-surface-1
 	       transition-colors duration-[150ms]"
 >
   {#if theme.current === "dark"}
