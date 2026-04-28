@@ -66,11 +66,12 @@ Available recipes:
 
 ## Requirements
 
-To build and work on this project locally, these tools need to be installed on your machine:
+To build and work on this project locally, you need the following tools installed:
 
-- `git`
-- `bun`
-- `just`
+- [Git](https://git-scm.com/downloads)
+- [Node.js](https://nodejs.org/) (v24 or higher)
+- [Bun](https://bun.sh/) (latest stable)
+- [Just](https://github.com/casey/just#installation) (v1.50.0 or higher)
 
 ## Installation
 
