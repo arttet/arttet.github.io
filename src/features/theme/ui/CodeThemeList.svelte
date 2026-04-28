@@ -23,11 +23,11 @@ function selectCodeTheme(id: string) {
     onclick={() => selectCodeTheme(t.id)}
     class="w-full flex items-center gap-3 px-3 py-2 text-sm text-left transition-colors duration-100 {active ===
         t.id
-            ? 'bg-black/5 dark:bg-white/10 text-[--color-heading]'
-            : 'text-[--color-text-muted] hover:bg-black/5 dark:hover:bg-white/5 hover:text-[--color-text]'}"
+            ? 'bg-surface-2 text-[--color-heading]'
+            : 'text-[--color-text-muted] hover:bg-surface-1 hover:text-[--color-text]'}"
   >
     <span
-      class="shrink-0 w-5 h-5 rounded-md border border-white/10 flex items-center justify-center"
+      class="shrink-0 w-5 h-5 rounded-md border border-subtle flex items-center justify-center"
       style="background: {t.bg}"
     >
       <span class="w-2.5 h-2.5 rounded-full" style="background: {t.accent}"></span>

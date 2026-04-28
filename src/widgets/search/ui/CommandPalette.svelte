@@ -80,7 +80,7 @@ $effect(() => {
   <!-- Backdrop -->
   <button
     type="button"
-    class="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm"
+    class="fixed inset-0 z-100 bg-overlay backdrop-blur-sm"
     aria-label="Close search"
     onclick={() => searchModel.close()}
     tabindex="-1"

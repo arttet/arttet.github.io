@@ -29,6 +29,12 @@
   /* Code */
   --color-code-bg: #0d1117;
 
+  /* Semantic surfaces & borders — dark mode (default) */
+  --color-surface-1: oklch(100% 0 0deg / 5%);
+  --color-surface-2: oklch(100% 0 0deg / 10%);
+  --color-overlay: oklch(0% 0 0deg / 60%);
+  --color-border-subtle: oklch(100% 0 0deg / 10%);
+
   /* Typography — sans for prose/UI, mono for code */
   --font-sans: 'Geist Variable', 'Geist', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
@@ -63,6 +69,12 @@ html:not(.dark) {
   --color-code-bg: #f2ede4;
   --color-accent: #7c5cbf;
   --color-accent-light: #9b7dd4;
+
+  /* Semantic surfaces & borders — light mode */
+  --color-surface-1: oklch(0% 0 0deg / 5%);
+  --color-surface-2: oklch(0% 0 0deg / 10%);
+  --color-overlay: oklch(0% 0 0deg / 60%);
+  --color-border-subtle: oklch(0% 0 0deg / 10%);
 }
 
 /* Light mode body — ambient colour wash */

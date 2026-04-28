@@ -63,7 +63,7 @@ function onPanelKeyDown(e: KeyboardEvent) {
     aria-label="Settings"
     aria-expanded={isOpen}
     aria-pressed={isOpen}
-    class="flex items-center justify-center w-8 h-8 rounded-md text-accent hover:text-text hover:bg-white/5 transition-colors duration-150"
+    class="flex items-center justify-center w-8 h-8 rounded-md text-accent hover:text-text hover:bg-surface-1 transition-colors duration-150"
   >
     <Settings size={14} strokeWidth={2} />
   </button>

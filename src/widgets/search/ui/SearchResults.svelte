@@ -34,7 +34,7 @@ async function handleNavigate(slug: string) {
           </time>
           {#each result.tags as tag (tag)}
             <span
-              class="px-1.5 py-0.5 rounded text-xs font-mono bg-black/5 dark:bg-white/5 text-accent"
+              class="px-1.5 py-0.5 rounded text-xs font-mono bg-surface-1 text-accent"
               >#{tag}</span
             >
           {/each}

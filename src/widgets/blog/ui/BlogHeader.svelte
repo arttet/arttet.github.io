@@ -34,7 +34,7 @@ const { tag, count } = $props<{ tag?: string; count: number }>();
     <div class="mt-4 flex items-center gap-2">
       <span class="text-sm text-text-muted">Filtering by</span>
       <span
-        class="px-2.5 py-1 rounded-md text-sm font-mono bg-white/5 text-accent border border-white/5"
+        class="px-2.5 py-1 rounded-md text-sm font-mono bg-surface-1 text-accent border border-subtle"
       >
         #{tag}
       </span>

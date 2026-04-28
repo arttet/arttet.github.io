@@ -24,9 +24,9 @@ const MODES: { id: ModeName; label: string }[] = [
 
 	       {backgroundMode.value === m.id
 
-		? 'bg-black/5 dark:bg-white/10 text-[--color-heading]'
+		? 'bg-surface-2 text-[--color-heading]'
 
-		: 'text-[--color-text-muted] hover:bg-black/5 dark:hover:bg-white/5 hover:text-[--color-text]'}"
+		: 'text-[--color-text-muted] hover:bg-surface-1 hover:text-[--color-text]'}"
   >
     <span class="flex-1 font-mono text-xs">{m.label}</span>
 
