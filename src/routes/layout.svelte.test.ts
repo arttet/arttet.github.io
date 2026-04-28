@@ -76,10 +76,7 @@ describe('root layout', () => {
     render(Layout, { children: emptySnippet });
 
     expect(setThemesMock).toHaveBeenCalled();
-    expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveAttribute(
-      'href',
-      '#main-content'
-    );
+    expect(screen.queryByRole('link', { name: 'Skip to content' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByLabelText('Search (⌘K)')).toBeInTheDocument();
     expect(document.head.querySelector('meta[name="description"]')).toBeInTheDocument();
