@@ -3,6 +3,7 @@ import { onMount } from 'svelte';
 import { backgroundState } from '../model/background.svelte';
 
 let el: HTMLElement | undefined = $state();
+let raf = 0;
 
 function update() {
   if (el?.parentElement) {
@@ -11,25 +12,29 @@ function update() {
   }
 }
 
+function scheduleUpdate() {
+  if (raf) return;
+  raf = requestAnimationFrame(() => {
+    raf = 0;
+    update();
+  });
+}
+
 onMount(() => {
-  let raf = 0;
-  function onScroll() {
-    if (raf) return;
-    raf = requestAnimationFrame(() => {
-      raf = 0;
-      update();
-    });
+  const ro = new ResizeObserver(scheduleUpdate);
+  if (el?.parentElement) {
+    ro.observe(el.parentElement);
   }
 
-  const ro = new ResizeObserver(update);
-  if (el?.parentElement) ro.observe(el.parentElement);
-
-  update();
-  window.addEventListener('scroll', onScroll, { passive: true });
+  scheduleUpdate();
+  window.addEventListener('scroll', scheduleUpdate, { passive: true });
+  window.addEventListener('resize', scheduleUpdate, { passive: true });
 
   return () => {
     if (raf) cancelAnimationFrame(raf);
-    window.removeEventListener('scroll', onScroll);
+    raf = 0;
+    window.removeEventListener('scroll', scheduleUpdate);
+    window.removeEventListener('resize', scheduleUpdate);
     ro.disconnect();
     backgroundState.glassRect = null;
   };
