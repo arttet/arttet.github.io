@@ -4,6 +4,7 @@
   import { theme } from '$features/theme/model/theme.svelte';
   import { site } from '$shared/config/site';
   import { articleFocusPolicy } from '$shared/lib/actions/articleFocusPolicy';
+  import { codeTabs } from '$shared/lib/actions/codeTabs';
   import { copy } from '$shared/lib/actions/copy';
   import { mermaid } from '$shared/lib/actions/mermaid';
   import Seo from '$shared/ui/Seo.svelte';
@@ -24,6 +25,12 @@
   tags={data.post.tags}
 />
 
+<svelte:head>
+  <!-- postHead is trusted build-time Svelte head output from local src/content/blog files. -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html data.postHead}
+</svelte:head>
+
 <div class="flex justify-center px-6 pt-24 pb-32">
   <article class="min-w-0 w-full max-w-[calc(48rem+3rem+13rem)]">
     <div class="max-w-3xl">
@@ -43,7 +50,7 @@
 
       <div class="min-w-0 lg:col-start-1 lg:row-start-1">
         {#key data.post.slug}
-          <div class="prose" use:articleFocusPolicy use:mermaid={theme.current} use:copy>
+          <div class="prose" use:articleFocusPolicy use:codeTabs use:mermaid={theme.current} use:copy>
             <!-- postHtml is trusted build-time mdsvex output from local src/content/blog files, not user input. -->
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html data.postHtml}

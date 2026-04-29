@@ -19,9 +19,23 @@
     anchor?.focus({ preventScroll: true });
   }
 
+  function setActiveHeading(id: string) {
+    activeId = id;
+    requestAnimationFrame(() => {
+      const nav = document.querySelector<HTMLElement>('nav[aria-label="Table of contents"]');
+      const activeLink = Array.from(nav?.querySelectorAll<HTMLAnchorElement>('a[href]') ?? []).find(
+        (link) => link.hash.slice(1) === id
+      );
+      activeLink?.scrollIntoView?.({ block: 'nearest' });
+    });
+  }
+
   function onTocKeydown(event: KeyboardEvent, id: string) {
     if (event.key !== 'Enter') return;
-    requestAnimationFrame(() => focusHeadingAnchor(id));
+    requestAnimationFrame(() => {
+      focusHeadingAnchor(id);
+      setActiveHeading(id);
+    });
   }
 
   $effect(() => {
@@ -61,15 +75,26 @@
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            activeId = entry.target.id;
+            setActiveHeading(entry.target.id);
           }
         }
       },
       { rootMargin: '-20% 0% -70% 0%' },
     );
 
+    const onAnchorActivate = (event: Event) => {
+      const id = (event as CustomEvent<{ id?: string }>).detail?.id;
+      if (id) {
+        setActiveHeading(id);
+      }
+    };
+
+    window.addEventListener('article-anchor-activate', onAnchorActivate);
     for (const node of nodes) observer.observe(node);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('article-anchor-activate', onAnchorActivate);
+    };
   });
 </script>
 

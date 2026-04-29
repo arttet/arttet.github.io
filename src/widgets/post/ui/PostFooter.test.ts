@@ -21,11 +21,18 @@ describe('PostFooter', () => {
   it('scrolls to top when button is clicked', async () => {
     const scrollToMock = vi.fn();
     window.scrollTo = scrollToMock;
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
+    vi.spyOn(window, 'scrollY', 'get').mockReturnValue(525);
 
     render(PostFooter);
     await fireEvent.click(screen.getByRole('button', { name: '↑ Top' }));
 
     expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+    expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
+    vi.restoreAllMocks();
   });
 
   it('renders no post navigation when prevPost and nextPost are absent', () => {

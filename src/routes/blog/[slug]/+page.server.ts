@@ -34,7 +34,7 @@ export async function load({ params }: { params: { slug: string } }) {
   }
 
   const PostContent = (await postContentEntry[1]()).default;
-  const { body: postHtml } = render(PostContent);
+  const { body: postHtml, head: postHead } = render(PostContent);
 
-  return buildPostPageData(posts, index, postHtml);
+  return buildPostPageData(posts, index, postHtml, postHead);
 }

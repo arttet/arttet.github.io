@@ -113,6 +113,27 @@ describe('copy action advanced', () => {
     expect(writeTextMock).toHaveBeenCalledWith('graph LR; A-->B;');
   });
 
+  it('replaces static SSR math copy buttons and copies decoded LaTeX', async () => {
+    const node = document.createElement('div');
+    const encoded = btoa('\\sum x');
+    node.innerHTML = `
+      <span class="math-copy-wrapper group" data-copy-content="${encoded}" data-copy-label="LaTeX" data-copy-inline>
+        <span class="katex-inline">math</span>
+        <button type="button" class="copy-btn-inline">LaTeX</button>
+      </span>
+    `;
+
+    copy(node);
+    vi.runAllTimers();
+    const btn = node.querySelector('.copy-btn-inline') as HTMLButtonElement;
+
+    expect(node.querySelectorAll('.copy-btn-inline')).toHaveLength(1);
+    expect(btn).toHaveAccessibleName('Copy LaTeX');
+    expect(btn).not.toHaveTextContent('LaTeX');
+    await btn.click();
+    expect(writeTextMock).toHaveBeenCalledWith('\\sum x');
+  });
+
   it('restores button state after successful copy', async () => {
     const node = document.createElement('div');
     node.innerHTML = '<pre class="shiki" data-language="ts"><code>const x = 1;</code></pre>';

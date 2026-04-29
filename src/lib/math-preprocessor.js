@@ -1,4 +1,5 @@
 import katex from 'katex';
+import { getHighlighter, LANGS } from './highlighter.config.js';
 
 /**
  * Svelte preprocessor that converts KaTeX math in .md files
@@ -64,8 +65,54 @@ function renderInline(math) {
 /**
  * @param {string} str
  */
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * @param {string} str
+ */
 function escapeJsTemplateLiteral(str) {
   return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+}
+
+/**
+ * @param {string} str
+ */
+function hashString(str) {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i += 1) {
+    hash = (hash * 33) ^ str.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+/**
+ * @param {string} html
+ * @param {string} lang
+ */
+function enhancePre(html, lang) {
+  return html.replace(/<pre\b([^>]*)>/, (match, attrs = '') => {
+    void match;
+    let nextAttrs = String(attrs)
+      .replace(/\s+tabindex=(?:"[^"]*"|'[^']*'|[^\s>]+)/, '')
+      .replace(/\s+data-language=(?:"[^"]*"|'[^']*'|[^\s>]+)/, '');
+
+    if (/\sclass=/.test(nextAttrs)) {
+      nextAttrs = nextAttrs.replace(/class="([^"]*)"/, (classMatch, classes) => {
+        void classMatch;
+        return `class="${classes.includes('m-0') ? classes : `${classes} m-0`}"`;
+      });
+    } else {
+      nextAttrs += ' class="shiki m-0"';
+    }
+
+    return `<pre tabindex="-1" data-language="${lang}"${nextAttrs}>`;
+  });
 }
 
 /**
@@ -131,33 +178,76 @@ function parseCodeTabsBlock(block) {
 }
 
 /**
- * @param {string} block
+ * @param {{ lang: string; label: string; code: string }} tab
+ * @param {Record<string, string>} themes
  */
-function renderCodeTabs(block) {
+async function renderCodeTabPanel(tab, themes) {
+  const safeLang = LANGS.includes(tab.lang) ? tab.lang : 'text';
+  try {
+    const highlighter = await getHighlighter();
+    return enhancePre(
+      highlighter.codeToHtml(tab.code.trim(), { lang: safeLang, themes, defaultColor: false }),
+      safeLang
+    );
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('CodeTabs highlighting failed:', e);
+    return `<pre tabindex="-1" class="shiki m-0 font-mono" data-language="${safeLang}"><code>${escapeHtml(tab.code.trim())}</code></pre>`;
+  }
+}
+
+/**
+ * @param {string} block
+ * @param {Record<string, string>} themes
+ * @param {number} groupIndex
+ */
+async function renderCodeTabs(block, themes, groupIndex) {
   const tabs = parseCodeTabsBlock(block);
   if (tabs.length === 0) {
     return block;
   }
 
-  const tabsExpr = tabs
-    .map(
-      (tab) =>
-        `{
-    lang: '${tab.lang}',
-    label: '${tab.label.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}',
-    code: \`${escapeJsTemplateLiteral(tab.code)}\`
-  }`
-    )
-    .join(',\n  ');
+  const panels = await Promise.all(tabs.map((tab) => renderCodeTabPanel(tab, themes)));
+  const groupId = `code-tabs-${hashString(block)}-${groupIndex}`;
+  const buttons = tabs
+    .map((tab, index) => {
+      const tabId = `${groupId}-tab-${index}`;
+      const panelId = `${groupId}-panel-${index}`;
+      const activeClass =
+        index === 0
+          ? 'text-[--color-accent] border-b-2 border-[--color-accent]'
+          : 'text-[--code-accent] opacity-70';
+      return `<button type="button" role="tab" id="${tabId}" aria-controls="${panelId}" aria-selected="${index === 0}" tabindex="0" data-code-tab class="px-4 py-2 text-xs font-mono transition-colors duration-[100ms] ${activeClass}">${escapeHtml(tab.label)}</button>`;
+    })
+    .join('');
+  const panel = panels
+    .map((html, index) => {
+      const tabId = `${groupId}-tab-${index}`;
+      const panelId = `${groupId}-panel-${index}`;
+      return `<div class="relative group" role="tabpanel" id="${panelId}" aria-labelledby="${tabId}" data-code-tabs-content${index === 0 ? '' : ' hidden'}>${html}</div>`;
+    })
+    .join('');
+  const html = `<div class="not-prose my-6 rounded-lg border border-[--color-border] overflow-hidden" data-code-tabs><div role="tablist" aria-label="Code examples" class="flex items-center bg-[--code-bg] border-b border-[--color-border] px-1">${buttons}</div>${panel}</div>`;
 
-  return `\n\n<CodeTabs tabs={[\n  ${tabsExpr}\n]} />\n\n`;
+  return `\n\n<StaticHtml html={\`${escapeJsTemplateLiteral(html)}\`} />\n\n`;
 }
 
 /**
  * @param {string} content
+ * @param {Record<string, string>} themes
  */
-function processCodeTabs(content) {
-  return content.replace(/:::code-tabs\s*\n[\s\S]*?\n:::/g, (block) => renderCodeTabs(block));
+async function processCodeTabs(content, themes) {
+  const blocks = content.match(/:::code-tabs\s*\n[\s\S]*?\n:::/g) ?? [];
+  let processed = content;
+  const renderedBlocks = await Promise.all(
+    blocks.map(async (block, index) => [block, await renderCodeTabs(block, themes, index)])
+  );
+
+  for (const [block, rendered] of renderedBlocks) {
+    processed = processed.replace(block, rendered);
+  }
+
+  return processed;
 }
 
 /**
@@ -235,7 +325,7 @@ function prependMarkupAfterFrontmatter(content, markup) {
  */
 export function mathPreprocess() {
   return {
-    markup({ content, filename }) {
+    async markup({ content, filename }) {
       if (!filename?.endsWith('.md')) {
         return;
       }
@@ -244,7 +334,10 @@ export function mathPreprocess() {
       let processed = segments
         .map((seg) => (seg.type === 'text' ? processMath(seg.value) : seg.value))
         .join('');
-      processed = processCodeTabs(processed);
+      const themes = Object.fromEntries(
+        (await import('../shared/config/codeThemes.js')).codeThemes.map((t) => [t.id, t.id])
+      );
+      processed = await processCodeTabs(processed, themes);
 
       /** @type {string[]} */
       const imports = [];
@@ -255,8 +348,8 @@ export function mathPreprocess() {
         imports.push("  import KaTeXStyles from '$shared/ui/KaTeXStyles.svelte';");
       }
 
-      if (processed.includes('<CodeTabs')) {
-        imports.push("  import CodeTabs from '$shared/ui/CodeTabs.svelte';");
+      if (processed.includes('<StaticHtml')) {
+        imports.push("  import StaticHtml from '$shared/ui/StaticHtml.svelte';");
       }
 
       if (imports.length > 0) {

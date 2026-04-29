@@ -35,6 +35,7 @@ describe('articleFocusPolicy action', () => {
       cb(0);
       return 0;
     });
+    const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
     const node = document.createElement('div');
     node.innerHTML = '<h2><a class="anchor" href="#section">#</a>Section</h2>';
     document.body.appendChild(node);
@@ -44,8 +45,15 @@ describe('articleFocusPolicy action', () => {
     anchor.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
 
     expect(anchor).toHaveFocus();
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'article-anchor-activate',
+        detail: { id: 'section' },
+      })
+    );
     action.destroy();
     document.body.removeChild(node);
+    dispatchSpy.mockRestore();
     raf.mockRestore();
   });
 

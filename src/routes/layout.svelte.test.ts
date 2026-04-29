@@ -62,6 +62,14 @@ describe('root layout', () => {
     pageState.url = new URL('https://arttet.github.io/about');
     readingModeState.value = true;
     document.head.innerHTML = '';
+    vi.stubGlobal(
+      'requestIdleCallback',
+      vi.fn((cb: () => void) => {
+        cb();
+        return 1;
+      })
+    );
+    vi.stubGlobal('cancelIdleCallback', vi.fn());
   });
 
   it('renders layout shell and non-blog seo', async () => {
