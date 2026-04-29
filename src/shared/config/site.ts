@@ -19,8 +19,8 @@ export const site = {
   },
   licenses: {
     code: {
-      label: 'GPL-3.0-or-later',
-      href: 'https://www.gnu.org/licenses/gpl-3.0.en.html',
+      label: 'AGPL-3.0',
+      href: 'https://www.gnu.org/licenses/agpl-3.0.en.html',
     },
     content: {
       label: 'CC BY-NC-SA 4.0',

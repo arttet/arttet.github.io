@@ -19,14 +19,26 @@
     anchor?.focus({ preventScroll: true });
   }
 
-  function setActiveHeading(id: string) {
+  function shouldKeepTocLinkVisible() {
+    return window.matchMedia?.('(min-width: 1024px)').matches ?? false;
+  }
+
+  function keepTocLinkVisible(id: string) {
+    if (!shouldKeepTocLinkVisible()) return;
+
+    const nav = document.querySelector<HTMLElement>('nav[aria-label="Table of contents"]');
+    const activeLink = Array.from(nav?.querySelectorAll<HTMLAnchorElement>('a[href]') ?? []).find(
+      (link) => link.hash.slice(1) === id
+    );
+    activeLink?.scrollIntoView?.({ block: 'nearest' });
+  }
+
+  function setActiveHeading(id: string, options: { keepTocVisible?: boolean } = {}) {
     activeId = id;
+    if (!options.keepTocVisible) return;
+
     requestAnimationFrame(() => {
-      const nav = document.querySelector<HTMLElement>('nav[aria-label="Table of contents"]');
-      const activeLink = Array.from(nav?.querySelectorAll<HTMLAnchorElement>('a[href]') ?? []).find(
-        (link) => link.hash.slice(1) === id
-      );
-      activeLink?.scrollIntoView?.({ block: 'nearest' });
+      keepTocLinkVisible(id);
     });
   }
 
@@ -34,7 +46,7 @@
     if (event.key !== 'Enter') return;
     requestAnimationFrame(() => {
       focusHeadingAnchor(id);
-      setActiveHeading(id);
+      setActiveHeading(id, { keepTocVisible: true });
     });
   }
 
@@ -85,7 +97,7 @@
     const onAnchorActivate = (event: Event) => {
       const id = (event as CustomEvent<{ id?: string }>).detail?.id;
       if (id) {
-        setActiveHeading(id);
+        setActiveHeading(id, { keepTocVisible: true });
       }
     };
 
