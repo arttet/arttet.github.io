@@ -1,10 +1,17 @@
-import mermaidLib from 'mermaid';
 import { browser } from '$app/environment';
 import { site } from '$shared/config/site';
 
+type MermaidLib = (typeof import('mermaid'))['default'];
+
+let mermaidPromise: Promise<MermaidLib> | null = null;
 let configuredTheme: 'dark' | 'light' | null = null;
 
-function configure(theme: 'dark' | 'light') {
+function getMermaid() {
+  mermaidPromise ??= import('mermaid').then((mod) => mod.default);
+  return mermaidPromise;
+}
+
+function configure(mermaidLib: MermaidLib, theme: 'dark' | 'light') {
   if (configuredTheme === theme) {
     return;
   }
@@ -42,7 +49,8 @@ export function mermaid(node: HTMLElement, currentTheme: 'dark' | 'light') {
       return;
     }
 
-    configure(currentTheme);
+    const mermaidLib = await getMermaid();
+    configure(mermaidLib, currentTheme);
     await mermaidLib.run({ nodes: toProcess });
   };
 
