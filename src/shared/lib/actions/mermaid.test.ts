@@ -1,13 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mermaid } from './mermaid';
 
+const mermaidFactoryCalls = vi.hoisted(() => vi.fn());
+
 // Mock mermaid library
-vi.mock('mermaid', () => ({
-  default: {
-    initialize: vi.fn(),
-    run: vi.fn().mockResolvedValue(undefined),
-  },
-}));
+vi.mock('mermaid', () => {
+  mermaidFactoryCalls();
+  return {
+    default: {
+      initialize: vi.fn(),
+      run: vi.fn().mockResolvedValue(undefined),
+    },
+  };
+});
 
 describe('mermaid action robust', () => {
   type MermaidModule = Awaited<typeof import('mermaid')>;
@@ -61,11 +66,21 @@ describe('mermaid action robust', () => {
 
     mermaid(node, 'dark');
 
-    const mermaidLib = (await import('mermaid')).default as MermaidMock;
     await Promise.resolve();
 
-    expect(mermaidLib.initialize).not.toHaveBeenCalled();
-    expect(mermaidLib.run).not.toHaveBeenCalled();
+    expect(mermaidFactoryCalls).not.toHaveBeenCalled();
+  });
+
+  it('does not import mermaid for already processed diagrams until rerender is requested', async () => {
+    const node = document.createElement('div');
+    const b64 = btoa('graph TD; A-->B;');
+    node.innerHTML = `<div class="mermaid" data-processed="true" data-content="${b64}">rendered</div>`;
+    document.body.appendChild(node);
+
+    mermaid(node, 'dark');
+    await Promise.resolve();
+
+    expect(mermaidFactoryCalls).not.toHaveBeenCalled();
   });
 
   it('restores processed diagram source before rerendering on theme change', async () => {
@@ -94,7 +109,7 @@ describe('mermaid action robust', () => {
     expect(el.id).toBe('');
   });
 
-  it('updates synchronously when not in browser', async () => {
+  it('updates without timer delay when not in browser', async () => {
     vi.resetModules();
     vi.doMock('$app/environment', () => ({
       browser: false,
@@ -116,8 +131,11 @@ describe('mermaid action robust', () => {
 
     action.update('light');
 
-    // synchronous update should have called initialize immediately
-    expect(mermaidLib.initialize).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      if (mermaidLib.initialize.mock.calls.length === 0) {
+        throw new Error('Not initialized yet');
+      }
+    });
 
     vi.doUnmock('$app/environment');
   });

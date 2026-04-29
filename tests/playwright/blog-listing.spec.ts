@@ -36,8 +36,8 @@ test.describe('Blog listing', () => {
 
     await page.locator('article').first().locator('> a[href^="/blog/"]').click();
 
-    await expect(page).toHaveURL(/\/blog\//);
-    await expect(page.getByRole('article')).toBeVisible();
+    await expect(page).toHaveURL(/\/blog\/[^/?#]+\/?$/);
+    await expect(page.locator('.prose')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 });
