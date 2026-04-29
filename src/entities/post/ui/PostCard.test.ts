@@ -17,6 +17,16 @@ describe('PostCard', () => {
     expect(screen.getByText('Test Post')).toBeInTheDocument();
   });
 
+  it('uses the whole card link as the post focus target', () => {
+    render(PostCard, { post: mockPost });
+
+    const postLink = screen.getByRole('link', { name: 'Test Post' });
+
+    expect(postLink).toHaveAttribute('href', '/blog/p1');
+    expect(postLink).toHaveClass('absolute', 'inset-0');
+    expect(screen.getByRole('heading', { name: 'Test Post' })).not.toContainElement(postLink);
+  });
+
   it('shows expansion button and expands tags on click', async () => {
     render(PostCard, {
       post: { ...mockPost, tags: ['t1', 't2', 't3', 't4'] },

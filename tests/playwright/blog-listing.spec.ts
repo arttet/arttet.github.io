@@ -34,7 +34,7 @@ test.describe('Blog listing', () => {
   test('clicking a post navigates to post page', async ({ page }) => {
     await page.goto('/blog');
 
-    await page.locator('article').first().locator('h2 a').click();
+    await page.locator('article').first().locator('a[href^="/blog/"]').first().click();
 
     await expect(page).toHaveURL(/\/blog\//);
     await expect(page.getByRole('article')).toBeVisible();

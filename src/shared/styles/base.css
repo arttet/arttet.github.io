@@ -27,7 +27,7 @@
   h5,
   h6 {
     color: var(--color-heading);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 
   a {
