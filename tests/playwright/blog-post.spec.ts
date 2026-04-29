@@ -60,17 +60,18 @@ test.describe('Blog post', () => {
     await page.goto(BLOG_INIT_POST);
 
     const article = page.locator('article');
+    const prose = article.locator('.prose');
 
     await expect(article.getByRole('heading', { name: 'Markdown Kitchen Sink' })).toBeVisible();
-    await expect(article.locator('blockquote')).toBeVisible();
-    await expect(article.locator('ul').first()).toBeVisible();
-    await expect(article.locator('ol')).toBeVisible();
-    await expect(article.locator('table')).toBeVisible();
-    await expect(article.locator('thead')).toBeVisible();
-    await expect(article.locator('tbody')).toBeVisible();
-    await expect(article.locator('hr')).toBeVisible();
-    await expect(article.getByRole('cell', { name: 'Lists' })).toBeVisible();
-    await expect(article.getByRole('cell', { name: 'Ready' }).first()).toBeVisible();
+    await expect(prose.locator('blockquote')).toBeVisible();
+    await expect(prose.locator('ul').first()).toBeVisible();
+    await expect(prose.locator('ol')).toBeVisible();
+    await expect(prose.locator('table')).toBeVisible();
+    await expect(prose.locator('thead')).toBeVisible();
+    await expect(prose.locator('tbody')).toBeVisible();
+    await expect(prose.locator('hr')).toBeVisible();
+    await expect(prose.getByRole('cell', { name: 'Lists' })).toBeVisible();
+    await expect(prose.getByRole('cell', { name: 'Ready' }).first()).toBeVisible();
   });
 
   test('tag link navigates to filtered blog', async ({ page }) => {

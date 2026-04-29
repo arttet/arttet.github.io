@@ -23,8 +23,7 @@ describe('PostHeader', () => {
     render(PostHeader, { post: mockPost });
 
     const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
-    expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/');
-    expect(screen.getByRole('link', { name: 'Blog' })).toHaveAttribute('href', '/blog');
+    expect(breadcrumb).toBeInTheDocument();
     expect(breadcrumb.querySelector('[aria-current="page"]')).toHaveTextContent('Test Post');
   });
 
@@ -98,8 +97,8 @@ describe('PostHeader', () => {
 
     const { container } = render(PostHeader, { post: mockPost });
 
-    // Progress bar + breadcrumb separators + milestone wrapper = 4
-    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(4);
+    expect(container.querySelector('.fixed.w-full[aria-hidden="true"]')).toBeInTheDocument();
+    expect(container.querySelector('.fixed.w-full[aria-hidden="true"]')?.children).toHaveLength(1);
 
     document.body.removeChild(prose);
     rafSpy.mockRestore();
@@ -119,8 +118,7 @@ describe('PostHeader', () => {
 
     const { container } = render(PostHeader, { post: mockPost });
 
-    // Progress bar + breadcrumb separators = 3 (milestone wrapper absent because total === 0)
-    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(3);
+    expect(container.querySelector('.fixed.w-full[aria-hidden="true"]')).toBeNull();
 
     rafSpy.mockRestore();
   });

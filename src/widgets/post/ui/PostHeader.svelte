@@ -2,6 +2,8 @@
   import { browser } from '$app/environment';
   import { resolve } from '$app/paths';
   import type { Post } from '$entities/post/post';
+  import Breadcrumb from '$shared/ui/Breadcrumb.svelte';
+  import type { RouteSegment } from '$shared/ui/Breadcrumb.svelte';
   import TagList from '$entities/post/ui/TagList.svelte';
 
   const { post } = $props<{ post: Post }>();
@@ -15,6 +17,11 @@
   const displayDateLabel = $derived(
     post.updated && post.updated !== post.created ? 'Updated ' : '',
   );
+  const breadcrumbItems: RouteSegment[] = $derived([
+    { label: 'Home', href: resolve('/'), isHome: true },
+    { label: 'Blog', href: resolve('/blog') },
+    { label: post.title },
+  ]);
 
   $effect(() => {
     if (!browser) return;
@@ -75,16 +82,7 @@
   </div>
 {/if}
 
-<nav
-  aria-label="Breadcrumb"
-  class="mb-10 flex flex-wrap items-center gap-2 text-xs font-mono text-text-muted"
->
-  <a href={resolve('/')} class="text-accent hover:text-heading transition-colors">Home</a>
-  <span aria-hidden="true">→</span>
-  <a href={resolve('/blog')} class="text-accent hover:text-heading transition-colors">Blog</a>
-  <span aria-hidden="true">→</span>
-  <span aria-current="page" class="text-text-muted">{post.title}</span>
-</nav>
+<Breadcrumb items={breadcrumbItems} />
 
 <header class="mb-4 lg:mb-6">
   <h1
