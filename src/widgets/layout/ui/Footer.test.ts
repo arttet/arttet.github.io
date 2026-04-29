@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/svelte';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { viewportState } = vi.hoisted(() => ({
   viewportState: {
@@ -15,13 +15,22 @@ import Footer from './Footer.svelte';
 
 describe('Footer', () => {
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-29T00:00:00Z'));
     viewportState.footerVisible = true;
   });
 
-  it('renders copyright and license links', () => {
-    render(Footer);
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
-    expect(screen.getByText(/Artyom Tetyukhin/)).toBeInTheDocument();
+  it('renders copyright and license links', () => {
+    const { container } = render(Footer);
+
+    expect(screen.getByText('© 2026 Artyom Tetyukhin')).toBeInTheDocument();
+    expect(container.textContent).toContain('Code:');
+    expect(container.textContent).toContain('Content:');
+    expect(container.textContent).toContain('Unless otherwise noted.');
     expect(screen.getByRole('link', { name: 'GPL-3.0-or-later' })).toHaveAttribute(
       'href',
       'https://www.gnu.org/licenses/gpl-3.0.en.html'
@@ -35,7 +44,6 @@ describe('Footer', () => {
       'https://creativecommons.org/licenses/by-nc-sa/4.0/'
     );
     expect(screen.getByRole('link', { name: 'CC BY-NC-SA 4.0' })).toHaveAttribute('tabindex', '-1');
-    expect(screen.getByText('Unless otherwise noted.')).toBeInTheDocument();
   });
 
   it('hides the footer when the viewport state says it should be hidden', () => {

@@ -58,4 +58,16 @@ describe('blog slug page', () => {
       Node.DOCUMENT_POSITION_FOLLOWING
     );
   });
+
+  it('adds enough bottom spacing for the fixed footer', () => {
+    const { container } = render(Page, {
+      data: {
+        post: mockPost,
+        prevPost: undefined as any,
+        nextPost: undefined as any,
+      },
+    });
+
+    expect(container.firstElementChild).toHaveClass('pb-32');
+  });
 });

@@ -12,11 +12,10 @@ import { viewport } from '$shared/lib/viewport.svelte';
 >
   <footer class="glass rounded-2xl pointer-events-auto max-w-[calc(100vw-2rem)]">
     <div
-      class="px-4 py-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-[--color-text-muted] font-mono text-center"
+      class="px-4 py-3 flex flex-col items-center justify-center gap-1 text-xs text-[--color-text-muted] font-mono text-center leading-relaxed"
     >
-      <span>© {new Date().getFullYear()} {site.author.name}</span>
-      <span class="hidden sm:inline">•</span>
-      <span>
+      <p>© {new Date().getFullYear()} {site.author.name}</p>
+      <p>
         Code:
         <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external license URL -->
         <a href={site.licenses.code.href}
@@ -27,9 +26,7 @@ import { viewport } from '$shared/lib/viewport.svelte';
         >
           {site.licenses.code.label}
         </a>
-      </span>
-      <span class="hidden sm:inline">•</span>
-      <span>
+        <span aria-hidden="true"> • </span>
         Content:
         <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external license URL -->
         <a href={site.licenses.content.href}
@@ -40,8 +37,8 @@ import { viewport } from '$shared/lib/viewport.svelte';
         >
           {site.licenses.content.label}
         </a>
-      </span>
-      <span class="basis-full">Unless otherwise noted.</span>
+        <span> Unless otherwise noted.</span>
+      </p>
     </div>
   </footer>
 </div>
