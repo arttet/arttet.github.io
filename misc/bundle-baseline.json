@@ -1,217 +1,217 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-04-26T12:52:09.855Z",
+  "generatedAt": "2026-04-30T00:00:00.000Z",
   "totals": {
     "all": {
-      "renderedLength": 16168166,
-      "gzipLength": 3266626,
-      "count": 411
+      "renderedLength": 5741259,
+      "gzipLength": 1384125,
+      "count": 110
     },
     "js": {
-      "renderedLength": 16168166,
-      "gzipLength": 3266626,
-      "count": 411
+      "renderedLength": 5741259,
+      "gzipLength": 1384125,
+      "count": 110
     }
   },
   "largestJsChunk": {
-    "file": "_app/immutable/chunks/DOb9_a8k2.js",
+    "file": "_app/immutable/chunks/RIBtAEEI.js",
     "type": "js",
-    "renderedLength": 622432,
-    "gzipLength": 230263,
+    "renderedLength": 832490,
+    "gzipLength": 186555,
     "brotliLength": 0
   },
   "topJsChunks": [
     {
-      "file": "_app/immutable/chunks/DOb9_a8k2.js",
-      "type": "js",
-      "renderedLength": 622432,
-      "gzipLength": 230263,
-      "brotliLength": 0
-    },
-    {
-      "file": "_app/immutable/chunks/BYqcdz44.js",
-      "type": "js",
-      "renderedLength": 782436,
-      "gzipLength": 196112,
-      "brotliLength": 0
-    },
-    {
-      "file": "_app/immutable/chunks/CNbBE6YW2.js",
+      "file": "_app/immutable/chunks/RIBtAEEI.js",
       "type": "js",
       "renderedLength": 832490,
       "gzipLength": 186555,
       "brotliLength": 0
     },
     {
-      "file": "_app/immutable/chunks/BiUdBO0i2.js",
+      "file": "_app/immutable/chunks/DRrerdU3.js",
       "type": "js",
       "renderedLength": 823020,
       "gzipLength": 186174,
       "brotliLength": 0
     },
     {
-      "file": "_app/immutable/chunks/0nOA2VNG.js",
-      "type": "js",
-      "renderedLength": 351818,
-      "gzipLength": 92411,
-      "brotliLength": 0
-    },
-    {
-      "file": "_app/immutable/chunks/o5wMRlA82.js",
+      "file": "_app/immutable/chunks/xP4CR2fO2.js",
       "type": "js",
       "renderedLength": 453894,
       "gzipLength": 91756,
       "brotliLength": 0
     },
     {
-      "file": "_app/immutable/chunks/Bon28hAf2.js",
-      "type": "js",
-      "renderedLength": 267014,
-      "gzipLength": 77256,
-      "brotliLength": 0
-    },
-    {
-      "file": "_app/immutable/chunks/DHxfWknM2.js",
+      "file": "_app/immutable/chunks/BJRN8bda.js",
       "type": "js",
       "renderedLength": 306401,
       "gzipLength": 58650,
       "brotliLength": 0
     },
     {
-      "file": "_app/immutable/chunks/CfOAma_y.js",
+      "file": "_app/immutable/chunks/C-lVovo_.js",
       "type": "js",
-      "renderedLength": 172460,
-      "gzipLength": 56330,
+      "renderedLength": 172884,
+      "gzipLength": 56614,
       "brotliLength": 0
     },
     {
-      "file": "_app/immutable/chunks/BGmgHuW22.js",
+      "file": "_app/immutable/chunks/Cm_ltMe02.js",
       "type": "js",
-      "renderedLength": 668682,
-      "gzipLength": 46405,
+      "renderedLength": 297447,
+      "gzipLength": 41869,
+      "brotliLength": 0
+    },
+    {
+      "file": "_app/immutable/chunks/BK4UvBLT2.js",
+      "type": "js",
+      "renderedLength": 85269,
+      "gzipLength": 36422,
+      "brotliLength": 0
+    },
+    {
+      "file": "_app/immutable/chunks/BzV4HNUi2.js",
+      "type": "js",
+      "renderedLength": 188692,
+      "gzipLength": 36016,
+      "brotliLength": 0
+    },
+    {
+      "file": "_app/immutable/chunks/9bwiZkh4.js",
+      "type": "js",
+      "renderedLength": 122779,
+      "gzipLength": 33707,
+      "brotliLength": 0
+    },
+    {
+      "file": "_app/immutable/chunks/DehBR2n_.js",
+      "type": "js",
+      "renderedLength": 161390,
+      "gzipLength": 32681,
       "brotliLength": 0
     }
   ],
   "trackedChunks": [
     {
-      "file": "_app/immutable/chunks/DOb9_a8k2.js",
-      "type": "js",
-      "renderedLength": 622432,
-      "gzipLength": 230263
-    },
-    {
-      "file": "_app/immutable/chunks/BYqcdz44.js",
-      "type": "js",
-      "renderedLength": 782436,
-      "gzipLength": 196112
-    },
-    {
-      "file": "_app/immutable/chunks/CNbBE6YW2.js",
+      "file": "_app/immutable/chunks/RIBtAEEI.js",
       "type": "js",
       "renderedLength": 832490,
       "gzipLength": 186555
     },
     {
-      "file": "_app/immutable/chunks/BiUdBO0i2.js",
+      "file": "_app/immutable/chunks/DRrerdU3.js",
       "type": "js",
       "renderedLength": 823020,
       "gzipLength": 186174
     },
     {
-      "file": "_app/immutable/chunks/0nOA2VNG.js",
-      "type": "js",
-      "renderedLength": 351818,
-      "gzipLength": 92411
-    },
-    {
-      "file": "_app/immutable/chunks/o5wMRlA82.js",
+      "file": "_app/immutable/chunks/xP4CR2fO2.js",
       "type": "js",
       "renderedLength": 453894,
       "gzipLength": 91756
     },
     {
-      "file": "_app/immutable/chunks/Bon28hAf2.js",
-      "type": "js",
-      "renderedLength": 267014,
-      "gzipLength": 77256
-    },
-    {
-      "file": "_app/immutable/chunks/DHxfWknM2.js",
+      "file": "_app/immutable/chunks/BJRN8bda.js",
       "type": "js",
       "renderedLength": 306401,
       "gzipLength": 58650
     },
     {
-      "file": "_app/immutable/chunks/CfOAma_y.js",
+      "file": "_app/immutable/chunks/C-lVovo_.js",
       "type": "js",
-      "renderedLength": 172460,
-      "gzipLength": 56330
+      "renderedLength": 172884,
+      "gzipLength": 56614
     },
     {
-      "file": "_app/immutable/chunks/BGmgHuW22.js",
-      "type": "js",
-      "renderedLength": 668682,
-      "gzipLength": 46405
-    },
-    {
-      "file": "_app/immutable/chunks/CzfjOHX3.js",
+      "file": "_app/immutable/chunks/Cm_ltMe02.js",
       "type": "js",
       "renderedLength": 297447,
       "gzipLength": 41869
     },
     {
-      "file": "_app/immutable/chunks/holNQw6s.js",
+      "file": "_app/immutable/chunks/BK4UvBLT2.js",
       "type": "js",
       "renderedLength": 85269,
       "gzipLength": 36422
     },
     {
-      "file": "_app/immutable/chunks/DzThD1Yo.js",
+      "file": "_app/immutable/chunks/BzV4HNUi2.js",
       "type": "js",
       "renderedLength": 188692,
       "gzipLength": 36016
     },
     {
-      "file": "_app/immutable/chunks/DuG7cqeo.js",
+      "file": "_app/immutable/chunks/9bwiZkh4.js",
       "type": "js",
       "renderedLength": 122779,
       "gzipLength": 33707
     },
     {
-      "file": "_app/immutable/chunks/sA6Ahe-R.js",
+      "file": "_app/immutable/chunks/DehBR2n_.js",
       "type": "js",
       "renderedLength": 161390,
       "gzipLength": 32681
     },
     {
-      "file": "_app/immutable/nodes/0.DA7KxeIS.js",
-      "type": "js",
-      "renderedLength": 81554,
-      "gzipLength": 31574
-    },
-    {
-      "file": "_app/immutable/chunks/B4nUPMne.js",
-      "type": "js",
-      "renderedLength": 184486,
-      "gzipLength": 31145
-    },
-    {
-      "file": "_app/immutable/chunks/CUQdF16v2.js",
-      "type": "js",
-      "renderedLength": 118369,
-      "gzipLength": 28503
-    },
-    {
-      "file": "_app/immutable/chunks/DSRtX2t52.js",
+      "file": "_app/immutable/chunks/DmTas496.js",
       "type": "js",
       "renderedLength": 194735,
       "gzipLength": 28293
     },
     {
-      "file": "_app/immutable/chunks/BkGjseGg2.js",
+      "file": "_app/immutable/chunks/CAjngiJc.js",
       "type": "js",
-      "renderedLength": 111973,
-      "gzipLength": 28203
+      "renderedLength": 65328,
+      "gzipLength": 27911
+    },
+    {
+      "file": "_app/immutable/chunks/D2CTwBLR.js",
+      "type": "js",
+      "renderedLength": 75926,
+      "gzipLength": 25196
+    },
+    {
+      "file": "_app/immutable/chunks/DTFSkCik.js",
+      "type": "js",
+      "renderedLength": 123117,
+      "gzipLength": 24520
+    },
+    {
+      "file": "_app/immutable/chunks/BC2xkrkz.js",
+      "type": "js",
+      "renderedLength": 76176,
+      "gzipLength": 23094
+    },
+    {
+      "file": "_app/immutable/chunks/mK9gGAUB.js",
+      "type": "js",
+      "renderedLength": 113746,
+      "gzipLength": 22932
+    },
+    {
+      "file": "_app/immutable/chunks/BcYWG0IM.js",
+      "type": "js",
+      "renderedLength": 98679,
+      "gzipLength": 22100
+    },
+    {
+      "file": "_app/immutable/nodes/0.CYCPBykK.js",
+      "type": "js",
+      "renderedLength": 47939,
+      "gzipLength": 21362
+    },
+    {
+      "file": "_app/immutable/chunks/ClMQs-nO.js",
+      "type": "js",
+      "renderedLength": 51364,
+      "gzipLength": 20506
+    },
+    {
+      "file": "_app/immutable/chunks/KSKhFyzQ2.js",
+      "type": "js",
+      "renderedLength": 78104,
+      "gzipLength": 20344
     }
   ]
 }

@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => ({
   assetsInclude: ['**/*.glsl', '**/*.wgsl'],
 
   build: {
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 500,
     minify: 'esbuild',
     esbuild: mode === 'production' ? { drop: ['console', 'debugger'] } : undefined,
   },

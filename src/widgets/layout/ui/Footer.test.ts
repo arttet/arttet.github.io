@@ -29,16 +29,13 @@ describe('Footer', () => {
 
     expect(screen.getByText('© 2026 Artyom Tetyukhin')).toBeInTheDocument();
     expect(container.textContent).toContain(
-      'Code: GPL-3.0-or-later • Content: CC BY-NC-SA 4.0 • Unless otherwise noted.'
+      'Code: AGPL-3.0 • Content: CC BY-NC-SA 4.0 • Unless otherwise noted.'
     );
-    expect(screen.getByRole('link', { name: 'GPL-3.0-or-later' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'AGPL-3.0' })).toHaveAttribute(
       'href',
-      'https://www.gnu.org/licenses/gpl-3.0.en.html'
+      'https://www.gnu.org/licenses/agpl-3.0.en.html'
     );
-    expect(screen.getByRole('link', { name: 'GPL-3.0-or-later' })).toHaveAttribute(
-      'tabindex',
-      '-1'
-    );
+    expect(screen.getByRole('link', { name: 'AGPL-3.0' })).toHaveAttribute('tabindex', '-1');
     expect(screen.getByRole('link', { name: 'CC BY-NC-SA 4.0' })).toHaveAttribute(
       'href',
       'https://creativecommons.org/licenses/by-nc-sa/4.0/'

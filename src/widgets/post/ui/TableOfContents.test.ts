@@ -10,6 +10,7 @@ vi.mock('$app/state', () => ({
 const mockObserve = vi.fn();
 const mockDisconnect = vi.fn();
 let capturedCallback: IntersectionObserverCallback | null = null;
+let isDesktop = false;
 
 vi.stubGlobal(
   'IntersectionObserver',
@@ -31,6 +32,21 @@ describe('TableOfContents', () => {
     prose.className = 'prose';
     document.body.appendChild(prose);
     capturedCallback = null;
+    isDesktop = false;
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: vi.fn((query: string) => ({
+        matches: isDesktop && query === '(min-width: 1024px)',
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
     vi.clearAllMocks();
   });
 
@@ -128,6 +144,9 @@ describe('TableOfContents', () => {
       cb(0);
       return 0;
     });
+    const scrollSpy = vi.fn();
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrollSpy;
     prose.innerHTML = '<h2 id="alpha">Alpha</h2><h2 id="beta">Beta</h2>';
     render(TableOfContents);
 
@@ -146,10 +165,34 @@ describe('TableOfContents', () => {
 
     const activeLink = screen.getByRole('link', { name: 'Beta' });
     expect(activeLink.className).toContain('border-accent');
+    expect(scrollSpy).not.toHaveBeenCalled();
+    Element.prototype.scrollIntoView = originalScrollIntoView;
     raf.mockRestore();
   });
 
-  it('marks and scrolls to the active toc link after keyboard anchor activation', async () => {
+  it('does not scroll the inline mobile toc after keyboard anchor activation', async () => {
+    const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
+    const scrollSpy = vi.fn();
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrollSpy;
+    prose.innerHTML = '<h2 id="alpha">Alpha</h2><h2 id="beta">Beta</h2>';
+    render(TableOfContents);
+
+    window.dispatchEvent(new CustomEvent('article-anchor-activate', { detail: { id: 'beta' } }));
+    await Promise.resolve();
+
+    const activeLink = screen.getByRole('link', { name: 'Beta' });
+    expect(activeLink.className).toContain('border-accent');
+    expect(scrollSpy).not.toHaveBeenCalled();
+    Element.prototype.scrollIntoView = originalScrollIntoView;
+    raf.mockRestore();
+  });
+
+  it('keeps the active desktop toc link visible after keyboard anchor activation', async () => {
+    isDesktop = true;
     const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
       cb(0);
       return 0;
