@@ -39,7 +39,7 @@
   tags={data.post.tags}
 />
 
-<div class="flex justify-center px-6 pt-24 pb-14">
+<div class="flex justify-center px-6 pt-24 pb-32">
   <article
     class="grid min-w-0 w-full max-w-[calc(48rem+3rem+13rem)] gap-x-12 lg:grid-cols-[minmax(0,48rem)_13rem]"
   >

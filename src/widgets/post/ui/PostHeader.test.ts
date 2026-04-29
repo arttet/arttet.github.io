@@ -14,9 +14,18 @@ describe('PostHeader', () => {
 
   it('renders post details', () => {
     render(PostHeader, { post: mockPost });
-    expect(screen.getByText('Test Post')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Test Post' })).toBeInTheDocument();
     expect(screen.getByText('5 min read')).toBeInTheDocument();
     expect(screen.getByText('#svelte')).toBeInTheDocument();
+  });
+
+  it('renders breadcrumb navigation', () => {
+    render(PostHeader, { post: mockPost });
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Blog' })).toHaveAttribute('href', '/blog');
+    expect(breadcrumb.querySelector('[aria-current="page"]')).toHaveTextContent('Test Post');
   });
 
   it('prefers updated date when present', () => {
@@ -89,8 +98,8 @@ describe('PostHeader', () => {
 
     const { container } = render(PostHeader, { post: mockPost });
 
-    // Progress bar + back-link svg + milestone wrapper = 3
-    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(3);
+    // Progress bar + breadcrumb separators + milestone wrapper = 4
+    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(4);
 
     document.body.removeChild(prose);
     rafSpy.mockRestore();
@@ -110,8 +119,8 @@ describe('PostHeader', () => {
 
     const { container } = render(PostHeader, { post: mockPost });
 
-    // Progress bar + back-link svg = 2 (milestone wrapper absent because total === 0)
-    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(2);
+    // Progress bar + breadcrumb separators = 3 (milestone wrapper absent because total === 0)
+    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(3);
 
     rafSpy.mockRestore();
   });

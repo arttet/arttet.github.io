@@ -75,23 +75,16 @@
   </div>
 {/if}
 
-<!-- Back link -->
-<a
-  href={resolve('/blog')}
-  class="inline-flex items-center gap-1.5 text-xs text-accent
-		       hover:text-heading transition-colors mb-10"
+<nav
+  aria-label="Breadcrumb"
+  class="mb-10 flex flex-wrap items-center gap-2 text-xs font-mono text-text-muted"
 >
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-    <path
-      d="M7.5 2L3.5 6L7.5 10"
-      stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-  </svg>
-  Back to blog
-</a>
+  <a href={resolve('/')} class="text-accent hover:text-heading transition-colors">Home</a>
+  <span aria-hidden="true">→</span>
+  <a href={resolve('/blog')} class="text-accent hover:text-heading transition-colors">Blog</a>
+  <span aria-hidden="true">→</span>
+  <span aria-current="page" class="text-text-muted">{post.title}</span>
+</nav>
 
 <header class="mb-12">
   <h1
