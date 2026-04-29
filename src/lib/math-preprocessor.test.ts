@@ -38,7 +38,7 @@ describe('math-preprocessor errors', () => {
     consoleSpy.mockRestore();
   });
 
-  it('converts :::code-tabs blocks into CodeTabs component markup', async () => {
+  it('converts :::code-tabs blocks into static highlighted markup', async () => {
     const content = `:::code-tabs
 \`\`\`go title="Go"
 func main() {}
@@ -50,12 +50,20 @@ fn main() {}
 :::`;
     const result = await markup({ content, filename: 'test.md' });
 
-    expect(result?.code).toContain("import CodeTabs from '$shared/ui/CodeTabs.svelte';");
-    expect(result?.code).toContain('<CodeTabs tabs={[');
-    expect(result?.code).toContain("lang: 'go'");
-    expect(result?.code).toContain("label: 'Go'");
+    expect(result?.code).not.toContain("import CodeTabs from '$shared/ui/CodeTabs.svelte';");
+    expect(result?.code).toContain("import StaticHtml from '$shared/ui/StaticHtml.svelte';");
+    expect(result?.code).not.toContain('<CodeTabs tabs={[');
+    expect(result?.code).toContain('<StaticHtml html={`');
+    expect(result?.code).toContain('role="tablist"');
+    expect(result?.code).toContain('role="tab"');
+    expect(result?.code).toContain('role="tabpanel"');
+    expect(result?.code).toContain('aria-selected="true"');
+    expect(result?.code).toContain('aria-controls=');
+    expect(result?.code).toContain('data-code-tabs-content');
+    expect(result?.code).toContain('data-language="go"');
+    expect(result?.code).toContain('data-language="rust"');
     expect(result?.code).toContain('func main() {}');
-    expect(result?.code).toContain("lang: 'rust'");
+    expect(result?.code).toContain('Rust');
   });
 
   it('does not parse $-prefixed code inside :::code-tabs as math', async () => {
@@ -69,7 +77,8 @@ const home = '$HOME';
 :::`;
     const result = await markup({ content, filename: 'test.md' });
 
-    expect(result?.code).toContain("import CodeTabs from '$shared/ui/CodeTabs.svelte';");
+    expect(result?.code).not.toContain("import CodeTabs from '$shared/ui/CodeTabs.svelte';");
+    expect(result?.code).toContain("import StaticHtml from '$shared/ui/StaticHtml.svelte';");
     expect(result?.code).toContain("import MathCopy from '$shared/ui/MathCopy.svelte';");
     expect(result?.code).toContain("import KaTeXStyles from '$shared/ui/KaTeXStyles.svelte';");
     expect(result?.code).toContain('<KaTeXStyles />');

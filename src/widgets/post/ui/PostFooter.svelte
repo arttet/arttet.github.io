@@ -6,6 +6,15 @@
     prevPost?: Post | null;
     nextPost?: Post | null;
   }>();
+
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    requestAnimationFrame(() => {
+      if (window.scrollY > 400) {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      }
+    });
+  }
 </script>
 
 <footer class="mt-16 pt-8 border-t border-[--color-border]">
@@ -68,7 +77,7 @@
     </a>
     <button
       type="button"
-      onclick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      onclick={scrollToTop}
       class="text-sm font-mono transition-opacity hover:opacity-70 text-accent"
     >
       ↑ Top

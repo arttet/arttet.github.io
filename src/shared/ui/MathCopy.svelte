@@ -31,7 +31,7 @@ const html = $derived(decode(b64Html));
 </script>
 
 {#if display}
-  <div class="math-copy-wrapper relative my-3 group">
+  <div class="math-copy-wrapper relative my-3 group" data-copy-content={b64Latex} data-copy-label="LaTeX">
     <div
       class="katex-display-container overflow-x-auto transition-colors duration-200"
       style="background-color: var(--code-bg); padding: 0.875rem 1.5rem; border-radius: var(--radius-md);"
@@ -46,6 +46,9 @@ const html = $derived(decode(b64Html));
 {:else}
   <span
     class="math-copy-wrapper relative inline-group group px-1 rounded transition-colors duration-150"
+    data-copy-content={b64Latex}
+    data-copy-label="LaTeX"
+    data-copy-inline
   >
     <!-- eslint-disable-next-line svelte/no-at-html-tags -- KaTeX-sanitized output -->
     <span class="katex-inline"> {@html html} </span>

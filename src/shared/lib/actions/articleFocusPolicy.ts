@@ -3,7 +3,13 @@ function onKeyDown(event: KeyboardEvent) {
   const link = event.target instanceof HTMLAnchorElement ? event.target : null;
   if (!link?.classList.contains('anchor')) return;
 
-  requestAnimationFrame(() => link.focus({ preventScroll: true }));
+  const id = link.hash.slice(1);
+  requestAnimationFrame(() => {
+    link.focus({ preventScroll: true });
+    if (id) {
+      window.dispatchEvent(new CustomEvent('article-anchor-activate', { detail: { id } }));
+    }
+  });
 }
 
 export function articleFocusPolicy(node: HTMLElement) {

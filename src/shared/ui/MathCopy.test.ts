@@ -28,6 +28,11 @@ describe('MathCopy', () => {
     expect(screen.getByText('...')).toBeInTheDocument();
     const button = screen.getByLabelText('Copy LaTeX');
     expect(button).toBeInTheDocument();
+    expect(document.querySelector('.math-copy-wrapper')).toHaveAttribute(
+      'data-copy-content',
+      toB64(latex)
+    );
+    expect(document.querySelector('.math-copy-wrapper')).toHaveAttribute('data-copy-inline');
   });
 
   it('renders display math correctly', () => {
@@ -43,6 +48,11 @@ describe('MathCopy', () => {
     expect(screen.getByText('...')).toBeInTheDocument();
     const button = screen.getByLabelText('Copy LaTeX');
     expect(button).toBeInTheDocument();
+    expect(document.querySelector('.math-copy-wrapper')).toHaveAttribute(
+      'data-copy-content',
+      toB64(latex)
+    );
+    expect(document.querySelector('.math-copy-wrapper')).not.toHaveAttribute('data-copy-inline');
   });
 
   it('copies LaTeX to clipboard when clicked', async () => {

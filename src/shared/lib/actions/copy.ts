@@ -19,6 +19,14 @@ async function writeClipboard(content: string) {
   }
 }
 
+function decodeCopyContent(encoded: string) {
+  try {
+    return decodeURIComponent(escape(atob(encoded)));
+  } catch {
+    return atob(encoded);
+  }
+}
+
 export function copy(node: HTMLElement) {
   const added: { btn: HTMLButtonElement; handler: () => void }[] = [];
   const copyIcon =
@@ -30,30 +38,31 @@ export function copy(node: HTMLElement) {
     target: HTMLElement,
     content: string,
     label: string,
-    ariaLabel: string
+    ariaLabel: string,
+    inline = false
   ) => {
-    if (target.querySelector('.copy-btn')) {
+    if (target.querySelector('.copy-btn, .copy-btn-inline')) {
       return;
     }
 
     target.tabIndex = -1;
 
     const btn = document.createElement('button');
-    btn.className = 'copy-btn';
-    btn.innerHTML = `${copyIcon}<span>${label}</span>`;
+    btn.className = inline ? 'copy-btn-inline' : 'copy-btn';
+    btn.innerHTML = inline ? copyIcon : `${copyIcon}<span>${label}</span>`;
     btn.setAttribute('aria-label', ariaLabel);
 
     const clickHandler = async () => {
       try {
         await writeClipboard(content);
-        btn.innerHTML = `${checkIcon}<span>Copied!</span>`;
+        btn.innerHTML = inline ? checkIcon : `${checkIcon}<span>Copied!</span>`;
         btn.dataset.copied = '';
         btn.style.color = 'var(--color-accent)';
         btn.style.borderColor = 'var(--color-accent)';
         btn.style.zIndex = '100';
         btn.style.pointerEvents = 'auto';
         setTimeout(() => {
-          btn.innerHTML = `${copyIcon}<span>${label}</span>`;
+          btn.innerHTML = inline ? copyIcon : `${copyIcon}<span>${label}</span>`;
           delete btn.dataset.copied;
           btn.style.color = '';
           btn.style.borderColor = '';
@@ -73,7 +82,7 @@ export function copy(node: HTMLElement) {
 
   const removeStaticCopyButtons = () => {
     const buttons = node.querySelectorAll<HTMLButtonElement>(
-      '[data-code-tabs-content] > .copy-btn, .code-block-wrapper > .copy-btn'
+      '[data-code-tabs-content] > .copy-btn, .code-block-wrapper > .copy-btn, .math-copy-wrapper > .copy-btn, .math-copy-wrapper > .copy-btn-inline'
     );
 
     for (const btn of buttons) {
@@ -103,7 +112,13 @@ export function copy(node: HTMLElement) {
       }
 
       const label = target.dataset.copyLabel?.trim() || 'Copy';
-      addCopyButton(target, atob(encoded), label, `Copy ${label}`);
+      addCopyButton(
+        target,
+        decodeCopyContent(encoded),
+        label,
+        `Copy ${label}`,
+        target.hasAttribute('data-copy-inline')
+      );
     }
   };
 

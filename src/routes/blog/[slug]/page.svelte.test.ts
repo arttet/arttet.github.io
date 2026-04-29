@@ -5,6 +5,10 @@ vi.mock('$shared/lib/actions/copy', () => ({
   copy: vi.fn(() => ({ destroy: vi.fn() })),
 }));
 
+vi.mock('$shared/lib/actions/codeTabs', () => ({
+  codeTabs: vi.fn(() => ({ destroy: vi.fn() })),
+}));
+
 vi.mock('$shared/lib/actions/mermaid', () => ({
   mermaid: vi.fn(() => ({ destroy: vi.fn() })),
 }));
@@ -22,6 +26,7 @@ const mockPost = {
 };
 
 const postHtml = '<h2 id="code-formatting">Code Formatting</h2><h2>Public API & Resources</h2>';
+const postHead = '<link rel="stylesheet" href="/katex.css">';
 
 describe('blog slug page', () => {
   it('renders post header and markdown content for matching slug', () => {
@@ -31,6 +36,7 @@ describe('blog slug page', () => {
         prevPost: undefined as any,
         nextPost: undefined as any,
         postHtml,
+        postHead,
       },
     });
 
@@ -47,6 +53,7 @@ describe('blog slug page', () => {
         prevPost: undefined as any,
         nextPost: undefined as any,
         postHtml,
+        postHead,
       },
     });
 
@@ -71,6 +78,7 @@ describe('blog slug page', () => {
         prevPost: undefined as any,
         nextPost: undefined as any,
         postHtml,
+        postHead,
       },
     });
 

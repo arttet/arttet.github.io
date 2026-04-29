@@ -124,6 +124,10 @@ describe('TableOfContents', () => {
   });
 
   it('marks a heading active when the observer reports it intersecting', () => {
+    const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
     prose.innerHTML = '<h2 id="alpha">Alpha</h2><h2 id="beta">Beta</h2>';
     render(TableOfContents);
 
@@ -142,6 +146,28 @@ describe('TableOfContents', () => {
 
     const activeLink = screen.getByRole('link', { name: 'Beta' });
     expect(activeLink.className).toContain('border-accent');
+    raf.mockRestore();
+  });
+
+  it('marks and scrolls to the active toc link after keyboard anchor activation', async () => {
+    const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
+    const scrollSpy = vi.fn();
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrollSpy;
+    prose.innerHTML = '<h2 id="alpha">Alpha</h2><h2 id="beta">Beta</h2>';
+    render(TableOfContents);
+
+    window.dispatchEvent(new CustomEvent('article-anchor-activate', { detail: { id: 'beta' } }));
+    await Promise.resolve();
+
+    const activeLink = screen.getByRole('link', { name: 'Beta' });
+    expect(activeLink.className).toContain('border-accent');
+    expect(scrollSpy).toHaveBeenCalledWith({ block: 'nearest' });
+    Element.prototype.scrollIntoView = originalScrollIntoView;
+    raf.mockRestore();
   });
 
   it('ignores observer entries that are not intersecting', () => {
