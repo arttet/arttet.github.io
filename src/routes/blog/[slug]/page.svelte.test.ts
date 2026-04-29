@@ -21,6 +21,8 @@ const mockPost = {
   readingTime: 2,
 };
 
+const postHtml = '<h2 id="code-formatting">Code Formatting</h2><h2>Public API & Resources</h2>';
+
 describe('blog slug page', () => {
   it('renders post header and markdown content for matching slug', () => {
     render(Page, {
@@ -28,6 +30,7 @@ describe('blog slug page', () => {
         post: mockPost,
         prevPost: undefined as any,
         nextPost: undefined as any,
+        postHtml,
       },
     });
 
@@ -43,6 +46,7 @@ describe('blog slug page', () => {
         post: mockPost,
         prevPost: undefined as any,
         nextPost: undefined as any,
+        postHtml,
       },
     });
 
@@ -66,6 +70,7 @@ describe('blog slug page', () => {
         post: mockPost,
         prevPost: undefined as any,
         nextPost: undefined as any,
+        postHtml,
       },
     });
 

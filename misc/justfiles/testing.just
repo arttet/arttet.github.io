@@ -11,6 +11,7 @@ all: unit integration coverage
 [doc("Run fast unit tests")]
 [no-cd]
 unit:
+    @just build
     @echo "🧪 Running fast Vitest tests..."
     VITEST_FAST=true bunx vitest run --maxWorkers "{{ vitest_max_workers }}" --testTimeout "{{ vitest_test_timeout }}" --hookTimeout "{{ vitest_hook_timeout }}"
     @echo "✅ Unit tests passed!"
@@ -18,6 +19,7 @@ unit:
 [doc("Integration tests")]
 [no-cd]
 integration:
+    @just build
     @echo "🧪 Running Playwright tests..."
     bun run test:playwright --reporter=list --timeout=60000
     @echo "✅ Playwright tests passed!"
@@ -25,6 +27,7 @@ integration:
 [doc('Generate coverage')]
 [no-cd]
 coverage:
+    @just build
     @echo "📊 Running unit tests with coverage..."
     bun run test:unit:coverage
     @echo "✅ Coverage report generated"

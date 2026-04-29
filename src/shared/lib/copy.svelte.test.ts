@@ -50,6 +50,12 @@ describe('useCopy rune', () => {
 
     // Now fail
     writeTextMock.mockImplementationOnce(() => Promise.reject(err));
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: () => {
+        throw err;
+      },
+    });
     await copy.copy('hello');
 
     expect(copy.copied).toBe(false);

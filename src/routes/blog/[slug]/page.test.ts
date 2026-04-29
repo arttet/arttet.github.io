@@ -3,24 +3,47 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('$entities/post/api', () => ({
   getPosts: () => [
-    { slug: 'post-1', title: 'Post 1', tags: [], created: '2026-02-01', readingTime: 1 },
-    { slug: 'post-2', title: 'Post 2', tags: [], created: '2026-01-01', readingTime: 1 },
+    {
+      slug: 'newer-post',
+      title: 'Newer',
+      tags: [],
+      created: '2026-02-01',
+      readingTime: 1,
+    },
+    {
+      slug: '2026-04-12-blog-initialization',
+      title: 'Initialization',
+      tags: [],
+      created: '2026-01-01',
+      readingTime: 1,
+    },
+    {
+      slug: 'older-post',
+      title: 'Older',
+      tags: [],
+      created: '2025-12-01',
+      readingTime: 1,
+    },
   ],
 }));
 
 describe('blog [slug] page entries', () => {
   it('generates prerender entries for all posts', async () => {
-    const { entries } = await import('./+page');
+    const { entries } = await import('./+page.server');
 
-    expect(entries()).toEqual([{ slug: 'post-1' }, { slug: 'post-2' }]);
+    expect(entries()).toEqual([
+      { slug: 'newer-post' },
+      { slug: '2026-04-12-blog-initialization' },
+      { slug: 'older-post' },
+    ]);
   });
 
   it('throws 404 for unknown post slugs', async () => {
-    const { load } = await import('./+page');
+    const { load } = await import('./+page.server');
     expect.assertions(2);
 
     try {
-      load({ params: { slug: 'missing-post' } });
+      await load({ params: { slug: 'missing-post' } });
     } catch (thrown) {
       const error = thrown as { status?: number; body?: { message?: string } };
       expect(error.status).toBe(404);
@@ -29,16 +52,24 @@ describe('blog [slug] page entries', () => {
   });
 
   it('returns post with prevPost and nextPost', async () => {
-    const { load } = await import('./+page');
+    const { buildPostPageData } = await import('./page-data');
+    const posts = [
+      { slug: 'newer-post', title: 'Newer', tags: [], created: '2026-02-01', readingTime: 1 },
+      {
+        slug: '2026-04-12-blog-initialization',
+        title: 'Initialization',
+        tags: [],
+        created: '2026-01-01',
+        readingTime: 1,
+      },
+      { slug: 'older-post', title: 'Older', tags: [], created: '2025-12-01', readingTime: 1 },
+    ];
 
-    const result1 = load({ params: { slug: 'post-1' } });
-    expect(result1.post.slug).toBe('post-1');
-    expect(result1.prevPost?.slug).toBe('post-2');
-    expect(result1.nextPost).toBeNull();
+    const result = buildPostPageData(posts, 1, '<h2>Code Formatting</h2>');
 
-    const result2 = load({ params: { slug: 'post-2' } });
-    expect(result2.post.slug).toBe('post-2');
-    expect(result2.prevPost).toBeNull();
-    expect(result2.nextPost?.slug).toBe('post-1');
+    expect(result.post.slug).toBe('2026-04-12-blog-initialization');
+    expect(result.prevPost?.slug).toBe('older-post');
+    expect(result.nextPost?.slug).toBe('newer-post');
+    expect(result.postHtml).toContain('Code Formatting');
   });
 });

@@ -1,3 +1,24 @@
+async function writeClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return;
+  } catch (error) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    if (typeof document.execCommand !== 'function') {
+      textarea.remove();
+      throw error;
+    }
+    document.execCommand('copy');
+    textarea.remove();
+  }
+}
+
 export function useCopy() {
   let copied = $state(false);
   let error = $state<Error | null>(null);
@@ -9,7 +30,7 @@ export function useCopy() {
     }
 
     try {
-      await navigator.clipboard.writeText(text);
+      await writeClipboard(text);
       copied = true;
       error = null;
 

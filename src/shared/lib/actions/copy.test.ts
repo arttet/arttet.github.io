@@ -38,9 +38,15 @@ describe('copy action advanced', () => {
 
     const err = new Error('clipboard fail');
     writeTextMock.mockImplementationOnce(() => Promise.reject(err));
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: undefined,
+    });
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await btn.click();
+    btn.click();
+    await Promise.resolve();
+    await Promise.resolve();
     expect(consoleSpy).toHaveBeenCalledWith('Clipboard copy failed:', err);
     consoleSpy.mockRestore();
   });
@@ -73,6 +79,24 @@ describe('copy action advanced', () => {
     expect(node.querySelectorAll('.copy-btn').length).toBe(2);
   });
 
+  it('replaces static SSR copy buttons inside code tabs with action buttons', () => {
+    const node = document.createElement('div');
+    node.innerHTML = `
+      <div data-code-tabs-content>
+        <button type="button" class="copy-btn">Go</button>
+        <pre class="shiki" data-language="go"><code>package main</code></pre>
+      </div>
+    `;
+
+    copy(node);
+    vi.runAllTimers();
+
+    const buttons = node.querySelectorAll('.copy-btn');
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveTextContent('Go');
+    expect(buttons[0].closest('pre.shiki')).toBeTruthy();
+  });
+
   it('adds copy button for mermaid blocks and copies source text', async () => {
     const node = document.createElement('div');
     node.innerHTML =
@@ -97,8 +121,10 @@ describe('copy action advanced', () => {
     vi.runAllTimers();
     const btn = node.querySelector('.copy-btn') as HTMLButtonElement;
 
-    await btn.click();
-    expect(btn.dataset.copied).toBe('1');
+    btn.click();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(btn.dataset.copied).toBe('');
     expect(btn.textContent).toContain('Copied!');
 
     vi.advanceTimersByTime(1800);

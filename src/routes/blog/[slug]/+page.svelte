@@ -12,21 +12,6 @@
   import TableOfContents from '$widgets/post/ui/TableOfContents.svelte';
 
   const { data } = $props<{ data: PageData }>();
-
-  const modules = import.meta.glob('/src/content/blog/**/*.md', {
-    eager: true,
-  }) as Record<string, { default: ConstructorOfATypedSvelteComponent }>;
-
-  function pathToSlug(path: string): string {
-    return path.split('/').pop()?.replace('.md', '') ?? '';
-  }
-
-  const postContentPath = $derived(
-    Object.keys(modules).find((path) => pathToSlug(path) === data.post.slug),
-  );
-  const PostContent = $derived(
-    postContentPath ? modules[postContentPath]?.default : undefined,
-  );
 </script>
 
 <Seo
@@ -59,9 +44,9 @@
       <div class="min-w-0 lg:col-start-1 lg:row-start-1">
         {#key data.post.slug}
           <div class="prose" use:articleFocusPolicy use:mermaid={theme.current} use:copy>
-            {#if PostContent}
-              <PostContent />
-            {/if}
+            <!-- postHtml is trusted build-time mdsvex output from local src/content/blog files, not user input. -->
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {@html data.postHtml}
           </div>
         {/key}
 

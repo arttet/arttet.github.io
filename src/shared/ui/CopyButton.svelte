@@ -19,7 +19,9 @@ const copyState = useCopy();
 
 <button
   type="button"
-  onclick={() => copyState.copy(content)}
+  onclick={async () => {
+    await copyState.copy(content);
+  }}
   class="{inline ? 'copy-btn-inline' : 'copy-btn'} {className}"
   data-copied={copyState.copied ? '' : undefined}
   style="z-index: 100; pointer-events: auto; {copyState.copied ? 'color: var(--color-accent); border-color: var(--color-accent);' : ''}"
