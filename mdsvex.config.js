@@ -61,7 +61,6 @@ const config = {
         properties: {
           className: ['anchor'],
           ariaHidden: true,
-          tabIndex: -1,
         },
         content: {
           type: 'text',

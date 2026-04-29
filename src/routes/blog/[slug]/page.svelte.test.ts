@@ -53,6 +53,7 @@ describe('blog slug page', () => {
     expect(prose).toBeInTheDocument();
     expect(postFooter).toBeInTheDocument();
     expect(toc.closest('aside')).toHaveClass('lg:col-start-2');
+    expect(toc.closest('aside')).toHaveClass('lg:sticky');
     expect(toc.compareDocumentPosition(prose as Element)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(toc.compareDocumentPosition(postFooter as Element)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING

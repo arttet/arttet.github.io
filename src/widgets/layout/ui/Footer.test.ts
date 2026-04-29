@@ -28,9 +28,9 @@ describe('Footer', () => {
     const { container } = render(Footer);
 
     expect(screen.getByText('© 2026 Artyom Tetyukhin')).toBeInTheDocument();
-    expect(container.textContent).toContain('Code:');
-    expect(container.textContent).toContain('Content:');
-    expect(container.textContent).toContain('Unless otherwise noted.');
+    expect(container.textContent).toContain(
+      'Code: GPL-3.0-or-later • Content: CC BY-NC-SA 4.0 • Unless otherwise noted.'
+    );
     expect(screen.getByRole('link', { name: 'GPL-3.0-or-later' })).toHaveAttribute(
       'href',
       'https://www.gnu.org/licenses/gpl-3.0.en.html'

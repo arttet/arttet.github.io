@@ -37,7 +37,8 @@ import { viewport } from '$shared/lib/viewport.svelte';
         >
           {site.licenses.content.label}
         </a>
-        <span> Unless otherwise noted.</span>
+        <span aria-hidden="true"> • </span>
+        <span>Unless otherwise noted.</span>
       </p>
     </div>
   </footer>

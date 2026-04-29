@@ -86,7 +86,7 @@
   <span aria-current="page" class="text-text-muted">{post.title}</span>
 </nav>
 
-<header class="mb-12">
+<header class="mb-4 lg:mb-6">
   <h1
     class="text-[2rem] font-bold text-heading leading-tight tracking-tight mb-5"
     style="view-transition-name: post-title-{post.slug}"

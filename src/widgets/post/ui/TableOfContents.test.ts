@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import TableOfContents from './TableOfContents.svelte';
@@ -86,6 +86,35 @@ describe('TableOfContents', () => {
     render(TableOfContents);
     expect(screen.getByRole('link', { name: 'Intro' })).toHaveAttribute('href', '#intro');
     expect(screen.getByRole('link', { name: 'Outro' })).toHaveAttribute('href', '#outro');
+  });
+
+  it('moves focus to the matching heading anchor when a toc link is activated with Enter', async () => {
+    const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
+    prose.innerHTML =
+      '<h2 id="intro"><a class="anchor" href="#intro">#</a>Intro</h2><h2 id="outro"><a class="anchor" href="#outro">#</a>Outro</h2>';
+    render(TableOfContents);
+
+    await fireEvent.keyDown(screen.getByRole('link', { name: 'Intro' }), { key: 'Enter' });
+
+    expect(prose.querySelector<HTMLAnchorElement>('h2#intro .anchor')).toHaveFocus();
+    raf.mockRestore();
+  });
+
+  it('allows long heading links to wrap', () => {
+    prose.innerHTML =
+      '<h2 id="very-long">A very long heading that should wrap instead of overflowing the table of contents</h2><h2>Second</h2>';
+    render(TableOfContents);
+
+    const link = screen.getByRole('link', {
+      name: /A very long heading/,
+    });
+    expect(link.className).not.toContain('truncate');
+    expect(link).toHaveClass('whitespace-normal');
+    expect(link).toHaveClass('break-words');
+    expect(link).toHaveClass('[overflow-wrap:anywhere]');
   });
 
   it('starts IntersectionObserver for each h2 heading', () => {

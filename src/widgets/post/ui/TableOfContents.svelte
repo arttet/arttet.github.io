@@ -13,6 +13,17 @@
       .replace(/\s+/g, '-');
   }
 
+  function focusHeadingAnchor(id: string) {
+    const heading = document.getElementById(id);
+    const anchor = heading?.querySelector<HTMLAnchorElement>('.anchor[href]');
+    anchor?.focus({ preventScroll: true });
+  }
+
+  function onTocKeydown(event: KeyboardEvent, id: string) {
+    if (event.key !== 'Enter') return;
+    requestAnimationFrame(() => focusHeadingAnchor(id));
+  }
+
   $effect(() => {
     // Re-run on route change so navigating between posts rescans headings.
     void page.params.slug;
@@ -72,7 +83,8 @@
         <li>
           <a
             href={`#${h.id}`}
-            class="block text-xs font-mono py-1 pl-3 border-l-2 transition-all duration-150 truncate
+            onkeydown={(event) => onTocKeydown(event, h.id)}
+            class="block text-xs font-mono leading-snug py-1 pl-3 border-l-2 transition-all duration-150 whitespace-normal break-words [overflow-wrap:anywhere]
               {activeId === h.id
               ? 'border-accent text-[--color-text] font-medium'
               : 'border-transparent text-[--color-text-muted] hover:text-[--color-text] hover:border-[--color-border]'}"

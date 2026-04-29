@@ -40,31 +40,33 @@
 />
 
 <div class="flex justify-center px-6 pt-24 pb-32">
-  <article
-    class="grid min-w-0 w-full max-w-[calc(48rem+3rem+13rem)] gap-x-12 lg:grid-cols-[minmax(0,48rem)_13rem]"
-  >
-    <div class="min-w-0 lg:col-start-1">
+  <article class="min-w-0 w-full max-w-[calc(48rem+3rem+13rem)]">
+    <div class="max-w-3xl">
       <PostHeader post={data.post} />
     </div>
 
-    {#if data.post.toc !== false}
-      <aside class="mb-10 min-w-0 lg:col-start-2 lg:row-start-1 lg:mb-0 lg:w-52 lg:self-start">
-        <div class="lg:sticky lg:top-8 lg:pt-16">
-          <TableOfContents />
-        </div>
-      </aside>
-    {/if}
+    <div class="grid min-w-0 gap-x-12 lg:grid-cols-[minmax(0,48rem)_13rem]">
+      {#if data.post.toc !== false}
+        <aside
+          class="mb-4 min-w-0 lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1 lg:mb-0 lg:w-52 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-auto"
+        >
+          <div>
+            <TableOfContents />
+          </div>
+        </aside>
+      {/if}
 
-    <div class="min-w-0 lg:col-start-1">
-      {#key data.post.slug}
-        <div class="prose" use:articleFocusPolicy use:mermaid={theme.current} use:copy>
-          {#if PostContent}
-            <PostContent />
-          {/if}
-        </div>
-      {/key}
+      <div class="min-w-0 lg:col-start-1 lg:row-start-1">
+        {#key data.post.slug}
+          <div class="prose" use:articleFocusPolicy use:mermaid={theme.current} use:copy>
+            {#if PostContent}
+              <PostContent />
+            {/if}
+          </div>
+        {/key}
 
-      <PostFooter prevPost={data.prevPost} nextPost={data.nextPost} />
+        <PostFooter prevPost={data.prevPost} nextPost={data.nextPost} />
+      </div>
     </div>
   </article>
 </div>

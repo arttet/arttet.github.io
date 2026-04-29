@@ -10,22 +10,28 @@ const { post } = $props<{ post: Post }>();
 <article
   class="group glass relative flex flex-col gap-3 p-6 rounded-xl transition-all duration-200 hover:border-accent/40"
 >
+  <a
+    href={resolve('/blog/[slug]', { slug: post.slug })}
+    aria-label={post.title}
+    class="absolute inset-0 z-0 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+  ></a>
+
   <!-- Title -->
   <h2
-    class="text-lg font-semibold text-[--color-heading] leading-snug group-hover:text-accent transition-colors duration-[150ms]"
+    class="relative z-10 pointer-events-none text-lg font-semibold text-[--color-heading] leading-snug group-hover:text-accent transition-colors duration-[150ms]"
     style="view-transition-name: post-title-{post.slug}"
   >
-    <a
-      href={resolve('/blog/[slug]', { slug: post.slug })}
-      class="after:absolute after:inset-0 after:z-0">{post.title}</a>
+    {post.title}
   </h2>
 
   {#if post.summary}
-    <p class="text-sm text-[--color-text-muted] leading-relaxed">{post.summary}</p>
+    <p class="relative z-10 pointer-events-none text-sm text-[--color-text-muted] leading-relaxed">
+      {post.summary}
+    </p>
   {/if}
 
   <!-- Date left — reading time right -->
-  <div class="flex items-center justify-between gap-4 mt-1">
+  <div class="relative z-10 pointer-events-none flex items-center justify-between gap-4 mt-1">
     <time class="text-xs font-mono text-[--color-text-muted] shrink-0">
       {new Date(post.created).toLocaleDateString(
         "en",
