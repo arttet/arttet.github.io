@@ -1,3 +1,24 @@
+async function writeClipboard(content: string) {
+  try {
+    await navigator.clipboard.writeText(content);
+    return;
+  } catch (error) {
+    const textarea = document.createElement('textarea');
+    textarea.value = content;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    if (typeof document.execCommand !== 'function') {
+      textarea.remove();
+      throw error;
+    }
+    document.execCommand('copy');
+    textarea.remove();
+  }
+}
+
 export function copy(node: HTMLElement) {
   const added: { btn: HTMLButtonElement; handler: () => void }[] = [];
   const copyIcon =
@@ -24,9 +45,9 @@ export function copy(node: HTMLElement) {
 
     const clickHandler = async () => {
       try {
-        await navigator.clipboard.writeText(content);
+        await writeClipboard(content);
         btn.innerHTML = `${checkIcon}<span>Copied!</span>`;
-        btn.dataset.copied = '1';
+        btn.dataset.copied = '';
         btn.style.color = 'var(--color-accent)';
         btn.style.borderColor = 'var(--color-accent)';
         btn.style.zIndex = '100';
@@ -50,7 +71,19 @@ export function copy(node: HTMLElement) {
     added.push({ btn, handler: clickHandler });
   };
 
+  const removeStaticCopyButtons = () => {
+    const buttons = node.querySelectorAll<HTMLButtonElement>(
+      '[data-code-tabs-content] > .copy-btn, .code-block-wrapper > .copy-btn'
+    );
+
+    for (const btn of buttons) {
+      btn.remove();
+    }
+  };
+
   const init = () => {
+    removeStaticCopyButtons();
+
     // Shiki code blocks
     const codeBlocks = node.querySelectorAll<HTMLPreElement>('pre.shiki');
 

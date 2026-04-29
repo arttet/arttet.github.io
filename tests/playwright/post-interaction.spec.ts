@@ -4,9 +4,7 @@ const BLOG_INIT_POST = '/blog/2026-04-12-blog-initialization';
 
 test.describe('Post Interaction', () => {
   test('copy button in code blocks works', async ({ page }) => {
-    await page.goto(BLOG_INIT_POST);
-
-    await page.evaluate(() => {
+    await page.addInitScript(() => {
       Object.defineProperty(navigator, 'clipboard', {
         configurable: true,
         value: {
@@ -15,6 +13,8 @@ test.describe('Post Interaction', () => {
         },
       });
     });
+
+    await page.goto(BLOG_INIT_POST);
 
     const tabs = page.locator('[data-code-tabs-content]').first();
     await tabs.hover();
