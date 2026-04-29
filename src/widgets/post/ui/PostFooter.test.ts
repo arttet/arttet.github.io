@@ -14,8 +14,8 @@ const mockPost = (slug: string, title: string, summary?: string) => ({
 describe('PostFooter', () => {
   it('renders all posts link and top button', () => {
     render(PostFooter);
-    expect(screen.getByText('← All posts')).toBeInTheDocument();
-    expect(screen.getByText('↑ Top')).toBeInTheDocument();
+    expect(screen.getByText('← All posts')).not.toHaveAttribute('tabindex');
+    expect(screen.getByText('↑ Top')).not.toHaveAttribute('tabindex');
   });
 
   it('scrolls to top when button is clicked', async () => {

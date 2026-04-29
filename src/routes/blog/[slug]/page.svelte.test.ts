@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('$shared/lib/actions/copy', () => ({
@@ -35,5 +35,27 @@ describe('blog slug page', () => {
     expect(screen.getByRole('heading', { name: /Code Formatting/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Public API & Resources/ })).toBeInTheDocument();
     expect(screen.getByText(/2 min read/i)).toBeInTheDocument();
+  });
+
+  it('renders table of contents before post content and footer navigation', async () => {
+    const { container } = render(Page, {
+      data: {
+        post: mockPost,
+        prevPost: undefined as any,
+        nextPost: undefined as any,
+      },
+    });
+
+    const toc = await waitFor(() => screen.getByRole('navigation', { name: 'Table of contents' }));
+    const prose = container.querySelector('.prose');
+    const postFooter = container.querySelector('article footer');
+
+    expect(prose).toBeInTheDocument();
+    expect(postFooter).toBeInTheDocument();
+    expect(toc.closest('aside')).toHaveClass('lg:col-start-2');
+    expect(toc.compareDocumentPosition(prose as Element)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(toc.compareDocumentPosition(postFooter as Element)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
   });
 });

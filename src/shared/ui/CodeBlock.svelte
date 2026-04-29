@@ -20,9 +20,9 @@ $effect(() => {
 <div class="code-block-wrapper relative my-6 group">
   {#if hl.value}
     <!-- eslint-disable-next-line svelte/no-at-html-tags -- Shiki SSR output, not user input -->
-    {@html hl.value.replace('class="shiki', 'class="shiki m-0')}
+    {@html hl.value.replace('<pre class="shiki', '<pre tabindex="-1" class="shiki m-0')}
   {:else}
-    <pre class="shiki m-0 font-mono"><code>{code.trim()}</code></pre>
+    <pre tabindex="-1" class="shiki m-0 font-mono"><code>{code.trim()}</code></pre>
   {/if}
 
   <!-- Copy button with language -->

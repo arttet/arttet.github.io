@@ -43,6 +43,12 @@ describe('TagList', () => {
       'href',
       '/blog/tag/svelte'
     );
+    expect(screen.getByRole('link', { name: '#svelte' })).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('keeps tag controls out of keyboard tab order', () => {
+    render(TagList, { tags: ['a', 'b', 'c', 'd'], max: 3 });
+    expect(screen.getByRole('button', { name: /\+1 more/i })).toHaveAttribute('tabindex', '-1');
   });
 
   it('uses max=3 as default', () => {

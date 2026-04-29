@@ -31,18 +31,32 @@ describe('useCopy rune', () => {
     expect(copy.copied).toBe(false);
   });
 
-  it('handles errors during copy', async () => {
+  it('preserves whitespace in copied text', async () => {
+    const copy = useCopy();
+    const textWithSpaces = '  indent  ';
+    await copy.copy(textWithSpaces);
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(textWithSpaces);
+  });
+
+  it('handles errors during copy and resets copied state', async () => {
     const err = new Error('fail');
-    writeTextMock.mockImplementationOnce(() => Promise.reject(err));
 
     const copy = useCopy();
+
+    // Set copied to true first to test reset
+    writeTextMock.mockImplementationOnce(() => Promise.resolve());
+    await copy.copy('success');
+    expect(copy.copied).toBe(true);
+
+    // Now fail
+    writeTextMock.mockImplementationOnce(() => Promise.reject(err));
     await copy.copy('hello');
 
     expect(copy.copied).toBe(false);
     expect(copy.error).toBe(err);
   });
 
-  it('ignores empty text', async () => {
+  it('ignores empty strings', async () => {
     const copy = useCopy();
     await copy.copy('');
     expect(navigator.clipboard.writeText).not.toHaveBeenCalled();

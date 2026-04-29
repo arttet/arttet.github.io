@@ -14,7 +14,7 @@ describe('CopyButton', () => {
 
   it('renders correctly with label', () => {
     render(CopyButton, { content: 'test code', label: 'JS' });
-    expect(screen.getByLabelText('Copy JS')).toBeInTheDocument();
+    expect(screen.getByLabelText('Copy JS')).not.toHaveAttribute('tabindex');
     expect(screen.getByText('JS')).toBeInTheDocument();
   });
 

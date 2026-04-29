@@ -11,6 +11,7 @@ import BackgroundCanvas from '$features/background/ui/BackgroundCanvas.svelte';
 import { readingMode } from '$features/theme/model/readingMode.svelte';
 import { setThemes } from '$lib/highlighter';
 import { site } from '$shared/config/site';
+import { focusBoundary } from '$shared/lib/actions/focusBoundary';
 import { viewport } from '$shared/lib/viewport.svelte';
 import Seo from '$shared/ui/Seo.svelte';
 import Footer from '$widgets/layout/ui/Footer.svelte';
@@ -78,13 +79,14 @@ const isBlogPage = $derived(page.url.pathname.startsWith('/blog'));
   <Seo />
 {/if}
 
-<div class="flex flex-col min-h-dvh bg-[--color-bg] text-[--color-text]">
+<div use:focusBoundary class="flex flex-col min-h-dvh bg-[--color-bg] text-[--color-text]">
   {#if !readingMode.value}
     <BackgroundCanvas mode={backgroundState.mode} />
   {/if}
-  <Header />
 
   <main id="main-content" tabindex="-1" class="flex-1">{@render children()}</main>
+
+  <Header />
 
   <ThemeManager />
   <CommandPalette />

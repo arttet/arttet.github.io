@@ -26,10 +26,15 @@ describe('Footer', () => {
       'href',
       'https://www.gnu.org/licenses/gpl-3.0.en.html'
     );
+    expect(screen.getByRole('link', { name: 'GPL-3.0-or-later' })).toHaveAttribute(
+      'tabindex',
+      '-1'
+    );
     expect(screen.getByRole('link', { name: 'CC BY-NC-SA 4.0' })).toHaveAttribute(
       'href',
       'https://creativecommons.org/licenses/by-nc-sa/4.0/'
     );
+    expect(screen.getByRole('link', { name: 'CC BY-NC-SA 4.0' })).toHaveAttribute('tabindex', '-1');
     expect(screen.getByText('Unless otherwise noted.')).toBeInTheDocument();
   });
 

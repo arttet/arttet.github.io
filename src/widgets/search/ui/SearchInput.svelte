@@ -20,6 +20,7 @@ let { inputEl = $bindable() } = $props<{
     type="button"
     onclick={() => searchModel.close()}
     aria-label="Close"
+    tabindex="-1"
     class="text-[--color-text-muted] hover:text-[--color-text]"
   >
     <X size={14} strokeWidth={1.5} />

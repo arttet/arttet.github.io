@@ -1,9 +1,11 @@
 <script lang="ts">
 import { site } from '$shared/config/site';
+import { visibleTabScope } from '$shared/lib/actions/visibleTabScope';
 import { viewport } from '$shared/lib/viewport.svelte';
 </script>
 
 <div
+  use:visibleTabScope={viewport.footerVisible}
   class="fixed bottom-4 left-0 right-0 z-50 flex justify-center transition-transform duration-300 ease-in-out pointer-events-none {viewport.footerVisible
           ? 'translate-y-0'
           : 'translate-y-[calc(100%+1rem)]'}"
@@ -20,6 +22,7 @@ import { viewport } from '$shared/lib/viewport.svelte';
         <a href={site.licenses.code.href}
           target="_blank"
           rel="noopener noreferrer"
+          tabindex="-1"
           class="text-accent hover:text-heading transition-colors"
         >
           {site.licenses.code.label}
@@ -32,6 +35,7 @@ import { viewport } from '$shared/lib/viewport.svelte';
         <a href={site.licenses.content.href}
           target="_blank"
           rel="noopener noreferrer"
+          tabindex="-1"
           class="text-accent hover:text-heading transition-colors"
         >
           {site.licenses.content.label}

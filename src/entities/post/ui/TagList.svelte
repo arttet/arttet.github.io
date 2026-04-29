@@ -11,6 +11,7 @@ let expanded = $state(false);
     {#if expanded || ti < max}
       <a
         href={resolve('/blog/tag/[tag]', { tag })}
+        tabindex="-1"
         class="px-2 py-0.5 rounded text-xs font-mono bg-surface-1 text-accent hover:bg-surface-2 transition-colors duration-[150ms]"
       >
         #{tag}
@@ -20,6 +21,7 @@ let expanded = $state(false);
   {#if tags.length > max && !expanded}
     <button
       type="button"
+      tabindex="-1"
       onclick={() => (expanded = true)}
       class="px-2 py-0.5 rounded text-xs font-mono bg-surface-1 hover:opacity-70 transition-opacity duration-[150ms] cursor-pointer text-accent"
     >
@@ -29,6 +31,7 @@ let expanded = $state(false);
   {#if tags.length > max && expanded}
     <button
       type="button"
+      tabindex="-1"
       onclick={() => (expanded = false)}
       class="px-2 py-0.5 rounded text-xs font-mono bg-surface-1 hover:opacity-70 transition-opacity duration-[150ms] cursor-pointer text-accent"
     >

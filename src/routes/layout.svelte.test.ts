@@ -166,4 +166,13 @@ describe('root layout', () => {
     document.body.removeChild(el);
     vi.useRealTimers();
   });
+
+  it('renders page content before the fixed navbar in DOM focus order', () => {
+    render(Layout, { children: emptySnippet });
+
+    const main = screen.getByRole('main');
+    const navHome = screen.getByRole('link', { name: 'Home' });
+
+    expect(main.compareDocumentPosition(navHome)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
 });

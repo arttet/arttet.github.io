@@ -11,7 +11,8 @@ describe('BlogHeader', () => {
 
   it('renders tag filter', () => {
     render(BlogHeader, { tag: 'svelte', count: 2 });
-    expect(screen.getByText('#svelte')).toBeInTheDocument();
+    expect(screen.getByText('#svelte')).not.toHaveClass('border');
+    expect(screen.getByText('#svelte')).not.toHaveClass('bg-surface-1');
     expect(screen.getByText('(2 posts)')).toBeInTheDocument();
     expect(screen.getByText('✕ clear filter')).toBeInTheDocument();
   });

@@ -53,6 +53,8 @@ describe('copy action advanced', () => {
     const btn = node.querySelector('.copy-btn') as HTMLButtonElement;
     const removeSpy = vi.spyOn(btn, 'removeEventListener');
 
+    expect(node.querySelector('pre')).toHaveAttribute('tabindex', '-1');
+
     action.destroy();
     expect(removeSpy).toHaveBeenCalled();
     expect(node.querySelector('.copy-btn')).toBeNull();
@@ -80,7 +82,9 @@ describe('copy action advanced', () => {
     vi.runAllTimers();
     const btn = node.querySelector('.copy-btn') as HTMLButtonElement;
 
+    expect(node.querySelector('.mermaid-block')).toHaveAttribute('tabindex', '-1');
     expect(btn).toBeTruthy();
+    expect(btn).not.toHaveAttribute('tabindex');
     await btn.click();
     expect(writeTextMock).toHaveBeenCalledWith('graph LR; A-->B;');
   });

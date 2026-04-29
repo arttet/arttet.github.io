@@ -15,6 +15,8 @@ export function copy(node: HTMLElement) {
       return;
     }
 
+    target.tabIndex = -1;
+
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
     btn.innerHTML = `${copyIcon}<span>${label}</span>`;
@@ -22,7 +24,7 @@ export function copy(node: HTMLElement) {
 
     const clickHandler = async () => {
       try {
-        await navigator.clipboard.writeText(content.trim());
+        await navigator.clipboard.writeText(content);
         btn.innerHTML = `${checkIcon}<span>Copied!</span>`;
         btn.dataset.copied = '1';
         btn.style.color = 'var(--color-accent)';

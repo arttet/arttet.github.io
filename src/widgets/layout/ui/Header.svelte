@@ -10,6 +10,7 @@ import Logo from '$shared/ui/Logo.svelte';
 import SettingsPanel from '$widgets/settings/ui/SettingsPanel.svelte';
 
 let navEl: HTMLElement | undefined = $state();
+let hasFocusWithin = $state(false);
 
 $effect(() => {
   if (!navEl) {
@@ -32,7 +33,7 @@ $effect(() => {
   return () => window.removeEventListener('resize', measure);
 });
 
-const isVisible = $derived(viewport.navVisible || navAnchored.value);
+const isVisible = $derived(viewport.navVisible || navAnchored.value || hasFocusWithin);
 </script>
 
 <div
@@ -41,7 +42,18 @@ const isVisible = $derived(viewport.navVisible || navAnchored.value);
           : '-translate-y-[calc(100%+1rem)]'}"
 >
   <header class="glass rounded-2xl pointer-events-auto">
-    <nav bind:this={navEl} class="px-3 h-12 flex items-center gap-1">
+    <nav
+      bind:this={navEl}
+      onfocusin={() => {
+        hasFocusWithin = true;
+      }}
+      onfocusout={(event) => {
+        if (!navEl?.contains(event.relatedTarget as Node | null)) {
+          hasFocusWithin = false;
+        }
+      }}
+      class="px-3 h-12 flex items-center gap-1"
+    >
       <!-- Logo icon -->
       <a
         href={resolve('/')}
@@ -86,6 +98,7 @@ const isVisible = $derived(viewport.navVisible || navAnchored.value);
         target="_blank"
         rel="noopener noreferrer"
         aria-label="GitHub"
+        data-focus-boundary-end
         class="flex items-center justify-center w-8 h-8 rounded-lg text-accent hover:text-heading hover:bg-surface-1 transition-colors duration-[150ms]"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

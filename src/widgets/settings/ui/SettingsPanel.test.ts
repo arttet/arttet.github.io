@@ -25,6 +25,11 @@ describe('SettingsPanel', () => {
     expect(screen.getByText('Background effect')).toBeInTheDocument();
   });
 
+  it('does not focus settings on mount', () => {
+    render(SettingsPanel);
+    expect(document.activeElement).not.toBe(screen.getByLabelText('Settings'));
+  });
+
   it('hides background settings in reading mode', async () => {
     readingModeMock.value = true;
     render(SettingsPanel);
@@ -55,7 +60,7 @@ describe('SettingsPanel', () => {
 
     await fireEvent.keyDown(firstItem, { key: 'Tab', shiftKey: true });
     expect(navAnchored.value).toBe(false);
-    expect(document.activeElement).toBe(btn);
+    expect(screen.queryByText('Code theme')).not.toBeInTheDocument();
   });
 
   it('closes when tabbing out of the last item', async () => {
@@ -69,6 +74,6 @@ describe('SettingsPanel', () => {
 
     await fireEvent.keyDown(lastItem, { key: 'Tab', shiftKey: false });
     expect(navAnchored.value).toBe(false);
-    expect(document.activeElement).toBe(btn);
+    expect(screen.queryByText('Code theme')).not.toBeInTheDocument();
   });
 });

@@ -33,9 +33,7 @@ const { tag, count } = $props<{ tag?: string; count: number }>();
   {#if tag}
     <div class="mt-4 flex items-center gap-2">
       <span class="text-sm text-text-muted">Filtering by</span>
-      <span
-        class="px-2.5 py-1 rounded-md text-sm font-mono bg-surface-1 text-accent border border-subtle"
-      >
+      <span class="text-sm font-mono text-accent">
         #{tag}
       </span>
       <span class="text-sm text-text-muted"> ({count} {count === 1 ? 'post' : 'posts'}) </span>

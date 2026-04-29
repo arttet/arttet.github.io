@@ -40,6 +40,7 @@ describe('CodeBlock', () => {
     });
 
     expect(document.querySelector('.shiki')).toHaveClass('m-0');
+    expect(document.querySelector('.shiki')).toHaveAttribute('tabindex', '-1');
   });
 
   it('copies code to clipboard when clicked', async () => {
@@ -68,5 +69,6 @@ describe('CodeBlock', () => {
 
     expect(screen.getByText('fallback')).toBeInTheDocument();
     expect(document.querySelector('pre')).toHaveClass('shiki');
+    expect(document.querySelector('pre')).toHaveAttribute('tabindex', '-1');
   });
 });

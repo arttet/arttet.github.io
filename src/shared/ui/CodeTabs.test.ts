@@ -34,6 +34,13 @@ describe('CodeTabs', () => {
     expect(screen.getAllByText('Go')[0]).toBeInTheDocument();
   });
 
+  it('keeps language tabs in keyboard tab order before copy', () => {
+    render(CodeTabs, { tabs });
+    expect(screen.getByRole('button', { name: 'TypeScript' })).not.toHaveAttribute('tabindex');
+    expect(screen.getByRole('button', { name: 'Go' })).not.toHaveAttribute('tabindex');
+    expect(screen.getByLabelText('Copy TypeScript')).not.toHaveAttribute('tabindex');
+  });
+
   it('switches tabs on click', async () => {
     render(CodeTabs, { tabs });
 
@@ -64,6 +71,7 @@ describe('CodeTabs', () => {
     });
 
     expect(document.querySelector('.shiki')).toHaveClass('m-0');
+    expect(document.querySelector('.shiki')).toHaveAttribute('tabindex', '-1');
   });
 
   it('falls back to the language name when the label is empty', () => {
