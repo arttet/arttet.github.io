@@ -1,9 +1,11 @@
 <script lang="ts">
 import { Settings } from 'lucide-svelte';
 import type { Component } from 'svelte';
+import { page } from '$app/state';
 import { navAnchored } from '$features/theme/model/navAnchor.svelte';
 import { readingMode } from '$features/theme/model/readingMode.svelte';
 import ReadingModeToggle from '$features/theme/ui/ReadingModeToggle.svelte';
+import { supportsCodeThemeSettings } from '$shared/config/routes';
 import { clickOutside } from '$shared/lib/actions/clickOutside';
 
 let isOpen = $state(false);
@@ -14,9 +16,12 @@ let BackgroundModeList = $state<Component | null>(null);
 let CodeThemeList = $state<Component | null>(null);
 let backgroundModeLoadStarted = false;
 let codeThemeLoadStarted = false;
+const hasCodeThemeSettings = $derived(supportsCodeThemeSettings(page.route?.id));
+const showBackgroundModeList = $derived(!readingMode.value && BackgroundModeList);
+const showCodeThemeList = $derived(hasCodeThemeSettings && CodeThemeList);
 
 function loadCodeThemeList() {
-  if (CodeThemeList || codeThemeLoadStarted) {
+  if (!hasCodeThemeSettings || CodeThemeList || codeThemeLoadStarted) {
     return;
   }
 
@@ -132,13 +137,12 @@ function onPanelKeyDown(e: KeyboardEvent) {
     >
       <ReadingModeToggle />
 
-      {#if !readingMode.value && BackgroundModeList}
+      {#if showBackgroundModeList}
         <BackgroundModeList />
       {/if}
 
-      <div class="border-t border-[--color-border] my-1"></div>
-
-      {#if CodeThemeList}
+      {#if showCodeThemeList}
+        <div class="border-t border-[--color-border] my-1"></div>
         <CodeThemeList />
       {/if}
     </div>
