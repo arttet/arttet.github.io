@@ -1,21 +1,37 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { Snippet } from 'svelte';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { searchModel } from '$features/search/model/searchModel.svelte';
 
-const { pageState, onNavigateMock, afterNavigateMock, setThemesMock, readingModeState } =
-  vi.hoisted(() => ({
-    pageState: {
-      url: new URL('https://arttet.github.io/about'),
-    },
-    onNavigateMock: vi.fn(),
-    afterNavigateMock: vi.fn(),
-    setThemesMock: vi.fn(),
-    readingModeState: { value: true },
-  }));
+const {
+  pageState,
+  onNavigateMock,
+  afterNavigateMock,
+  setThemesMock,
+  readingModeState,
+  intersectionObserveMock,
+  intersectionDisconnectMock,
+} = vi.hoisted(() => ({
+  pageState: {
+    url: new URL('https://arttet.github.io/about'),
+  },
+  onNavigateMock: vi.fn(),
+  afterNavigateMock: vi.fn(),
+  setThemesMock: vi.fn(),
+  readingModeState: { value: true },
+  intersectionObserveMock: vi.fn(),
+  intersectionDisconnectMock: vi.fn(),
+}));
+
+let intersectionCallback: IntersectionObserverCallback | undefined;
 
 vi.mock('$app/navigation', () => ({
   onNavigate: onNavigateMock,
   afterNavigate: afterNavigateMock,
+}));
+
+vi.mock('$app/environment', () => ({
+  browser: true,
 }));
 
 vi.mock('$app/state', () => ({
@@ -59,9 +75,13 @@ describe('root layout', () => {
     onNavigateMock.mockReset();
     afterNavigateMock.mockReset();
     setThemesMock.mockReset();
+    intersectionObserveMock.mockReset();
+    intersectionDisconnectMock.mockReset();
+    intersectionCallback = undefined;
     pageState.url = new URL('https://arttet.github.io/about');
     readingModeState.value = true;
     document.head.innerHTML = '';
+    searchModel.close();
     vi.stubGlobal(
       'requestIdleCallback',
       vi.fn((cb: () => void) => {
@@ -70,6 +90,24 @@ describe('root layout', () => {
       })
     );
     vi.stubGlobal('cancelIdleCallback', vi.fn());
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: IntersectionObserverCallback) {
+          intersectionCallback = callback;
+        }
+        observe = intersectionObserveMock;
+        disconnect = intersectionDisconnectMock;
+      }
+    );
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          json: () => Promise.resolve({ posts: [] }),
+        })
+      )
+    );
   });
 
   it('renders layout shell and non-blog seo', async () => {
@@ -105,6 +143,18 @@ describe('root layout', () => {
     expect(scrollToMock).not.toHaveBeenCalled();
   });
 
+  it('opens lazy command palette with the global keyboard shortcut', async () => {
+    const openPaletteSpy = vi.spyOn(searchModel, 'openPalette').mockImplementation(async () => {
+      searchModel.open = true;
+    });
+    render(Layout, { children: emptySnippet });
+
+    await fireEvent.keyDown(window, { key: 'k', metaKey: true });
+
+    await waitFor(() => expect(searchModel.open).toBe(true));
+    openPaletteSpy.mockRestore();
+  });
+
   it('registers view transition navigation hook and hides layout seo on blog pages', async () => {
     pageState.url = new URL('https://arttet.github.io/blog/2026-04-12-blog-initialization');
 
@@ -127,6 +177,54 @@ describe('root layout', () => {
     expect(result).toBeUndefined();
 
     document.startViewTransition = startViewTransition;
+  });
+
+  it('uses setTimeout fallback when requestIdleCallback is unavailable', async () => {
+    const originalRequestIdleCallback = window.requestIdleCallback;
+    const originalCancelIdleCallback = window.cancelIdleCallback;
+    (window as any).requestIdleCallback = undefined;
+    (window as any).cancelIdleCallback = undefined;
+
+    const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
+    const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
+
+    readingModeState.value = false;
+    const { unmount } = render(Layout, { children: emptySnippet });
+
+    expect(setTimeoutSpy).toHaveBeenCalled();
+    unmount();
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+
+    window.requestIdleCallback = originalRequestIdleCallback;
+    window.cancelIdleCallback = originalCancelIdleCallback;
+    setTimeoutSpy.mockRestore();
+    clearTimeoutSpy.mockRestore();
+  });
+
+  it('loads and renders Footer when the footer sentinel becomes visible', async () => {
+    render(Layout, { children: emptySnippet });
+
+    expect(screen.queryByText('©')).not.toBeInTheDocument();
+    expect(intersectionObserveMock).toHaveBeenCalled();
+
+    intersectionCallback?.([{ isIntersecting: true } as IntersectionObserverEntry], {
+      disconnect: intersectionDisconnectMock,
+    } as unknown as IntersectionObserver);
+
+    await waitFor(() => {
+      expect(document.querySelector('footer')).toBeInTheDocument();
+    });
+    expect(intersectionDisconnectMock).toHaveBeenCalled();
+  });
+
+  it('loads and renders Command Palette when searchModel.open is true', async () => {
+    render(Layout, { children: emptySnippet });
+
+    searchModel.open = true;
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Search posts' })).toBeInTheDocument();
+    });
   });
 
   it('renders background canvas when reading mode is disabled and runs navigation callback branches', async () => {

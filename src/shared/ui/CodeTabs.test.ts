@@ -82,6 +82,11 @@ describe('CodeTabs', () => {
     expect(screen.getByLabelText('Copy bash')).toBeInTheDocument();
   });
 
+  it('does nothing when tabs array is empty', () => {
+    render(CodeTabs, { tabs: [] });
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('updates highlighting when switching tabs', async () => {
     const { highlightCode } = await import('$lib/highlighter');
     render(CodeTabs, { tabs });

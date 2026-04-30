@@ -36,9 +36,13 @@ const { tag, count } = $props<{ tag?: string; count: number }>();
       <span class="text-sm font-mono text-accent">
         #{tag}
       </span>
-      <span class="text-sm text-text-muted"> ({count} {count === 1 ? 'post' : 'posts'}) </span>
+      <span class="text-sm text-text-muted">
+        ({count} {#if count === 1}post{:else}posts{/if})
+      </span>
     </div>
   {:else}
-    <p class="mt-4 text-sm text-text-muted">{count} {count === 1 ? 'post' : 'posts'}</p>
+    <p class="mt-4 text-sm text-text-muted">
+      {count} {#if count === 1}post{:else}posts{/if}
+    </p>
   {/if}
 </header>

@@ -179,6 +179,37 @@ describe('copy action advanced', () => {
     expect(buttons[3]).toHaveTextContent('Copy'); // missing label
   });
 
+  it('falls back to atob if decodeURIComponent throws in decodeCopyContent', async () => {
+    const node = document.createElement('div');
+    // a valid base64 but invalid URI component
+    const encoded = btoa('%E0%A4%A');
+    node.innerHTML = `
+      <div data-copy-content="${encoded}" data-copy-label="Test"></div>
+    `;
+
+    copy(node);
+    vi.runAllTimers();
+    const btn = node.querySelector('.copy-btn') as HTMLButtonElement;
+    await btn.click();
+    expect(writeTextMock).toHaveBeenCalledWith('%E0%A4%A');
+  });
+
+  it('decodes normal base64 text correctly via decodeCopyContent', async () => {
+    const node = document.createElement('div');
+    // Encode some unicode character to hit decodeURIComponent
+    // '🚀' encoded using base64 and escape
+    const encoded = btoa(unescape(encodeURIComponent('🚀')));
+    node.innerHTML = `
+      <div data-copy-content="${encoded}" data-copy-label="Test2"></div>
+    `;
+
+    copy(node);
+    vi.runAllTimers();
+    const btn = node.querySelector('.copy-btn') as HTMLButtonElement;
+    await btn.click();
+    expect(writeTextMock).toHaveBeenCalledWith('🚀');
+  });
+
   it('falls back to pre.textContent or empty string if no code element', () => {
     const node = document.createElement('div');
     node.innerHTML = `

@@ -58,4 +58,52 @@ describe('Seo', () => {
       'https://arttet.github.io/posts/custom-card.png'
     );
   });
+
+  it('supports relative image URLs not starting with slash', () => {
+    render(Seo, {
+      title: 'Relative Image',
+      image: 'assets/image.png',
+    });
+
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    expect(ogImage?.getAttribute('content')).toBe('https://arttet.github.io/assets/image.png');
+  });
+
+  it('renders JSON-LD for WebSite correctly', () => {
+    render(Seo, {
+      type: 'website',
+      title: 'Site Title',
+    });
+
+    const script = document.querySelector('script[type="application/ld+json"]');
+    const json = JSON.parse(script?.textContent?.trim() || '{}');
+    expect(json['@type']).toBe('WebSite');
+  });
+
+  it('supports absolute image URLs', () => {
+    render(Seo, {
+      title: 'Absolute Image',
+      image: 'https://example.com/image.png',
+    });
+
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    expect(ogImage?.getAttribute('content')).toBe('https://example.com/image.png');
+  });
+
+  it('renders modifiedTime and tags correctly', () => {
+    render(Seo, {
+      title: 'Post Title',
+      type: 'article',
+      modifiedTime: '2026-04-22',
+      tags: ['Svelte', 'Testing'],
+    });
+
+    const modifiedTime = document.querySelector('meta[property="article:modified_time"]');
+    expect(modifiedTime?.getAttribute('content')).toBe('2026-04-22');
+
+    const tags = document.querySelectorAll('meta[property="article:tag"]');
+    expect(tags.length).toBe(2);
+    expect(tags[0]?.getAttribute('content')).toBe('Svelte');
+    expect(tags[1]?.getAttribute('content')).toBe('Testing');
+  });
 });

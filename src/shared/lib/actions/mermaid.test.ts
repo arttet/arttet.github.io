@@ -139,4 +139,34 @@ describe('mermaid action robust', () => {
 
     vi.doUnmock('$app/environment');
   });
+
+  it('ignores empty content diagrams on reset', () => {
+    const node = document.createElement('div');
+    node.innerHTML = `<div class="mermaid" data-processed="true" data-content=""></div>`;
+    document.body.appendChild(node);
+
+    // Call destroy directly to trigger reset
+    const action = mermaid(node, 'dark');
+    action.destroy();
+
+    const el = node.querySelector('.mermaid');
+    expect(el?.getAttribute('data-processed')).toBe('true'); // Should be untouched
+  });
+
+  it('ignores updates to the exact same theme', async () => {
+    const node = document.createElement('div');
+    node.innerHTML = `<div class="mermaid">graph TD; A-->B;</div>`;
+    document.body.appendChild(node);
+
+    const action = mermaid(node, 'dark');
+    await Promise.resolve();
+
+    const mermaidLib = (await import('mermaid')).default as MermaidMock;
+    mermaidLib.initialize.mockClear();
+
+    // Call update with the same theme
+    action.update('dark');
+
+    expect(mermaidLib.initialize).not.toHaveBeenCalled();
+  });
 });

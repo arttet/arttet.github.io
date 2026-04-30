@@ -12,6 +12,16 @@ import SettingsPanel from '$widgets/settings/ui/SettingsPanel.svelte';
 let navEl: HTMLElement | undefined = $state();
 let hasFocusWithin = $state(false);
 
+function handleFocusIn() {
+  hasFocusWithin = true;
+}
+
+function handleFocusOut(event: FocusEvent) {
+  if (!navEl?.contains(event.relatedTarget as Node | null)) {
+    hasFocusWithin = false;
+  }
+}
+
 $effect(() => {
   if (!navEl) {
     return;
@@ -44,14 +54,8 @@ const isVisible = $derived(viewport.navVisible || navAnchored.value || hasFocusW
   <header class="glass rounded-2xl pointer-events-auto">
     <nav
       bind:this={navEl}
-      onfocusin={() => {
-        hasFocusWithin = true;
-      }}
-      onfocusout={(event) => {
-        if (!navEl?.contains(event.relatedTarget as Node | null)) {
-          hasFocusWithin = false;
-        }
-      }}
+      onfocusin={handleFocusIn}
+      onfocusout={handleFocusOut}
       class="px-3 h-12 flex items-center gap-1"
     >
       <!-- Logo icon -->
@@ -81,7 +85,10 @@ const isVisible = $derived(viewport.navVisible || navAnchored.value || hasFocusW
       <!-- Actions -->
       <button
         type="button"
-        onclick={() => searchModel.openPalette()}
+        onclick={() =>
+          void searchModel.openPalette().catch((e) => {
+            console.error('Failed to open search palette:', e);
+          })}
         aria-label="Search (⌘K)"
         class="flex items-center justify-center w-8 h-8 rounded-lg text-accent hover:text-heading hover:bg-surface-1 transition-colors duration-150"
       >

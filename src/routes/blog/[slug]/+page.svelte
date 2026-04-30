@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '@fontsource-variable/jetbrains-mono';
   import '$shared/styles/content.css';
   import type { PageData } from './$types';
   import { theme } from '$features/theme/model/theme.svelte';
@@ -11,6 +12,7 @@
   import PostFooter from '$widgets/post/ui/PostFooter.svelte';
   import PostHeader from '$widgets/post/ui/PostHeader.svelte';
   import TableOfContents from '$widgets/post/ui/TableOfContents.svelte';
+  import CodeThemeManager from '$widgets/theme/ui/CodeThemeManager.svelte';
 
   const { data } = $props<{ data: PageData }>();
 </script>
@@ -24,6 +26,8 @@
   modifiedTime={data.post.updated}
   tags={data.post.tags}
 />
+
+<CodeThemeManager />
 
 <svelte:head>
   <!-- postHead is trusted build-time Svelte head output from local src/content/blog files. -->

@@ -26,4 +26,21 @@ describe('BlogHeader', () => {
     render(BlogHeader, { tag: 'svelte', count: 1 });
     expect(screen.getByText('(1 post)')).toBeInTheDocument();
   });
+
+  it('updates count correctly when prop changes', async () => {
+    const { rerender } = render(BlogHeader, { count: 1 });
+    expect(screen.getByText('1 post')).toBeInTheDocument();
+    await rerender({ count: 2 });
+    expect(screen.getByText('2 posts')).toBeInTheDocument();
+  });
+
+  it('handles 0 posts and no tag correctly', () => {
+    render(BlogHeader, { tag: undefined, count: 0 });
+    expect(screen.getByText('0 posts')).toBeInTheDocument();
+  });
+
+  it('handles 2 posts and no tag correctly', () => {
+    render(BlogHeader, { count: 2 });
+    expect(screen.getByText('2 posts')).toBeInTheDocument();
+  });
 });

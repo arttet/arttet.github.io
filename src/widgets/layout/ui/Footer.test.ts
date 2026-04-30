@@ -1,15 +1,7 @@
+import { tick } from 'svelte';
 import { render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-const { viewportState } = vi.hoisted(() => ({
-  viewportState: {
-    footerVisible: true,
-  },
-}));
-
-vi.mock('$shared/lib/viewport.svelte', () => ({
-  viewport: viewportState,
-}));
+import { viewport } from '$shared/lib/viewport.svelte';
 
 import Footer from './Footer.svelte';
 
@@ -17,7 +9,7 @@ describe('Footer', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-04-29T00:00:00Z'));
-    viewportState.footerVisible = true;
+    viewport.footerVisible = true;
   });
 
   afterEach(() => {
@@ -43,10 +35,29 @@ describe('Footer', () => {
     expect(screen.getByRole('link', { name: 'CC BY-NC-SA 4.0' })).toHaveAttribute('tabindex', '-1');
   });
 
-  it('hides the footer when the viewport state says it should be hidden', () => {
-    viewportState.footerVisible = false;
+  it('hides the footer when the viewport state says it should be hidden', async () => {
     const { container } = render(Footer);
+    expect(container.firstElementChild?.className).toContain('translate-y-0');
+
+    viewport.footerVisible = false;
+    await tick();
 
     expect(container.firstElementChild?.className).toContain('translate-y-[calc(100%+1rem)]');
+  });
+
+  it('shows the footer when the viewport state says it should be shown', async () => {
+    viewport.footerVisible = false;
+    const { container } = render(Footer);
+    expect(container.firstElementChild?.className).toContain('translate-y-[calc(100%+1rem)]');
+
+    viewport.footerVisible = true;
+    await tick();
+
+    expect(container.firstElementChild?.className).toContain('translate-y-0');
+  });
+
+  it('unmounts cleanly', () => {
+    const { unmount } = render(Footer);
+    unmount();
   });
 });
