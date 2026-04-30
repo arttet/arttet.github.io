@@ -11,9 +11,13 @@ const hl = await getHighlighter();
 
 const { bundledLanguages } = await import('shiki');
 
+const shikiLanguages = /** @type {Record<string, Parameters<typeof hl.loadLanguage>[0]>} */ (
+  bundledLanguages
+);
+
 await Promise.all(
   LANGS.map((lang) => {
-    const loader = bundledLanguages[lang];
+    const loader = shikiLanguages[lang];
 
     return loader ? hl.loadLanguage(loader) : Promise.resolve();
   })
@@ -21,8 +25,17 @@ await Promise.all(
 
 const themes = Object.fromEntries(codeThemes.map((t) => [t.id, t.id]));
 
-/** @type {import('mdsvex').MdsvexOptions} */
+/**
+ * @typedef {Object} MarkdownNode
+ * @property {string=} type
+ * @property {string=} value
+ * @property {MarkdownNode[]=} children
+ */
 
+/**
+ * @param {string} str
+ * @returns {string}
+ */
 function escapeHtml(str) {
   return str
     .replace(/&/g, '&amp;')
@@ -32,13 +45,24 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+/**
+ * @param {string} html
+ * @returns {string}
+ */
 function trustedSvelteHtml(html) {
   return `{@html ${JSON.stringify(html)}}`;
 }
 
 function remarkReadingTime() {
+  /**
+   * @param {MarkdownNode} tree
+   * @param {{ data: { fm?: Record<string, unknown> } }} file
+   */
   return (tree, file) => {
     let text = '';
+    /**
+     * @param {MarkdownNode} node
+     */
     function walk(node) {
       if (node.type === 'text' || node.type === 'inlineCode') {
         text += `${node.value} `;
@@ -61,29 +85,38 @@ function remarkReadingTime() {
   };
 }
 
+/** @type {import('mdsvex').MdsvexOptions} */
 const config = {
   extensions: ['.md'],
-  remarkPlugins: [remarkReadingTime],
-  rehypePlugins: [
-    rehypeSlug,
-    [
-      rehypeAutolinkHeadings,
-      {
-        behavior: 'prepend',
-        test: ['h2'],
-        properties: {
-          className: ['anchor'],
-          ariaHidden: true,
+  remarkPlugins: /** @type {import('mdsvex').MdsvexOptions['remarkPlugins']} */ ([
+    remarkReadingTime,
+  ]),
+  rehypePlugins: /** @type {import('mdsvex').MdsvexOptions['rehypePlugins']} */ (
+    /** @type {unknown} */ ([
+      rehypeSlug,
+      [
+        rehypeAutolinkHeadings,
+        {
+          behavior: 'prepend',
+          test: ['h2'],
+          properties: {
+            className: ['anchor'],
+            ariaHidden: true,
+          },
+          content: {
+            type: 'text',
+            value: '#',
+          },
         },
-        content: {
-          type: 'text',
-          value: '#',
-        },
-      },
-    ],
-  ],
+      ],
+    ])
+  ),
 
   highlight: {
+    /**
+     * @param {string} code
+     * @param {string | null | undefined} lang
+     */
     highlighter(code, lang) {
       if (lang === 'mermaid') {
         const escaped = escapeHtml(code);
