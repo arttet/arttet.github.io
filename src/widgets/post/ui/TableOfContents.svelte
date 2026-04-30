@@ -121,10 +121,12 @@
           <a
             href={`#${h.id}`}
             onkeydown={(event) => onTocKeydown(event, h.id)}
-            class="block text-xs font-mono leading-snug py-1 pl-3 border-l-2 transition-all duration-150 whitespace-normal break-words [overflow-wrap:anywhere]
+            class="relative block text-xs font-mono leading-snug py-1 pl-3.5 rounded-md transition-all duration-150 whitespace-normal break-words [overflow-wrap:anywhere]
+              before:absolute before:left-0 before:top-1 before:bottom-1 before:w-0.5 before:rounded-full before:transition-colors before:duration-150
+              focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_1px_var(--color-accent)]
               {activeId === h.id
-              ? 'border-accent text-[--color-text] font-medium'
-              : 'border-transparent text-[--color-text-muted] hover:text-[--color-text] hover:border-[--color-border]'}"
+              ? 'before:bg-accent text-[--color-text] font-medium'
+              : 'before:bg-transparent text-[--color-text-muted] hover:text-[--color-text] hover:before:bg-[--color-border]'}"
           >
             {h.text}
           </a>

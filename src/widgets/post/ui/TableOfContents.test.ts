@@ -164,7 +164,7 @@ describe('TableOfContents', () => {
     });
 
     const activeLink = screen.getByRole('link', { name: 'Beta' });
-    expect(activeLink.className).toContain('border-accent');
+    expect(activeLink.className).toContain('before:bg-accent');
     expect(scrollSpy).not.toHaveBeenCalled();
     Element.prototype.scrollIntoView = originalScrollIntoView;
     raf.mockRestore();
@@ -185,7 +185,7 @@ describe('TableOfContents', () => {
     await Promise.resolve();
 
     const activeLink = screen.getByRole('link', { name: 'Beta' });
-    expect(activeLink.className).toContain('border-accent');
+    expect(activeLink.className).toContain('before:bg-accent');
     expect(scrollSpy).not.toHaveBeenCalled();
     Element.prototype.scrollIntoView = originalScrollIntoView;
     raf.mockRestore();
@@ -207,7 +207,7 @@ describe('TableOfContents', () => {
     await Promise.resolve();
 
     const activeLink = screen.getByRole('link', { name: 'Beta' });
-    expect(activeLink.className).toContain('border-accent');
+    expect(activeLink.className).toContain('before:bg-accent');
     expect(scrollSpy).toHaveBeenCalledWith({ block: 'nearest' });
     Element.prototype.scrollIntoView = originalScrollIntoView;
     raf.mockRestore();
@@ -230,6 +230,6 @@ describe('TableOfContents', () => {
     });
 
     const link = screen.getByRole('link', { name: 'Beta' });
-    expect(link.className).not.toContain('border-accent');
+    expect(link.className).not.toContain('before:bg-accent');
   });
 });

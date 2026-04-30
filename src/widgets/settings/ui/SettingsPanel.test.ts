@@ -1,9 +1,18 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { BLOG_POST_ROUTE_ID } from '$shared/config/routes';
 import { navAnchored } from '$features/theme/model/navAnchor.svelte';
 
-const { readingModeMock } = vi.hoisted(() => ({
+const { pageState, readingModeMock } = vi.hoisted(() => ({
+  pageState: {
+    url: new URL('https://arttet.github.io/blog/2026-04-20-architecture-and-stack'),
+    route: null as { id: string } | null,
+  },
   readingModeMock: { value: false },
+}));
+
+vi.mock('$app/state', () => ({
+  page: pageState,
 }));
 
 vi.mock('$features/theme/model/readingMode.svelte', () => ({
@@ -13,8 +22,13 @@ vi.mock('$features/theme/model/readingMode.svelte', () => ({
 import SettingsPanel from './SettingsPanel.svelte';
 
 describe('SettingsPanel', () => {
-  it('toggles open state', async () => {
+  beforeEach(() => {
+    pageState.url = new URL('https://arttet.github.io/blog/2026-04-20-architecture-and-stack');
+    pageState.route = { id: BLOG_POST_ROUTE_ID };
     readingModeMock.value = false;
+  });
+
+  it('toggles open state', async () => {
     render(SettingsPanel);
     const btn = screen.getByLabelText('Settings');
     await fireEvent.click(btn);
@@ -38,6 +52,39 @@ describe('SettingsPanel', () => {
 
     await waitFor(() => expect(screen.getByText('Code theme')).toBeInTheDocument());
     expect(screen.queryByText('Background effect')).toBeNull();
+  });
+
+  it('does not load code theme settings outside post pages', async () => {
+    pageState.url = new URL('https://arttet.github.io/about');
+    pageState.route = { id: '/about' };
+    render(SettingsPanel);
+    const btn = screen.getByLabelText('Settings');
+    await fireEvent.click(btn);
+
+    await waitFor(() => expect(screen.getByText('Background effect')).toBeInTheDocument());
+    expect(screen.queryByText('Code theme')).not.toBeInTheDocument();
+  });
+
+  it('does not load code theme settings on blog listing pages', async () => {
+    pageState.url = new URL('https://arttet.github.io/blog/');
+    pageState.route = { id: '/blog' };
+    render(SettingsPanel);
+    const btn = screen.getByLabelText('Settings');
+    await fireEvent.click(btn);
+
+    await waitFor(() => expect(screen.getByText('Background effect')).toBeInTheDocument());
+    expect(screen.queryByText('Code theme')).not.toBeInTheDocument();
+  });
+
+  it('does not load code theme settings when route is unavailable', async () => {
+    pageState.url = new URL('https://arttet.github.io/missing');
+    pageState.route = null;
+    render(SettingsPanel);
+    const btn = screen.getByLabelText('Settings');
+    await fireEvent.click(btn);
+
+    await waitFor(() => expect(screen.getByText('Background effect')).toBeInTheDocument());
+    expect(screen.queryByText('Code theme')).not.toBeInTheDocument();
   });
 
   it('closes on escape key and restores focus to trigger if focus was inside panel', async () => {
