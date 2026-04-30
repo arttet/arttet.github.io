@@ -138,11 +138,12 @@ function onPanelKeyDown(e: KeyboardEvent) {
       <ReadingModeToggle />
 
       {#if showBackgroundModeList}
+        <hr data-testid="settings-divider" class="border-0 border-t border-[--color-border] my-1" />
         <BackgroundModeList />
       {/if}
 
       {#if showCodeThemeList}
-        <div class="border-t border-[--color-border] my-1"></div>
+        <hr data-testid="settings-divider" class="border-0 border-t border-[--color-border] my-1" />
         <CodeThemeList />
       {/if}
     </div>
