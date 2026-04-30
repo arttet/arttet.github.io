@@ -2,7 +2,7 @@
 import { readingMode } from '../model/readingMode.svelte';
 </script>
 
-<div class="flex items-center justify-between px-3 py-2.5 border-b border-[--color-border]">
+<div class="flex items-center justify-between px-3 py-2.5">
   <span class="text-sm text-[--color-text-muted]">Reading mode</span>
 
   <button

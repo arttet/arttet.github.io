@@ -36,7 +36,10 @@ describe('SettingsPanel', () => {
     expect(navAnchored.value).toBe(true);
     await waitFor(() => expect(screen.getByText('Code theme')).toBeInTheDocument());
     // Background mode list should be visible
-    expect(screen.getByText('Background effect')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Background effect')).toBeInTheDocument();
+      expect(screen.getAllByRole('separator')).toHaveLength(2);
+    });
   });
 
   it('does not focus settings on mount', () => {
@@ -52,6 +55,7 @@ describe('SettingsPanel', () => {
 
     await waitFor(() => expect(screen.getByText('Code theme')).toBeInTheDocument());
     expect(screen.queryByText('Background effect')).toBeNull();
+    expect(screen.getAllByRole('separator')).toHaveLength(1);
   });
 
   it('does not load code theme settings outside post pages', async () => {
