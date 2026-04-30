@@ -23,6 +23,19 @@ const themes = Object.fromEntries(codeThemes.map((t) => [t.id, t.id]));
 
 /** @type {import('mdsvex').MdsvexOptions} */
 
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function trustedSvelteHtml(html) {
+  return `{@html ${JSON.stringify(html)}}`;
+}
+
 function remarkReadingTime() {
   return (tree, file) => {
     let text = '';
@@ -73,10 +86,11 @@ const config = {
   highlight: {
     highlighter(code, lang) {
       if (lang === 'mermaid') {
-        const escaped = code.replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+        const escaped = escapeHtml(code);
         const encoded = Buffer.from(code).toString('base64');
+        const html = `<div class="mermaid-block not-prose relative group" data-copy-content="${encoded}" data-copy-label="Mermaid"><div class="mermaid" data-content="${encoded}">${escaped}</div></div>`;
 
-        return `{@html \`<div class="mermaid-block not-prose relative group" data-copy-content="${encoded}" data-copy-label="Mermaid"><div class="mermaid" data-content="${encoded}">${escaped}</div></div>\`}`;
+        return trustedSvelteHtml(html);
       }
 
       try {
@@ -88,15 +102,13 @@ const config = {
 
           .replace('<pre ', `<pre data-language="${safeLang}" `);
 
-        const escaped = html.replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
-
-        return `{@html \`${escaped}\`}`;
+        return trustedSvelteHtml(html);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Shiki highlighting failed:', e);
-        const safe = code.replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+        const safe = escapeHtml(code);
 
-        return `{@html \`<pre><code>${safe}</code></pre>\`}`;
+        return trustedSvelteHtml(`<pre><code>${safe}</code></pre>`);
       }
     },
   },

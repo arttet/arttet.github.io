@@ -106,4 +106,80 @@ $$`;
     expect(result?.code).toContain('<KaTeXStyles />');
     expect(result?.code).not.toContain('const value = <MathCopy');
   });
+
+  it('inserts imports into uppercase svelte script tags', async () => {
+    const content = `<SCRIPT lang="js" generics="T">
+  const existing = true;
+</SCRIPT  >
+
+Inline math: $E = mc^2$`;
+    const result = await markup({ content, filename: 'test.md' });
+
+    expect(result?.code).toContain(
+      '<SCRIPT lang="js" generics="T">\n  import MathCopy from \'$shared/ui/MathCopy.svelte\';'
+    );
+    expect(result?.code).toContain('</SCRIPT  >\n\n<KaTeXStyles />');
+    expect(result?.code).not.toContain('<script>');
+  });
+
+  it('does not treat script-like html as a svelte script block', async () => {
+    const content = `Text <script src="https://example.com/x.js"></script>
+
+Inline math: $E = mc^2$`;
+    const result = await markup({ content, filename: 'test.md' });
+
+    expect(result?.code).toMatch(
+      /^<script>\n  import MathCopy from '\$shared\/ui\/MathCopy\.svelte';/
+    );
+    expect(result?.code).toContain('<script src="https://example.com/x.js"></script>');
+  });
+
+  it('does not inject template imports into module scripts', async () => {
+    const content = `<script module>
+  export const prerender = true;
+</script>
+
+Inline math: $E = mc^2$`;
+    const result = await markup({ content, filename: 'test.md' });
+
+    expect(result?.code).toMatch(
+      /^<script>\n  import MathCopy from '\$shared\/ui\/MathCopy\.svelte';/
+    );
+    expect(result?.code).toContain('<script module>');
+  });
+
+  it('ignores script tags inside comments and code examples', async () => {
+    const content = `<!-- <script></script> -->
+
+\`\`\`html
+<script></script>
+\`\`\`
+
+<script title="actual">
+  const existing = true;
+</script>
+
+Inline math: $E = mc^2$`;
+    const result = await markup({ content, filename: 'test.md' });
+
+    expect(result?.code).toContain(
+      '<script title="actual">\n  import MathCopy from \'$shared/ui/MathCopy.svelte\';'
+    );
+    expect(result?.code).toContain('<!-- <script></script> -->');
+    expect(result?.code).toContain('```html\n<script></script>\n```');
+  });
+
+  it('handles quoted angle brackets and attribute text without false src matches', async () => {
+    const content = `<script title="> src is mentioned here">
+  const existing = true;
+</script>
+
+Inline math: $E = mc^2$`;
+    const result = await markup({ content, filename: 'test.md' });
+
+    expect(result?.code).toContain(
+      '<script title="> src is mentioned here">\n  import MathCopy from \'$shared/ui/MathCopy.svelte\';'
+    );
+    expect(result?.code).toContain('</script>\n\n<KaTeXStyles />');
+  });
 });
