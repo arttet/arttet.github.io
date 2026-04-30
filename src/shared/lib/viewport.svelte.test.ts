@@ -28,6 +28,13 @@ describe('ViewportState', () => {
     expect(viewport.scrollDir).toBe('up');
   });
 
+  it('ignores small scroll movements below threshold', () => {
+    viewport.updateScroll(100);
+    expect(viewport.scrollDir).toBe('down');
+    viewport.updateScroll(110); // Diff is 10, < 15 threshold
+    expect(viewport.scrollDir).toBe('down');
+  });
+
   it('stays "up" near the top', () => {
     viewport.updateScroll(100);
     expect(viewport.scrollDir).toBe('down');

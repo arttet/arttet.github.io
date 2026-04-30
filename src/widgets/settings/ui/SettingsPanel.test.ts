@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 import { navAnchored } from '$features/theme/model/navAnchor.svelte';
 
@@ -20,7 +20,7 @@ describe('SettingsPanel', () => {
     await fireEvent.click(btn);
 
     expect(navAnchored.value).toBe(true);
-    expect(screen.getByText('Code theme')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Code theme')).toBeInTheDocument());
     // Background mode list should be visible
     expect(screen.getByText('Background effect')).toBeInTheDocument();
   });
@@ -36,14 +36,19 @@ describe('SettingsPanel', () => {
     const btn = screen.getByLabelText('Settings');
     await fireEvent.click(btn);
 
+    await waitFor(() => expect(screen.getByText('Code theme')).toBeInTheDocument());
     expect(screen.queryByText('Background effect')).toBeNull();
   });
 
-  it('closes on escape key and restores focus', async () => {
+  it('closes on escape key and restores focus to trigger if focus was inside panel', async () => {
     render(SettingsPanel);
     const btn = screen.getByLabelText('Settings') as HTMLButtonElement;
-    btn.focus();
-    await fireEvent.click(btn);
+    await fireEvent.click(btn); // Open the panel
+    await waitFor(() => expect(screen.getByText('Code theme')).toBeInTheDocument());
+
+    // Focus something inside the panel
+    const firstItem = screen.getAllByRole('button')[1];
+    firstItem.focus();
 
     await fireEvent.keyDown(window, { key: 'Escape' });
     expect(navAnchored.value).toBe(false);
@@ -54,8 +59,13 @@ describe('SettingsPanel', () => {
     render(SettingsPanel);
     const btn = screen.getByLabelText('Settings') as HTMLButtonElement;
     await fireEvent.click(btn);
+    await waitFor(() => expect(screen.getByText('Code theme')).toBeInTheDocument());
 
-    const firstItem = screen.getAllByRole('button')[1]; // Settings button is [0], first panel item is [1]
+    const panel = screen.getByRole('none');
+    const focusables = panel.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstItem = focusables[0] as HTMLElement;
     firstItem.focus();
 
     await fireEvent.keyDown(firstItem, { key: 'Tab', shiftKey: true });
@@ -67,13 +77,50 @@ describe('SettingsPanel', () => {
     render(SettingsPanel);
     const btn = screen.getByLabelText('Settings') as HTMLButtonElement;
     await fireEvent.click(btn);
+    await waitFor(() => expect(screen.getByText('Code theme')).toBeInTheDocument());
 
-    const buttons = screen.getAllByRole('button');
-    const lastItem = buttons[buttons.length - 1];
+    const panel = screen.getByRole('none');
+    const focusables = panel.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const lastItem = focusables[focusables.length - 1] as HTMLElement;
     lastItem.focus();
 
     await fireEvent.keyDown(lastItem, { key: 'Tab', shiftKey: false });
     expect(navAnchored.value).toBe(false);
     expect(screen.queryByText('Code theme')).not.toBeInTheDocument();
+  });
+
+  it('does nothing on Tab if there are no focusable elements in panel', async () => {
+    render(SettingsPanel);
+    const btn = screen.getByLabelText('Settings') as HTMLButtonElement;
+    await fireEvent.click(btn);
+
+    const panel = screen.getByRole('none');
+
+    // Temporarily mock querySelectorAll on the panel
+    const originalQuerySelectorAll = panel.querySelectorAll;
+    panel.querySelectorAll = vi.fn().mockReturnValue([]);
+
+    await fireEvent.keyDown(panel, { key: 'Tab' });
+
+    // Verify it's still open
+    expect(navAnchored.value).toBe(true);
+
+    // Restore
+    panel.querySelectorAll = originalQuerySelectorAll;
+  });
+
+  it('closes when clicking outside', async () => {
+    render(SettingsPanel);
+    const btn = screen.getByLabelText('Settings');
+    await fireEvent.click(btn);
+    await waitFor(() => expect(screen.getByText('Code theme')).toBeInTheDocument());
+
+    // Wait for clickOutside listener to be registered (it uses setTimeout 0)
+    await new Promise((r) => setTimeout(r, 0));
+
+    await fireEvent.click(document.body);
+    await waitFor(() => expect(screen.queryByText('Code theme')).not.toBeInTheDocument());
   });
 });

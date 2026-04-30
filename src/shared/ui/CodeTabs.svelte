@@ -21,35 +21,37 @@ $effect(() => {
 });
 </script>
 
-<div class="not-prose my-6 rounded-lg border border-[--color-border] overflow-hidden">
-  <!-- Tab bar — language tabs only, no copy here -->
-  <div class="flex items-center bg-[--code-bg] border-b border-[--color-border] px-1">
-    {#each tabs as tab, i (tab.lang)}
-      <button
-        type="button"
-        class="px-4 py-2 text-xs font-mono transition-colors duration-[100ms]
-				       {i === active
-					? 'text-[--color-accent] border-b-2 border-[--color-accent]'
-					: 'text-[--code-accent] opacity-70 hover:opacity-100'}"
-        onclick={() => {
-					active = i;
-				}}
-      >
-        {tab.label}
-      </button>
-    {/each}
-  </div>
+{#if tabs.length > 0}
+  <div class="not-prose my-6 rounded-lg border border-[--color-border] overflow-hidden">
+    <!-- Tab bar — language tabs only, no copy here -->
+    <div class="flex items-center bg-[--code-bg] border-b border-[--color-border] px-1">
+      {#each tabs as tab, i (tab.lang)}
+        <button
+          type="button"
+          class="px-4 py-2 text-xs font-mono transition-colors duration-[100ms]
+                 {i === active
+            ? 'text-[--color-accent] border-b-2 border-[--color-accent]'
+            : 'text-[--code-accent] opacity-70 hover:opacity-100'}"
+          onclick={() => {
+            active = i;
+          }}
+        >
+          {tab.label}
+        </button>
+      {/each}
+    </div>
 
-  <!-- Code panel — language label inside copy button -->
-  <div class="relative group" data-code-tabs-content>
-    <!-- Copy button -->
-    <CopyButton content={tabs[active].code} label={tabs[active].label || tabs[active].lang} />
+    <!-- Code panel — language label inside copy button -->
+    <div class="relative group" data-code-tabs-content>
+      <!-- Copy button -->
+      <CopyButton content={tabs[active].code} label={tabs[active].label || tabs[active].lang} />
 
-    {#if hl.value}
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -- Shiki SSR output, not user input -->
-      {@html hl.value.replace('<pre class="shiki', '<pre tabindex="-1" class="shiki m-0')}
-    {:else}
-      <pre tabindex="-1" class="shiki m-0 font-mono"><code>{tabs[active].code.trim()}</code></pre>
-    {/if}
+      {#if hl.value}
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -- Shiki SSR output, not user input -->
+        {@html hl.value.replace('<pre class="shiki', '<pre tabindex="-1" class="shiki m-0')}
+      {:else}
+        <pre tabindex="-1" class="shiki m-0 font-mono"><code>{tabs[active].code.trim()}</code></pre>
+      {/if}
+    </div>
   </div>
-</div>
+{/if}

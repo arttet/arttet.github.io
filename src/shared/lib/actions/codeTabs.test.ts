@@ -53,6 +53,21 @@ describe('codeTabs action', () => {
     document.body.removeChild(node);
   });
 
+  it('switches panels when a focused tab is activated with Space', () => {
+    const { action, node, panels, tabs } = setup();
+
+    tabs[1].focus();
+    tabs[1].dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+    expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
+    expect(panels[0]).toHaveAttribute('hidden');
+    expect(panels[1]).not.toHaveAttribute('hidden');
+
+    action.destroy();
+    document.body.removeChild(node);
+  });
+
   it('supports arrow key navigation between tabs', () => {
     const { action, node, tabs } = setup();
 
@@ -61,6 +76,64 @@ describe('codeTabs action', () => {
     expect(tabs[1]).toHaveFocus();
     expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
 
+    action.destroy();
+    document.body.removeChild(node);
+  });
+
+  it('supports arrow key navigation backwards (ArrowLeft)', () => {
+    const { action, node, tabs } = setup();
+
+    tabs[1].focus();
+    tabs[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+
+    expect(tabs[0]).toHaveFocus();
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+
+    action.destroy();
+    document.body.removeChild(node);
+  });
+
+  it('supports Home and End key navigation', () => {
+    const { action, node, tabs } = setup();
+
+    tabs[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    expect(tabs[0]).toHaveFocus();
+
+    tabs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    expect(tabs[1]).toHaveFocus();
+
+    action.destroy();
+    document.body.removeChild(node);
+  });
+
+  it('ignores initialization if tabs length does not match panels length', () => {
+    const node = document.createElement('div');
+    node.innerHTML = `
+      <div data-code-tabs>
+        <div role="tablist" aria-label="Code examples">
+          <button type="button" role="tab" id="tab-0" aria-controls="panel-0">Go</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(node);
+    const action = codeTabs(node);
+
+    const tab = node.querySelector('button');
+    expect(tab).not.toHaveAttribute('aria-selected');
+
+    action.destroy();
+    document.body.removeChild(node);
+  });
+
+  it('ignores initialization if no tabs are found', () => {
+    const node = document.createElement('div');
+    node.innerHTML = `
+      <div data-code-tabs>
+        <div role="tablist"></div>
+      </div>
+    `;
+    document.body.appendChild(node);
+    const action = codeTabs(node);
     action.destroy();
     document.body.removeChild(node);
   });

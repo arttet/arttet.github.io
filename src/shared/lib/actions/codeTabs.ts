@@ -16,7 +16,7 @@ export function codeTabs(node: HTMLElement) {
       return;
     }
 
-    function activate(index: number, focus = false) {
+    function activate(index: number) {
       const active = clampIndex(index, tabs.length);
 
       tabs.forEach((tab, tabIndex) => {
@@ -33,10 +33,6 @@ export function codeTabs(node: HTMLElement) {
       panels.forEach((panel, panelIndex) => {
         panel.hidden = panelIndex !== active;
       });
-
-      if (focus) {
-        tabs[active]?.focus();
-      }
     }
 
     const selected = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');

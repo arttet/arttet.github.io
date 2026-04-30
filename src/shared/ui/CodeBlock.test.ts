@@ -1,16 +1,14 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CodeBlock from './CodeBlock.svelte';
 
-// Mock highlighter locally for component test
-vi.mock('$lib/highlighter', () => ({
-  getHighlighter: vi.fn().mockImplementation(() => Promise.resolve({})),
-  loadLanguage: vi.fn().mockImplementation(() => Promise.resolve()),
-  setThemes: vi.fn(),
-  highlightCode: vi
-    .fn()
-    .mockImplementation((code: string) => `<pre class="shiki"><code>${code}</code></pre>`),
-  LANGS: ['typescript', 'python', 'rust'],
+const hlMock = {
+  value: '',
+  highlight: vi.fn(),
+};
+
+vi.mock('$shared/lib/highlighter.svelte', () => ({
+  useHighlighter: () => hlMock,
 }));
 
 describe('CodeBlock', () => {
@@ -21,26 +19,28 @@ describe('CodeBlock', () => {
         writeText: vi.fn().mockImplementation(() => Promise.resolve()),
       },
     });
+    hlMock.value = '';
+    hlMock.highlight.mockClear();
   });
 
-  it('renders code correctly before highlighting', () => {
+  it('renders fallback code correctly before highlighting', () => {
     const code = 'const x = 1;';
     render(CodeBlock, { code, lang: 'javascript' });
 
     expect(screen.getByText(code)).toBeInTheDocument();
+    expect(hlMock.highlight).toHaveBeenCalledWith(code, 'javascript');
   });
 
-  it('renders highlighted code after highlighter loads', async () => {
+  it('renders highlighted code when highlighter returns a value', async () => {
+    hlMock.value = `<pre class="shiki"><code>const x = 1;</code></pre>`;
     const code = 'const x = 1;';
+
     render(CodeBlock, { code, lang: 'javascript' });
 
-    await waitFor(() => {
-      const shiki = document.querySelector('.shiki');
-      expect(shiki).toBeInTheDocument();
-    });
-
-    expect(document.querySelector('.shiki')).toHaveClass('m-0');
-    expect(document.querySelector('.shiki')).toHaveAttribute('tabindex', '-1');
+    const pre = document.querySelector('pre.shiki');
+    expect(pre).toBeInTheDocument();
+    expect(pre).toHaveClass('m-0');
+    expect(pre).toHaveAttribute('tabindex', '-1');
   });
 
   it('copies code to clipboard when clicked', async () => {
@@ -59,16 +59,5 @@ describe('CodeBlock', () => {
 
     const code = document.querySelector('pre code');
     expect(code?.textContent).toBe('const y = 2;');
-  });
-
-  it('renders fallback if highlighter returns empty value', async () => {
-    const { highlightCode } = await import('$lib/highlighter');
-    vi.mocked(highlightCode).mockReturnValueOnce('');
-
-    render(CodeBlock, { code: 'fallback', lang: 'js' });
-
-    expect(screen.getByText('fallback')).toBeInTheDocument();
-    expect(document.querySelector('pre')).toHaveClass('shiki');
-    expect(document.querySelector('pre')).toHaveAttribute('tabindex', '-1');
   });
 });

@@ -48,6 +48,8 @@ describe('useCopy rune', () => {
     await copy.copy('success');
     expect(copy.copied).toBe(true);
 
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
     // Now fail
     writeTextMock.mockImplementationOnce(() => Promise.reject(err));
     Object.defineProperty(document, 'execCommand', {
@@ -56,6 +58,23 @@ describe('useCopy rune', () => {
         throw err;
       },
     });
+    await copy.copy('hello');
+
+    expect(copy.copied).toBe(false);
+    expect(copy.error).toBe(err);
+    expect(consoleSpy).toHaveBeenCalledWith('Clipboard copy failed:', err);
+    consoleSpy.mockRestore();
+  });
+
+  it('handles when execCommand is not available', async () => {
+    const err = new Error('clipboard error');
+    writeTextMock.mockImplementationOnce(() => Promise.reject(err));
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: undefined,
+    });
+
+    const copy = useCopy();
     await copy.copy('hello');
 
     expect(copy.copied).toBe(false);
