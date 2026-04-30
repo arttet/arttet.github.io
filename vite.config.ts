@@ -64,7 +64,7 @@ export default defineConfig(({ mode }) => ({
   },
 
   test: {
-    include: ['src/**/*.{test,spec}.{js,ts}'],
+    include: ['src/**/*.{test,spec}.{js,ts}', 'config/mdsvex/**/*.{test,spec}.js'],
     exclude: isFastTest ? slowTestPatterns : [],
     environment: 'jsdom',
     globals: true,

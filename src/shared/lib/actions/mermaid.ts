@@ -23,6 +23,11 @@ function configure(mermaidLib: MermaidLib, theme: 'dark' | 'light') {
   configuredTheme = theme;
 }
 
+function decodeBase64Utf8(content: string) {
+  const bytes = Uint8Array.from(atob(content), (char) => char.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
 function reset(node: HTMLElement) {
   const rendered = node.querySelectorAll<HTMLElement>('.mermaid[data-processed="true"]');
   for (const el of rendered) {
@@ -30,7 +35,7 @@ function reset(node: HTMLElement) {
     if (!content) {
       continue;
     }
-    el.innerHTML = atob(content);
+    el.innerHTML = decodeBase64Utf8(content);
     el.removeAttribute('data-processed');
     el.removeAttribute('id');
   }
