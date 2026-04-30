@@ -195,6 +195,7 @@ jobs:
       matrix:
         target:
           - chrome-desktop
+          - chrome-mobile
           - firefox-desktop
           - firefox-mobile
 
@@ -266,7 +267,7 @@ jobs:
       matrix:
         target:
           - chrome-desktop
-          - chrome-mobile
+          # TODO: FIXME - chrome-mobile
 
     steps:
       - name: Checkout

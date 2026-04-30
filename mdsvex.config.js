@@ -6,24 +6,52 @@ import { codeThemes } from './src/shared/config/codeThemes.js';
 setThemes(codeThemes.map((t) => t.id));
 
 const hl = await getHighlighter();
-
-// Pre-load all languages for synchronous mdsvex highlighting during build
-
 const { bundledLanguages } = await import('shiki');
 
 const shikiLanguages = /** @type {Record<string, Parameters<typeof hl.loadLanguage>[0]>} */ (
   bundledLanguages
 );
-
-await Promise.all(
-  LANGS.map((lang) => {
-    const loader = shikiLanguages[lang];
-
-    return loader ? hl.loadLanguage(loader) : Promise.resolve();
-  })
-);
-
+const allowedLangs = new Set(LANGS);
 const themes = Object.fromEntries(codeThemes.map((t) => [t.id, t.id]));
+
+await preloadLanguages();
+
+/** @type {import('mdsvex').MdsvexOptions} */
+const config = {
+  extensions: ['.md'],
+  remarkPlugins: /** @type {import('mdsvex').MdsvexOptions['remarkPlugins']} */ ([
+    remarkReadingTime,
+  ]),
+  rehypePlugins: getRehypePlugins(),
+
+  highlight: {
+    highlighter(code, lang) {
+      if (lang === 'mermaid') {
+        return renderMermaidBlock(code);
+      }
+
+      return renderHighlightedCode(code, lang);
+    },
+  },
+};
+
+export default config;
+
+async function preloadLanguages() {
+  await Promise.all(
+    LANGS.map((lang) => {
+      const loader = shikiLanguages[lang];
+
+      if (!loader) {
+        // eslint-disable-next-line no-console
+        console.warn(`Unknown Shiki language configured for markdown: ${lang}`);
+        return Promise.resolve();
+      }
+
+      return hl.loadLanguage(loader);
+    })
+  );
+}
 
 /**
  * @typedef {Object} MarkdownNode
@@ -38,11 +66,19 @@ const themes = Object.fromEntries(codeThemes.map((t) => [t.id, t.id]));
  */
 function escapeHtml(str) {
   return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+function encodeBase64(value) {
+  return Buffer.from(value).toString('base64');
 }
 
 /**
@@ -51,6 +87,58 @@ function escapeHtml(str) {
  */
 function trustedSvelteHtml(html) {
   return `{@html ${JSON.stringify(html)}}`;
+}
+
+/**
+ * @param {string | null | undefined} lang
+ * @returns {string}
+ */
+function normalizeLang(lang) {
+  const candidate = lang ?? '';
+  return allowedLangs.has(candidate) ? candidate : 'text';
+}
+
+/**
+ * @param {string} code
+ * @returns {string}
+ */
+function renderPlainCode(code) {
+  const safe = escapeHtml(code);
+  return trustedSvelteHtml(`<pre><code>${safe}</code></pre>`);
+}
+
+/**
+ * @param {string} code
+ * @returns {string}
+ */
+function renderMermaidBlock(code) {
+  const escaped = escapeHtml(code);
+  const encoded = encodeBase64(code);
+  const html = `<div class="mermaid-block not-prose relative group" data-copy-content="${encoded}" data-copy-label="Mermaid"><div class="mermaid" data-content="${encoded}">${escaped}</div></div>`;
+
+  return trustedSvelteHtml(html);
+}
+
+/**
+ * @param {string} code
+ * @param {string | null | undefined} lang
+ * @returns {string}
+ */
+function renderHighlightedCode(code, lang) {
+  try {
+    const safeLang = normalizeLang(lang);
+    const html = hl
+
+      .codeToHtml(code, { lang: safeLang, themes, defaultColor: false })
+
+      .replace('<pre ', `<pre data-language="${safeLang}" `);
+
+    return trustedSvelteHtml(html);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('Shiki highlighting failed:', e);
+    return renderPlainCode(code);
+  }
 }
 
 function remarkReadingTime() {
@@ -85,13 +173,11 @@ function remarkReadingTime() {
   };
 }
 
-/** @type {import('mdsvex').MdsvexOptions} */
-const config = {
-  extensions: ['.md'],
-  remarkPlugins: /** @type {import('mdsvex').MdsvexOptions['remarkPlugins']} */ ([
-    remarkReadingTime,
-  ]),
-  rehypePlugins: /** @type {import('mdsvex').MdsvexOptions['rehypePlugins']} */ (
+/**
+ * @returns {import('mdsvex').MdsvexOptions['rehypePlugins']}
+ */
+function getRehypePlugins() {
+  return /** @type {import('mdsvex').MdsvexOptions['rehypePlugins']} */ (
     /** @type {unknown} */ ([
       rehypeSlug,
       [
@@ -110,41 +196,5 @@ const config = {
         },
       ],
     ])
-  ),
-
-  highlight: {
-    /**
-     * @param {string} code
-     * @param {string | null | undefined} lang
-     */
-    highlighter(code, lang) {
-      if (lang === 'mermaid') {
-        const escaped = escapeHtml(code);
-        const encoded = Buffer.from(code).toString('base64');
-        const html = `<div class="mermaid-block not-prose relative group" data-copy-content="${encoded}" data-copy-label="Mermaid"><div class="mermaid" data-content="${encoded}">${escaped}</div></div>`;
-
-        return trustedSvelteHtml(html);
-      }
-
-      try {
-        const safeLang = LANGS.includes(lang ?? '') ? (lang ?? 'text') : 'text';
-
-        const html = hl
-
-          .codeToHtml(code, { lang: safeLang, themes, defaultColor: false })
-
-          .replace('<pre ', `<pre data-language="${safeLang}" `);
-
-        return trustedSvelteHtml(html);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('Shiki highlighting failed:', e);
-        const safe = escapeHtml(code);
-
-        return trustedSvelteHtml(`<pre><code>${safe}</code></pre>`);
-      }
-    },
-  },
-};
-
-export default config;
+  );
+}
