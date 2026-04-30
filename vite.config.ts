@@ -4,7 +4,10 @@ import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vitest/config';
 
-const heavyUnitTestPatterns = [
+const analyze = process.env.ANALYZE === 'true';
+const isFastTest = process.env.VITEST_FAST === 'true';
+
+const slowTestPatterns = [
   'src/routes/**/*.svelte.test.ts',
   'src/shared/ui/**/*.test.ts',
   'src/widgets/**/ui/*.test.ts',
@@ -17,7 +20,7 @@ export default defineConfig(({ mode }) => ({
     enhancedImages(),
     tailwindcss(),
     sveltekit(),
-    ...(mode !== 'test'
+    ...(analyze
       ? [
           visualizer({
             filename: 'target/bundle/stats.html',
@@ -38,6 +41,17 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 500,
     minify: 'esbuild',
     esbuild: mode === 'production' ? { drop: ['console', 'debugger'] } : undefined,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/katex')) return 'markdown-katex';
+          if (id.includes('node_modules/mermaid')) return 'markdown-mermaid';
+          if (id.includes('src/shared/markdown')) return 'markdown-runtime';
+          if (id.includes('src/shared/lib/actions/mermaid')) return 'markdown-mermaid-runtime';
+          if (id.includes('src/shared/lib/actions/codeTabs')) return 'markdown-code-tabs-runtime';
+        },
+      },
+    },
   },
 
   worker: {
@@ -46,12 +60,12 @@ export default defineConfig(({ mode }) => ({
   },
 
   resolve: {
-    conditions: ['browser', 'development'],
+    conditions: mode === 'development' ? ['browser', 'development'] : ['browser'],
   },
 
   test: {
     include: ['src/**/*.{test,spec}.{js,ts}'],
-    exclude: process.env.VITEST_FAST === 'true' ? heavyUnitTestPatterns : [],
+    exclude: isFastTest ? slowTestPatterns : [],
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./tests/setup.ts'],
@@ -60,7 +74,7 @@ export default defineConfig(({ mode }) => ({
       provider: 'v8',
       reporter: process.env.CI ? ['text', 'lcov'] : ['text', 'json', 'html', 'lcov'],
       reportsDirectory: 'target/coverage',
-      include: ['src/**/*.ts', 'src/**/*.svelte'],
+      include: ['src/**/*.ts', 'src/**/*.svelte', 'config/mdsvex/**/*.js'],
       exclude: [
         'src/**/*.{test,spec}.{js,ts}',
         'src/**/*.d.ts',

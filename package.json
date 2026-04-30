@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "build:analyze": "ANALYZE=true vite build",
     "dev": "vite dev",
     "preview": "vite preview",
     "serve:playwright": "bun run scripts/serve-static.ts",
@@ -15,13 +16,15 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test:unit": "VITEST_FAST=true vitest run --maxWorkers=100% --testTimeout=10000 --hookTimeout=10000",
     "test:unit:fast": "VITEST_FAST=true vitest run --maxWorkers=100% --testTimeout=10000 --hookTimeout=10000",
+    "test:markdown": "vitest run tests/markdown config/mdsvex src/lib/math-preprocessor.test.ts",
     "test:unit:coverage": "vitest run --coverage",
     "test:unit:coverage:ci": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=target/test-results/vitest.junit.xml --maxWorkers=100% --testTimeout=10000 --hookTimeout=10000",
     "test:lhci": "bun scripts/run-lhci.mjs",
     "test:playwright": "playwright test --config=playwright.config.ts",
     "test:playwright:dev": "playwright test --config=playwright.config.ts",
     "test:playwright:production": "playwright test --config=playwright.ci.config.ts",
-    "test:playwright:ui": "playwright test --ui"
+    "test:playwright:ui": "playwright test --ui",
+    "content:diagnostics": "MARKDOWN_DEBUG=true vite build"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",

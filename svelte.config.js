@@ -4,17 +4,25 @@ import { mdsvex } from 'mdsvex';
 import mdsvexConfig from './mdsvex.config.js';
 import { mathPreprocess } from './src/lib/math-preprocessor.js';
 
+const OUTPUT_DIR = 'target/build';
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   extensions: ['.svelte', '.md'],
 
-  // mathPreprocess must run BEFORE mdsvex so backslashes in LaTeX are preserved
-  preprocess: [mathPreprocess(), vitePreprocess(), mdsvex(mdsvexConfig)],
+  preprocess: [
+    // Compatibility layer. Must run before mdsvex to preserve LaTeX backslashes
+    // and current CodeTabs behavior.
+    // TODO(sprint-7): move this logic into config/mdsvex steps and remove it.
+    mathPreprocess(),
+    vitePreprocess(),
+    mdsvex(mdsvexConfig),
+  ],
 
   kit: {
     adapter: adapter({
-      pages: 'target/build',
-      assets: 'target/build',
+      pages: OUTPUT_DIR,
+      assets: OUTPUT_DIR,
       fallback: '404.html',
     }),
 

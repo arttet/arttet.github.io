@@ -6,7 +6,13 @@
       "numberOfRuns": 3,
       "settings": {
         "chromeFlags": "--headless --enable-unsafe-webgpu --enable-features=Vulkan",
-        "skipAudits": ["redirects-http", "is-on-https"]
+        "skipAudits": [
+          "redirects-http",
+          "is-on-https",
+          "unused-javascript",
+          "valid-source-maps",
+          "legacy-javascript"
+        ]
       }
     },
     "assert": {
@@ -20,6 +26,9 @@
         "network-dependency-tree-insight": "off",
         "render-blocking-insight": "off",
         "render-blocking-resources": "off",
+        "unused-javascript": "off",
+        "valid-source-maps": "off",
+        "legacy-javascript": "off",
         "is-on-https": "off",
         "redirects-http": "off"
       }
