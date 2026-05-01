@@ -3,6 +3,7 @@
   "project": [
     "src/**/*.{js,ts,svelte}",
     "src/**/*.d.ts",
+    "config/mdsvex/**/*.js",
     "tests/**/*.{js,ts,svelte}",
     "*.config.{js,ts}"
   ],
@@ -26,6 +27,7 @@
       "src/routes/**/+*.{js,ts,svelte}",
       "svelte.config.js",
       "mdsvex.config.js",
+      "config/mdsvex/index.js",
       "playwright.config.ts",
       "vite.config.ts"
     ]
