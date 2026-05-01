@@ -32,7 +32,8 @@ function createMermaidRemarkPlugin() {
     return function mermaidTransformer(tree, file) {
       if (hasMermaidDiagram(tree)) {
         file.data ??= {};
-        file.data.hasMermaid = true;
+        file.data.fm ??= {};
+        /** @type {Record<string, unknown>} */ (file.data.fm).hasMermaid = true;
       }
     };
   };

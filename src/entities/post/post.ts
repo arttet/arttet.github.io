@@ -6,6 +6,7 @@ export interface PostFrontmatter {
   draft?: boolean;
   summary?: string;
   toc?: boolean;
+  hasMermaid?: boolean;
 }
 
 export type Post = PostFrontmatter & {

@@ -23,6 +23,14 @@ function createFile() {
   return { data: {} };
 }
 
+/**
+ * @param {{ data?: Record<string, unknown> }} file
+ * @returns {unknown}
+ */
+function getHasMermaid(file) {
+  return /** @type {Record<string, unknown> | undefined} */ (file.data?.fm)?.hasMermaid;
+}
+
 describe('mermaid step', () => {
   /**
    * @returns {(tree: import('./mermaid.js').MarkdownNode, file: { data?: Record<string, unknown> }) => void}
@@ -41,25 +49,25 @@ describe('mermaid step', () => {
   it('detects mermaid code blocks', () => {
     const file = createFile();
     getRemarkPlugin()(root([codeBlock('mermaid', 'graph TD; A-->B;')]), file);
-    expect(file.data?.hasMermaid).toBe(true);
+    expect(getHasMermaid(file)).toBe(true);
   });
 
   it('ignores non-mermaid code blocks', () => {
     const file = createFile();
     getRemarkPlugin()(root([codeBlock('js', 'const x = 1;')]), file);
-    expect(file.data?.hasMermaid).toBeUndefined();
+    expect(getHasMermaid(file)).toBeUndefined();
   });
 
   it('ignores inline code', () => {
     const file = createFile();
     getRemarkPlugin()(root([{ type: 'inlineCode', value: 'mermaid' }]), file);
-    expect(file.data?.hasMermaid).toBeUndefined();
+    expect(getHasMermaid(file)).toBeUndefined();
   });
 
   it('detects mermaid nested in other nodes', () => {
     const file = createFile();
     getRemarkPlugin()(root([{ type: 'paragraph', children: [codeBlock('mermaid')] }]), file);
-    expect(file.data?.hasMermaid).toBe(true);
+    expect(getHasMermaid(file)).toBe(true);
   });
 
   it('does not leak state between files', () => {
@@ -70,7 +78,7 @@ describe('mermaid step', () => {
     transformer(root([codeBlock('mermaid')]), fileWithMermaid);
     transformer(root([codeBlock('js')]), fileWithoutMermaid);
 
-    expect(fileWithMermaid.data?.hasMermaid).toBe(true);
-    expect(fileWithoutMermaid.data?.hasMermaid).toBeUndefined();
+    expect(getHasMermaid(fileWithMermaid)).toBe(true);
+    expect(getHasMermaid(fileWithoutMermaid)).toBeUndefined();
   });
 });
