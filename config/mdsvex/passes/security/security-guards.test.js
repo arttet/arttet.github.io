@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { createDiagnostics } from '../diagnostics.js';
-import { markdownComponentRegistry } from '../registry.js';
+import { createDiagnostics } from '../../diagnostics.js';
+import { markdownComponentRegistry } from '../../registry.js';
 import { validateMarkdownTree } from './security-guards.js';
 
 /**
- * @param {import('../engine.js').MarkdownMode} [mode]
- * @returns {import('../engine.js').MarkdownPipelineContext}
+ * @param {import('../../engine.js').MarkdownMode} [mode]
+ * @returns {import('../../engine.js').MarkdownPipelineContext}
  */
 function createContext(mode = 'warn') {
   return {
@@ -36,7 +36,7 @@ function root(children) {
   return { type: 'root', children };
 }
 
-describe('security guards step', () => {
+describe('security guards pass', () => {
   it('reports unsafe raw HTML without changing warn-mode behavior', () => {
     const ctx = createContext();
 

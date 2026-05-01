@@ -1,5 +1,5 @@
-import { getHighlighter, LANGS } from '../../../src/lib/highlighter.config.js';
-import { escapeHtml, escapeJsTemplateLiteral } from './preprocess-utils.js';
+import { getHighlighter, LANGS } from '../../../../src/lib/highlighter.config.js';
+import { escapeHtml, escapeJsTemplateLiteral } from '../preprocess-utils.js';
 
 /**
  * @param {string} content

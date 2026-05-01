@@ -19,7 +19,7 @@ import { markdownComponentRegistry } from './registry.js';
  */
 
 /**
- * @typedef {Object} MarkdownStep
+ * @typedef {Object} MarkdownPass
  * @property {string} name
  * @property {'pre' | 'remark' | 'rehype' | 'validate' | 'post' | 'extract'} phase
  * @property {string[]=} requires
@@ -31,15 +31,23 @@ import { markdownComponentRegistry } from './registry.js';
  * @param {{ mode?: MarkdownMode }} options
  */
 export function createMarkdownEngine(options = {}) {
-  /** @type {MarkdownStep[]} */
-  const steps = [];
+  /** @type {MarkdownPass[]} */
+  const passes = [];
 
   return {
     /**
-     * @param {MarkdownStep} step
+     * @param {MarkdownPass | MarkdownPass[]} pass
      */
-    use(step) {
-      steps.push(step);
+    use(pass) {
+      const items = Array.isArray(pass) ? pass : [pass];
+      for (const item of items) {
+        if (!item || typeof item.name !== 'string') {
+          throw new TypeError(
+            `Invalid markdown pass: expected object with "name", received ${item}`
+          );
+        }
+      }
+      passes.push(...items);
       return this;
     },
 
@@ -47,16 +55,16 @@ export function createMarkdownEngine(options = {}) {
      * @returns {Promise<MdsvexOptions>}
      */
     async toMdsvexConfig() {
-      const orderedSteps = orderSteps(steps);
+      const orderedPasses = orderPasses(passes);
       const ctx = createContext(options.mode ?? 'warn');
 
-      for (const step of orderedSteps) {
-        // Step setup follows dependency order; later steps may rely on earlier setup state.
+      for (const pass of orderedPasses) {
+        // Pass setup follows dependency order; later passes may rely on earlier setup state.
         // eslint-disable-next-line no-await-in-loop
-        await step.setup?.(ctx);
+        await pass.setup?.(ctx);
       }
 
-      return mergeMdsvexOptions(orderedSteps, ctx);
+      return mergeMdsvexOptions(orderedPasses, ctx);
     },
   };
 }
@@ -75,54 +83,54 @@ function createContext(mode) {
 }
 
 /**
- * @param {MarkdownStep[]} steps
- * @returns {MarkdownStep[]}
+ * @param {MarkdownPass[]} passes
+ * @returns {MarkdownPass[]}
  */
-function orderSteps(steps) {
+function orderPasses(passes) {
   const names = new Set();
-  for (const step of steps) {
-    if (names.has(step.name)) {
-      throw new Error(`Duplicate markdown step registered: ${step.name}`);
+  for (const pass of passes) {
+    if (names.has(pass.name)) {
+      throw new Error(`Duplicate markdown pass registered: ${pass.name}`);
     }
-    names.add(step.name);
+    names.add(pass.name);
   }
 
-  for (const step of steps) {
-    for (const dependency of step.requires ?? []) {
+  for (const pass of passes) {
+    for (const dependency of pass.requires ?? []) {
       if (!names.has(dependency)) {
-        throw new Error(`Markdown step "${step.name}" requires missing step "${dependency}"`);
+        throw new Error(`Markdown pass "${pass.name}" requires missing pass "${dependency}"`);
       }
     }
   }
 
-  const pending = [...steps];
-  /** @type {MarkdownStep[]} */
+  const pending = [...passes];
+  /** @type {MarkdownPass[]} */
   const ordered = [];
   const resolved = new Set();
 
   while (pending.length > 0) {
-    const index = pending.findIndex((step) =>
-      (step.requires ?? []).every((dependency) => resolved.has(dependency))
+    const index = pending.findIndex((pass) =>
+      (pass.requires ?? []).every((dependency) => resolved.has(dependency))
     );
 
     if (index === -1) {
-      throw new Error('Markdown step dependency cycle detected');
+      throw new Error('Markdown pass dependency cycle detected');
     }
 
-    const [step] = pending.splice(index, 1);
-    ordered.push(step);
-    resolved.add(step.name);
+    const [pass] = pending.splice(index, 1);
+    ordered.push(pass);
+    resolved.add(pass.name);
   }
 
   return ordered;
 }
 
 /**
- * @param {MarkdownStep[]} steps
+ * @param {MarkdownPass[]} passes
  * @param {MarkdownPipelineContext} ctx
  * @returns {MdsvexOptions}
  */
-function mergeMdsvexOptions(steps, ctx) {
+function mergeMdsvexOptions(passes, ctx) {
   /** @type {MdsvexOptions} */
   const config = {
     extensions: ['.md'],
@@ -130,8 +138,8 @@ function mergeMdsvexOptions(steps, ctx) {
     rehypePlugins: [],
   };
 
-  for (const step of steps) {
-    const partial = step.mdsvex?.(ctx);
+  for (const pass of passes) {
+    const partial = pass.mdsvex?.(ctx);
     if (!partial) continue;
 
     config.remarkPlugins?.push(...(partial.remarkPlugins ?? []));
@@ -140,7 +148,7 @@ function mergeMdsvexOptions(steps, ctx) {
     if (partial.highlight) {
       if (config.highlight) {
         throw new Error(
-          `Multiple markdown steps attempted to define a highlighter. Conflict in step "${step.name}".`
+          `Multiple markdown passes attempted to define a highlighter. Conflict in pass "${pass.name}".`
         );
       }
       config.highlight = partial.highlight;

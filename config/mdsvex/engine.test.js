@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createMarkdownEngine } from './engine.js';
 
 describe('markdown engine', () => {
-  it('registers steps and merges mdsvex options in dependency order', async () => {
+  it('registers passes and merges mdsvex options in dependency order', async () => {
     const config = await createMarkdownEngine()
       .use({
         name: 'base',
@@ -22,13 +22,13 @@ describe('markdown engine', () => {
     expect(config.rehypePlugins).toHaveLength(1);
   });
 
-  it('rejects duplicate steps', async () => {
+  it('rejects duplicate passes', async () => {
     await expect(
       createMarkdownEngine()
         .use({ name: 'same', phase: 'remark' })
         .use({ name: 'same', phase: 'rehype' })
         .toMdsvexConfig()
-    ).rejects.toThrow('Duplicate markdown step registered: same');
+    ).rejects.toThrow('Duplicate markdown pass registered: same');
   });
 
   it('rejects missing dependencies', async () => {
@@ -36,7 +36,7 @@ describe('markdown engine', () => {
       createMarkdownEngine()
         .use({ name: 'child', phase: 'remark', requires: ['missing'] })
         .toMdsvexConfig()
-    ).rejects.toThrow('requires missing step "missing"');
+    ).rejects.toThrow('requires missing pass "missing"');
   });
 
   it('rejects dependency cycles', async () => {
@@ -62,6 +62,22 @@ describe('markdown engine', () => {
           mdsvex: () => ({ highlight: { highlighter: () => '' } }),
         })
         .toMdsvexConfig()
-    ).rejects.toThrow('Multiple markdown steps attempted to define a highlighter');
+    ).rejects.toThrow('Multiple markdown passes attempted to define a highlighter');
+  });
+
+  it('rejects undefined pass', () => {
+    expect(() =>
+      createMarkdownEngine()
+        // @ts-expect-error testing invalid input
+        .use(undefined)
+    ).toThrow('Invalid markdown pass: expected object with "name", received undefined');
+  });
+
+  it('rejects null pass in array', () => {
+    expect(() =>
+      createMarkdownEngine()
+        // @ts-expect-error testing invalid input
+        .use([{ name: 'valid', phase: 'remark' }, null])
+    ).toThrow('Invalid markdown pass: expected object with "name", received null');
   });
 });

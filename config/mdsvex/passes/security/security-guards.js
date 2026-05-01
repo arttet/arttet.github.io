@@ -15,12 +15,12 @@ const RAW_HTML_PATTERNS = [
 
 const HTML_TAGS = new Set(['script', 'style', 'iframe', 'object', 'embed', 'img']);
 
-export function securityGuardsStep() {
+export function securityGuardsPass() {
   return {
     name: 'security-guards',
     phase: /** @type {const} */ ('validate'),
     /**
-     * @param {import('../engine.js').MarkdownPipelineContext} ctx
+     * @param {import('../../engine.js').MarkdownPipelineContext} ctx
      */
     mdsvex(ctx) {
       return {
@@ -33,7 +33,7 @@ export function securityGuardsStep() {
 }
 
 /**
- * @param {import('../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine.js').MarkdownPipelineContext} ctx
  */
 function createSecurityGuardRemarkPlugin(ctx) {
   /**
@@ -48,7 +48,7 @@ function createSecurityGuardRemarkPlugin(ctx) {
 
 /**
  * @param {MarkdownNode} tree
- * @param {import('../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine.js').MarkdownPipelineContext} ctx
  * @param {string=} file
  */
 export function validateMarkdownTree(tree, ctx, file) {
@@ -65,7 +65,7 @@ export function validateMarkdownTree(tree, ctx, file) {
 
 /**
  * @param {MarkdownNode} node
- * @param {import('../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine.js').MarkdownPipelineContext} ctx
  * @param {string=} file
  */
 function validateHtmlNode(node, ctx, file) {
@@ -89,7 +89,7 @@ function validateHtmlNode(node, ctx, file) {
 /**
  * @param {string} value
  * @param {MarkdownNode} node
- * @param {import('../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine.js').MarkdownPipelineContext} ctx
  * @param {string=} file
  */
 function validateHtmlUrls(value, node, ctx, file) {
@@ -123,7 +123,7 @@ function validateHtmlUrls(value, node, ctx, file) {
 
 /**
  * @param {MarkdownNode} node
- * @param {import('../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine.js').MarkdownPipelineContext} ctx
  * @param {string=} file
  */
 function validateUrlNode(node, ctx, file) {
@@ -141,7 +141,7 @@ function validateUrlNode(node, ctx, file) {
 /**
  * @param {string} value
  * @param {MarkdownNode} node
- * @param {import('../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine.js').MarkdownPipelineContext} ctx
  * @param {string=} file
  */
 function validateComponents(value, node, ctx, file) {
@@ -178,7 +178,7 @@ function validateComponents(value, node, ctx, file) {
 }
 
 /**
- * @param {import('../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine.js').MarkdownPipelineContext} ctx
  * @param {string} name
  */
 function getRegisteredComponent(ctx, name) {
@@ -241,7 +241,7 @@ function walk(node, visit) {
 }
 
 /**
- * @param {import('../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine.js').MarkdownPipelineContext} ctx
  * @param {{ code: string; message: string; file?: string; node: MarkdownNode }} diagnostic
  */
 function addDiagnostic(ctx, diagnostic) {

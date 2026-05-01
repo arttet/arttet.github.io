@@ -1,5 +1,5 @@
-import { getHighlighter, LANGS, setThemes } from '../../../src/lib/highlighter.config.js';
-import { codeThemes } from '../../../src/shared/config/codeThemes.js';
+import { getHighlighter, LANGS, setThemes } from '../../../../src/lib/highlighter.config.js';
+import { codeThemes } from '../../../../src/shared/config/codeThemes.js';
 
 /**
  * @typedef {Awaited<ReturnType<typeof getHighlighter>>} MarkdownHighlighter
@@ -13,7 +13,7 @@ let hl = null;
 /** @type {Record<string, ShikiLanguageLoader> | null} */
 let shikiLanguages = null;
 
-export function codeStep() {
+export function codePass() {
   return {
     name: 'code',
     phase: /** @type {const} */ ('rehype'),
