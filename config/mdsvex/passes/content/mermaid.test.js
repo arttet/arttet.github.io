@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mermaidStep } from './mermaid.js';
+import { mermaidPass } from './mermaid.js';
 
 /**
  * @param {import('./mermaid.js').MarkdownNode[]} children
@@ -31,21 +31,21 @@ function getHasMermaid(file) {
   return /** @type {Record<string, unknown> | undefined} */ (file.data?.fm)?.hasMermaid;
 }
 
-describe('mermaid step', () => {
-  /**
-   * @returns {(tree: import('./mermaid.js').MarkdownNode, file: { data?: Record<string, unknown> }) => void}
-   */
-  function getRemarkPlugin() {
-    const plugins = mermaidStep().mdsvex().remarkPlugins;
-    const plugin = plugins?.[0];
-    if (typeof plugin !== 'function') {
-      throw new Error('Expected remark plugin to be a function');
-    }
-    return /** @type {(tree: import('./mermaid.js').MarkdownNode, file: { data?: Record<string, unknown> }) => void} */ (
-      plugin.call(/** @type {any} */ (null))
-    );
+/**
+ * @returns {(tree: import('./mermaid.js').MarkdownNode, file: { data?: Record<string, unknown> }) => void}
+ */
+function getRemarkPlugin() {
+  const plugins = mermaidPass().mdsvex().remarkPlugins;
+  const plugin = plugins?.[0];
+  if (typeof plugin !== 'function') {
+    throw new Error('Expected remark plugin to be a function');
   }
+  return /** @type {(tree: import('./mermaid.js').MarkdownNode, file: { data?: Record<string, unknown> }) => void} */ (
+    plugin.call(/** @type {any} */ (null))
+  );
+}
 
+describe('mermaid pass', () => {
   it('detects mermaid code blocks', () => {
     const file = createFile();
     getRemarkPlugin()(root([codeBlock('mermaid', 'graph TD; A-->B;')]), file);

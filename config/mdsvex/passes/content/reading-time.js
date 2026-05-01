@@ -5,7 +5,7 @@
  * @property {MarkdownNode[]=} children
  */
 
-export function readingTimeStep() {
+export function readingTimePass() {
   return {
     name: 'reading-time',
     phase: /** @type {const} */ ('remark'),

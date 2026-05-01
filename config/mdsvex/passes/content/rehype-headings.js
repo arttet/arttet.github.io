@@ -5,7 +5,7 @@ import rehypeSlug from 'rehype-slug';
  * @typedef {NonNullable<import('mdsvex').MdsvexOptions['rehypePlugins']>[number]} RehypePluginEntry
  */
 
-export function rehypeHeadingsStep() {
+export function rehypeHeadingsPass() {
   return {
     name: 'rehype-headings',
     phase: /** @type {const} */ ('rehype'),

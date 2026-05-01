@@ -171,7 +171,7 @@ Imports flow upward only: `shared → entities → features → widgets → rout
 - **`src/routes`** — SvelteKit file-system routes. Mostly thin shells delegating to widgets.
 - **`src/lib`** — Cross-cutting utilities not tied to FSD layers (highlighter, math preprocessor, assets).
 - **`content`** — Markdown blog posts (`blog/YYYY/YYYY-MM-DD-slug.md`) and static pages (`pages/`).
-- **`config/mdsvex`** — Markdown engine pipeline steps (code, math, reading time, rehype headings).
+- **`config/mdsvex`** — Markdown engine pipeline passes (code, math, reading time, rehype headings).
 
 ---
 
@@ -194,10 +194,10 @@ Pipeline at build time:
 
 1. `mathPreprocess` — Preserves LaTeX backslashes before Vite/Svelte processing.
 2. `vitePreprocess` — Standard Svelte/Vite compile.
-3. `mdsvex` — Custom engine (`config/mdsvex/engine.js`) with steps:
-   - `readingTimeStep`
-   - `rehypeHeadingsStep` (autolink + slug)
-   - `codeStep` (Shiki highlighting, code tabs)
+3. `mdsvex` — Custom engine (`config/mdsvex/engine.js`) with passes:
+   - `readingTimePass`
+   - `rehypeHeadingsPass` (autolink + slug)
+   - `codePass` (Shiki highlighting, code tabs)
 
 Math: inline `$x$`, block `$$x$$`. Diagrams: ` ```mermaid `.
 

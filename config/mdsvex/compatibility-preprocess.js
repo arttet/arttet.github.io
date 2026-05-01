@@ -1,7 +1,7 @@
 import { codeThemes } from '../../src/shared/config/codeThemes.js';
-import { processCodeTabsContent } from './steps/code-tabs.js';
-import { processMathContent } from './steps/math.js';
-import { insertKatexStyles, insertSvelteImports } from './steps/svelte-script.js';
+import { processCodeTabsContent } from './passes/content/code-tabs.js';
+import { processMathContent } from './passes/content/math.js';
+import { insertKatexStyles, insertSvelteImports } from './passes/content/svelte-script.js';
 
 /**
  * Compatibility layer.

@@ -64,6 +64,26 @@
     "Semgrep",
     "jank",
     "Isosurface",
-    "Blit"
+    "Blit",
+    "sveltekit",
+    "fsd",
+    "codetabs",
+    "mermaid",
+    "tailwindcss",
+    "oklch",
+    "glassmorphism",
+    "vbscript",
+    "lightbox",
+    "manualchunks",
+    "hmr",
+    "allowlisted",
+    "cloudflare",
+    "debounce",
+    "indexing",
+    "playwright",
+    "vitest",
+    "jsdom",
+    "codecov",
+    "marching"
   ]
 }

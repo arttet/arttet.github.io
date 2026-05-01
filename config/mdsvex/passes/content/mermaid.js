@@ -6,7 +6,7 @@
  * @property {MarkdownNode[]=} children
  */
 
-export function mermaidStep() {
+export function mermaidPass() {
   return {
     name: 'mermaid',
     phase: /** @type {const} */ ('remark'),

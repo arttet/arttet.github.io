@@ -1,7 +1,5 @@
 # Ultimate Markdown Pipeline Architecture
 
-<!-- cspell:ignore vbscript lightbox codetabs manualchunks hmr allowlisted -->
-
 The Markdown pipeline is a secure, extensible, AST-first build-time system designed for SvelteKit and MDsveX. It transforms raw Markdown content into rich, interactive posts while enforcing strict security boundaries, ensuring build-time determinism, and optimizing asset delivery through intelligent chunking, lazy loading, and an automated image pipeline.
 
 ## Core Philosophy
@@ -15,11 +13,14 @@ The Markdown pipeline is a secure, extensible, AST-first build-time system desig
 
 The system is structured as a central engine that orchestrates a sequence of discrete **Passes**. A Pass is a single cycle of processing over the AST (Remark/Rehype) or metadata.
 
-### Pass Execution Contract
+## Pass Execution Contract
 
-- **Deterministic Order**: Passes are executed in a deterministic order based on explicit dependency declarations.
-- **Pass Independence**: Every pass must be **pure** (no side-effects outside the provided context) and **idempotent** (safe to re-run).
-- **No Global State**: Passes must never mutate shared global state. All cross-pass communication must happen via the `MarkdownPipelineContext`.
+- Passes are executed in a deterministic order.
+- Pass dependencies must be explicitly declared.
+- A pass must be:
+  - pure (no side-effects outside context)
+  - idempotent (safe to re-run)
+- Passes must not mutate shared global state.
 
 ### Pass Aggregation
 
@@ -35,19 +36,22 @@ config/
     registry.js         # Whitelist of allowed components & features
     diagnostics.js      # Reporting system
     passes/             # Transformation modules
-      frontmatter.js    # YAML metadata extraction & Schema validation
-      directives.js     # Container (::::) and leaf (:) directives
-      security-guard.js # Whitelist enforcement (URLs, HTML, Props)
-      images.js         # WebP pipeline & lazy loading injection
-      code.js           # Shiki highlighting with language splitting
-      code-tabs.js      # Custom ::::codetabs container
-      math.js           # Build-time KaTeX rendering
-      mermaid.js        # Mermaid diagram detection
-      links.js          # Internal link and anchor validation
-      headings.js       # Hierarchy and ID validation
-      toc.js            # Headings & Table of Contents
-      reading-time.js   # Word count & time estimation
-      extraction.js     # Final manifest & graph generation
+      content/          # Content enrichment passes
+        frontmatter.js    # YAML metadata extraction & Schema validation
+        directives.js     # Container (::::) and leaf (:) directives
+        code.js           # Shiki highlighting with language splitting
+        code-tabs.js      # Custom ::::codetabs container
+        math.js           # Build-time KaTeX rendering
+        mermaid.js        # Mermaid diagram detection
+        links.js          # Internal link and anchor validation
+        headings.js       # Hierarchy and ID validation
+        toc.js            # Headings & Table of Contents
+        reading-time.js   # Word count & time estimation
+      security/         # Security validation passes
+        security-guard.js # Whitelist enforcement (URLs, HTML, Props)
+      optimization/     # Build optimization passes
+        images.js         # WebP pipeline & lazy loading injection
+        extraction.js     # Final manifest & graph generation
 
 target/build/generated/ # Build artifacts
   content-manifest.json # Post metadata & feature flags
@@ -58,12 +62,16 @@ target/build/generated/ # Build artifacts
 
 ## Component & Feature Registry
 
-All allowed components, directives, and features must be declared in a central registry (`registry.js`).
+All allowed components, directives, and features must be declared in a central registry.
 
 ### Rules
 
-- **Single Source of Truth**: The registry is the exclusive source for validation, feature flag derivation, and rendering behavior.
-- **Enforcement**: Any component not found in the registry triggers `MDX001_UNKNOWN_COMPONENT`. Any unknown property triggers `MDX005_UNKNOWN_COMPONENT_PROP`.
+- Unknown components → `MDX001_UNKNOWN_COMPONENT`
+- Unknown props → `MDX005_UNKNOWN_COMPONENT_PROP`
+- Registry is the single source of truth for:
+  - validation
+  - feature flags
+  - rendering behavior
 
 ## Snapshot Baseline (Critical for Migration)
 
