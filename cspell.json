@@ -61,6 +61,9 @@
     "lighthouserc",
     "oxlintrc",
     "misconfig",
-    "Semgrep"
+    "Semgrep",
+    "jank",
+    "Isosurface",
+    "Blit"
   ]
 }
