@@ -58,7 +58,7 @@
     "eslint": "^10.2.1",
     "eslint-plugin-svelte": "^3.17.1",
     "jsdom": "^29.1.0",
-    "knip": "^6.6.3",
+    "knip": "^6.9.0",
     "lefthook": "^2.1.6",
     "markdownlint-cli2": "^0.22.1",
     "mdsvex": "^0.12.7",
