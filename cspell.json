@@ -57,6 +57,10 @@
     "wght",
     "contenteditable",
     "apos",
-    "rescans"
+    "rescans",
+    "lighthouserc",
+    "oxlintrc",
+    "misconfig",
+    "Semgrep"
   ]
 }
