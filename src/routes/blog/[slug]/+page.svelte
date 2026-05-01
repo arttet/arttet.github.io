@@ -30,7 +30,7 @@
 <CodeThemeManager />
 
 <svelte:head>
-  <!-- postHead is trusted build-time Svelte head output from local src/content/blog files. -->
+  <!-- postHead is trusted build-time Svelte head output from local content/blog files. -->
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html data.postHead}
 </svelte:head>
@@ -55,7 +55,7 @@
       <div class="min-w-0 lg:col-start-1 lg:row-start-1">
         {#key data.post.slug}
           <div class="prose" use:articleFocusPolicy use:codeTabs use:mermaid={theme.current} use:copy>
-            <!-- postHtml is trusted build-time mdsvex output from local src/content/blog files, not user input. -->
+            <!-- postHtml is trusted build-time mdsvex output from local content/blog files, not user input. -->
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html data.postHtml}
           </div>

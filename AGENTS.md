@@ -170,7 +170,7 @@ Imports flow upward only: `shared → entities → features → widgets → rout
   - `blog`, `landing`, `layout`, `post`, `search`, `settings`, `theme`.
 - **`src/routes`** — SvelteKit file-system routes. Mostly thin shells delegating to widgets.
 - **`src/lib`** — Cross-cutting utilities not tied to FSD layers (highlighter, math preprocessor, assets).
-- **`src/content`** — Markdown blog posts (`blog/YYYY/YYYY-MM-DD-slug.md`) and static pages (`pages/`).
+- **`content`** — Markdown blog posts (`blog/YYYY/YYYY-MM-DD-slug.md`) and static pages (`pages/`).
 - **`config/mdsvex`** — Markdown engine pipeline steps (code, math, reading time, rehype headings).
 
 ---
@@ -188,7 +188,7 @@ Imports flow upward only: `shared → entities → features → widgets → rout
 
 ## Content Pipeline
 
-Posts: `src/content/blog/YYYY/YYYY-MM-DD-slug.md` with frontmatter (`title`, `tags`, `created`, `summary`, `draft`).
+Posts: `content/blog/YYYY/YYYY-MM-DD-slug.md` with frontmatter (`title`, `tags`, `created`, `summary`, `draft`).
 
 Pipeline at build time:
 
@@ -312,7 +312,7 @@ bun run test:unit:coverage
 - **ESLint** — Svelte AST only (`eslint.config.js`).
 - **Knip** — Detects unused exports/dependencies (`knip.json`).
 - **CSpell** — Spell checking (`cspell.json`).
-- **Markdownlint** — `src/content/**/*.md`.
+- **Markdownlint** — `content/**/*.md`.
 
 ### Lefthook (Git hooks)
 
@@ -322,7 +322,7 @@ Config: `lefthook.yml`.
   1. `oxfmt --write` on staged `*.{js,ts,svelte,json,css,yml,md}`
   2. `oxlint --fix --deny-warnings` on staged `*.{js,ts,svelte}`
   3. `stylelint --fix` on staged `*.{css,svelte}`
-  4. `markdownlint-cli2 --fix` on `src/content/**/*.md`
+  4. `markdownlint-cli2 --fix` on `content/**/*.md`
   5. `cspell` on staged `*.{md,svelte,ts}`
   6. `bun audit`
 - `commit-msg`: `commitlint --edit` (Conventional Commits).

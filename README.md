@@ -108,7 +108,7 @@ The hook configuration lives in `lefthook.yml`.
 | `oxfmt --write`          | `*.{js,ts,svelte,json,css,yml,md}` |
 | `oxlint --deny-warnings` | `*.{js,ts,svelte}`                 |
 | `stylelint --fix`        | `*.{css,svelte}`                   |
-| `markdownlint --fix`     | `src/content/**/*.md`              |
+| `markdownlint --fix`     | `content/**/*.md`                  |
 | `cspell`                 | `*.{md,svelte,ts}`                 |
 | `bun audit`              | —                                  |
 

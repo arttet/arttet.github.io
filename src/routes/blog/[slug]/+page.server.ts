@@ -4,7 +4,7 @@ import { error } from '@sveltejs/kit';
 import { getPosts } from '$entities/post/api';
 import { buildPostPageData } from './page-data';
 
-const postModules = import.meta.glob('/src/content/blog/**/*.md') as Record<
+const postModules = import.meta.glob('/content/blog/**/*.md') as Record<
   string,
   () => Promise<{ default: Component }>
 >;

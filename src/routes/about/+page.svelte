@@ -5,10 +5,10 @@ import { site } from '$shared/config/site';
 import Logo from '$shared/ui/Logo.svelte';
 import Seo from '$shared/ui/Seo.svelte';
 
-const modules = import.meta.glob('/src/content/pages/about.md', {
+const modules = import.meta.glob('/content/pages/about.md', {
   eager: true,
 }) as Record<string, { default: ConstructorOfATypedSvelteComponent }>;
-const AboutContent = modules['/src/content/pages/about.md']?.default;
+const AboutContent = modules['/content/pages/about.md']?.default;
 </script>
 
 <Seo title="About" description={site.about.description} />

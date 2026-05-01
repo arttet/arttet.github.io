@@ -3,7 +3,7 @@ import type { Post, PostFrontmatter } from './post';
 type PostMetadata = PostFrontmatter & { readingTime: number };
 type ContentIssueReporter = (message: string) => void;
 
-const modules = import.meta.glob<PostMetadata>('/src/content/blog/**/*.md', {
+const modules = import.meta.glob<PostMetadata>('/content/blog/**/*.md', {
   eager: true,
   import: 'metadata',
 });

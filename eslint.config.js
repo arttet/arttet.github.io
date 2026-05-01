@@ -23,7 +23,7 @@ export default [
       'target/',
       '.svelte-kit/',
       'node_modules/',
-      'src/content/**',
+      'content/**',
       'tests/playwright/**-snapshots/',
     ],
   },
