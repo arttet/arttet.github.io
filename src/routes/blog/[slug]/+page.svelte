@@ -54,7 +54,7 @@
 
       <div class="min-w-0 lg:col-start-1 lg:row-start-1">
         {#key data.post.slug}
-          <div class="prose" use:articleFocusPolicy use:codeTabs use:mermaid={theme.current} use:copy>
+          <div class="prose" use:articleFocusPolicy use:codeTabs use:mermaid={data.post.hasMermaid ? theme.current : null} use:copy>
             <!-- postHtml is trusted build-time mdsvex output from local content/blog files, not user input. -->
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html data.postHtml}

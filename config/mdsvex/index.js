@@ -11,8 +11,8 @@ export async function createMarkdownConfig() {
   })
     .use(readingTimeStep())
     .use(securityGuardsStep())
+    .use(mermaidStep())
     .use(rehypeHeadingsStep())
     .use(codeStep())
-    .use(mermaidStep())
     .toMdsvexConfig();
 }

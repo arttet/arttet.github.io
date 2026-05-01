@@ -41,7 +41,11 @@ function reset(node: HTMLElement) {
   }
 }
 
-export function mermaid(node: HTMLElement, currentTheme: 'dark' | 'light') {
+export function mermaid(node: HTMLElement, currentTheme: 'dark' | 'light' | null) {
+  if (!currentTheme) {
+    return { update() {}, destroy() {} };
+  }
+
   const run = async (force = false) => {
     if (force) {
       reset(node);
@@ -55,6 +59,9 @@ export function mermaid(node: HTMLElement, currentTheme: 'dark' | 'light') {
     }
 
     const mermaidLib = await getMermaid();
+    if (!currentTheme) {
+      return;
+    }
     configure(mermaidLib, currentTheme);
     await mermaidLib.run({ nodes: toProcess });
   };
@@ -62,8 +69,8 @@ export function mermaid(node: HTMLElement, currentTheme: 'dark' | 'light') {
   run();
 
   return {
-    update(newTheme: 'dark' | 'light') {
-      if (newTheme === currentTheme) {
+    update(newTheme: 'dark' | 'light' | null) {
+      if (!newTheme || newTheme === currentTheme) {
         return;
       }
       currentTheme = newTheme;
