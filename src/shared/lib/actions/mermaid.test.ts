@@ -130,6 +130,29 @@ describe('mermaid action robust', () => {
     expect(node.querySelector('.mermaid')?.textContent).toBe(source);
   });
 
+  it('restores escaped diagram source as text before rerendering', async () => {
+    const node = document.createElement('div');
+    const source = 'graph TD; A["<node>&value"]-->B;';
+    const b64 = Buffer.from(source).toString('base64');
+    node.innerHTML =
+      '<div class="mermaid" data-processed="true" data-content="' + b64 + '">rendered</div>';
+    document.body.appendChild(node);
+
+    const action = mermaid(node, 'dark');
+    const mermaidLib = (await import('mermaid')).default as MermaidMock;
+
+    action.update('light');
+    await vi.waitFor(() => {
+      if (mermaidLib.run.mock.calls.length === 0) {
+        throw new Error('Not updated yet');
+      }
+    });
+
+    const el = node.querySelector('.mermaid') as HTMLElement;
+    expect(el.textContent).toBe(source);
+    expect(el.querySelector('node')).toBeNull();
+  });
+
   it('updates without timer delay when not in browser', async () => {
     vi.resetModules();
     vi.doMock('$app/environment', () => ({

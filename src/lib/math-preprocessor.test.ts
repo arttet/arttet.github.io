@@ -89,6 +89,17 @@ const home = '$HOME';
     expect(result?.code).not.toContain("const home = '<MathCopy");
   });
 
+  it('keeps replacement tokens inside :::code-tabs code untouched', async () => {
+    const content = `:::code-tabs
+\`\`\`ts title="Tokens"
+const token = '$&';
+\`\`\`
+:::`;
+    const result = await markup({ content, filename: 'test.md' });
+
+    expect(result?.code).toContain("const token = '$&amp;';");
+  });
+
   it('keeps display math outside :::code-tabs while leaving tab code untouched', async () => {
     const content = `:::code-tabs
 \`\`\`ts title="Svelte"
