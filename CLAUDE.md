@@ -46,7 +46,7 @@ Imports flow upward only: `shared → entities → features → widgets → rout
 
 ### Content
 
-Posts: `src/content/blog/*.md` + frontmatter (`title`, `tags`, `created`, `summary`, `draft`). Pipeline: mathPreprocess → vitePreprocess → mdsvex. Math `$x$` / `$$x$$`. Diagrams: ` ```mermaid `.
+Posts: `content/blog/*.md` + frontmatter (`title`, `tags`, `created`, `summary`, `draft`). Pipeline: mathPreprocess → vitePreprocess → mdsvex. Math `$x$` / `$$x$$`. Diagrams: ` ```mermaid `.
 
 ### Theme
 

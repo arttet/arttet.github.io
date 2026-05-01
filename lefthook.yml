@@ -20,7 +20,7 @@ pre-commit:
       stage_fixed: true
 
     markdownlint:
-      glob: 'src/content/**/*.md'
+      glob: 'content/**/*.md'
       run: bunx --bun markdownlint-cli2 --fix {staged_files}
 
     cspell:

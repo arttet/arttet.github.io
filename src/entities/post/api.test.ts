@@ -7,7 +7,7 @@ describe('resolvePostsFromEntries', () => {
     const reportIssue = vi.fn();
     const entries = [
       [
-        '/src/content/blog/2026/2026-04-10-zeta.md',
+        '/content/blog/2026/2026-04-10-zeta.md',
         {
           title: 'Zeta',
           created: '2026-04-10',
@@ -16,7 +16,7 @@ describe('resolvePostsFromEntries', () => {
         },
       ],
       [
-        '/src/content/blog/2026/2026-04-11-alpha.md',
+        '/content/blog/2026/2026-04-11-alpha.md',
         {
           title: 'Alpha',
           created: '2026-04-11',
@@ -25,7 +25,7 @@ describe('resolvePostsFromEntries', () => {
         },
       ],
       [
-        '/src/content/blog/2026/2026-04-09-draft.md',
+        '/content/blog/2026/2026-04-09-draft.md',
         {
           title: 'Draft',
           created: '2026-04-09',
@@ -35,7 +35,7 @@ describe('resolvePostsFromEntries', () => {
         },
       ],
       [
-        '/src/content/blog/2026/2026-04-08-invalid.md',
+        '/content/blog/2026/2026-04-08-invalid.md',
         {
           title: '',
           created: 'not-a-date',
@@ -50,9 +50,7 @@ describe('resolvePostsFromEntries', () => {
     expect(posts.map((post) => post.slug)).toEqual(['2026-04-11-alpha', '2026-04-10-zeta']);
     expect(posts.every((post) => !post.draft)).toBe(true);
     expect(reportIssue).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Skipping invalid post "/src/content/blog/2026/2026-04-08-invalid.md"'
-      )
+      expect.stringContaining('Skipping invalid post "/content/blog/2026/2026-04-08-invalid.md"')
     );
   });
 
@@ -62,7 +60,7 @@ describe('resolvePostsFromEntries', () => {
     const posts = resolvePostsFromEntries(
       [
         [
-          '/src/content/blog/2026/2026-04-12-duplicate.md',
+          '/content/blog/2026/2026-04-12-duplicate.md',
           {
             title: 'First duplicate',
             created: '2026-04-12',
@@ -71,7 +69,7 @@ describe('resolvePostsFromEntries', () => {
           },
         ],
         [
-          '/src/content/blog/archive/2026-04-12-duplicate.md',
+          '/content/blog/archive/2026-04-12-duplicate.md',
           {
             title: 'Second duplicate',
             created: '2026-04-11',

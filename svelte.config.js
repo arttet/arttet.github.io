@@ -39,6 +39,7 @@ const config = {
       $features: 'src/features',
       $shared: 'src/shared',
       $entities: 'src/entities',
+      $content: 'content',
     },
   },
 };

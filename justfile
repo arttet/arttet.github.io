@@ -32,7 +32,7 @@ new title:
     [[ -n "$title" ]] || { echo "Usage: just new <title>" >&2; exit 1; }
     slug=$(echo "$title" | tr '[:upper:]' '[:lower:]' | sd '[^a-z0-9 ]' '' | sd ' +' '-')
     date=$(date +%Y-%m-%d)
-    target="src/content/blog/${date%%-*}/${date}-${slug}.md"
+    target="content/blog/${date%%-*}/${date}-${slug}.md"
     mkdir -p "$(dirname "$target")"
     set -C
     sd '__TITLE__' "$title" < misc/templates/post.md.template | sd '__DATE__' "$date" > "$target"
@@ -44,7 +44,7 @@ spell:
     @echo "🔤 Running CSpell..."
     bunx --bun cspell '**/*.{md,svelte,ts}'
     @echo "🔍 Running Markdownlint..."
-    bunx --bun markdownlint-cli2 --fix "src/content/**/*.md"
+    bunx --bun markdownlint-cli2 --fix "content/**/*.md"
     @echo "✅ Spell check complete!"
 
 # ==============================================================================
