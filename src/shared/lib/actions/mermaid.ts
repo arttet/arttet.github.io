@@ -35,7 +35,7 @@ function reset(node: HTMLElement) {
     if (!content) {
       continue;
     }
-    el.innerHTML = decodeBase64Utf8(content);
+    el.textContent = decodeBase64Utf8(content);
     el.removeAttribute('data-processed');
     el.removeAttribute('id');
   }

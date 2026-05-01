@@ -1,23 +1,24 @@
 import { getHighlighter, LANGS, setThemes } from '../../../src/lib/highlighter.config.js';
 import { codeThemes } from '../../../src/shared/config/codeThemes.js';
 
-setThemes(codeThemes.map((theme) => theme.id));
+/**
+ * @typedef {Awaited<ReturnType<typeof getHighlighter>>} MarkdownHighlighter
+ * @typedef {Parameters<MarkdownHighlighter['loadLanguage']>[0]} ShikiLanguageLoader
+ */
 
-const hl = await getHighlighter();
-const { bundledLanguages } = await import('shiki');
-
-const shikiLanguages = /** @type {Record<string, Parameters<typeof hl.loadLanguage>[0]>} */ (
-  bundledLanguages
-);
 const allowedLangs = new Set(LANGS);
 const themes = Object.fromEntries(codeThemes.map((theme) => [theme.id, theme.id]));
+/** @type {MarkdownHighlighter | null} */
+let hl = null;
+/** @type {Record<string, ShikiLanguageLoader> | null} */
+let shikiLanguages = null;
 
 export function codeStep() {
   return {
     name: 'code',
     phase: /** @type {const} */ ('rehype'),
     async setup() {
-      await preloadLanguages();
+      await setupHighlighter();
     },
     mdsvex() {
       return {
@@ -39,10 +40,37 @@ export function codeStep() {
   };
 }
 
-async function preloadLanguages() {
+async function setupHighlighter() {
+  setThemes(codeThemes.map((theme) => theme.id));
+  hl ??= await getHighlighter();
+
+  if (!shikiLanguages) {
+    const shiki = await import('shiki');
+    shikiLanguages = /** @type {Record<string, ShikiLanguageLoader>} */ (shiki.bundledLanguages);
+  }
+
+  await preloadLanguages(hl, shikiLanguages);
+}
+
+/**
+ * @returns {MarkdownHighlighter}
+ */
+function getConfiguredHighlighter() {
+  if (!hl) {
+    throw new Error('Markdown highlighter used before codeStep setup.');
+  }
+
+  return hl;
+}
+
+/**
+ * @param {MarkdownHighlighter} highlighter
+ * @param {Record<string, ShikiLanguageLoader>} languages
+ */
+async function preloadLanguages(highlighter, languages) {
   await Promise.all(
     LANGS.map((lang) => {
-      const loader = shikiLanguages[lang];
+      const loader = languages[lang];
 
       if (!loader) {
         // eslint-disable-next-line no-console
@@ -50,7 +78,7 @@ async function preloadLanguages() {
         return Promise.resolve();
       }
 
-      return hl.loadLanguage(loader);
+      return highlighter.loadLanguage(loader);
     })
   );
 }
@@ -122,7 +150,7 @@ function renderMermaidBlock(code) {
 function renderHighlightedCode(code, lang) {
   try {
     const safeLang = normalizeLang(lang);
-    const html = hl.codeToHtml(code, {
+    const html = getConfiguredHighlighter().codeToHtml(code, {
       lang: safeLang,
       themes,
       defaultColor: false,
