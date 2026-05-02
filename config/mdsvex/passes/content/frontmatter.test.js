@@ -27,6 +27,17 @@ describe('frontmatter validation', () => {
     expect(ctx.diagnostics.list()).toEqual([]);
   });
 
+  it('accepts ISO datetime strings from YAML date parsing', () => {
+    const ctx = createContext();
+    validateFrontmatter(ctx, {
+      title: 'Hello',
+      tags: ['blog'],
+      created: '2026-04-20T00:00:00.000Z',
+      updated: '2026-04-21T00:00:00.000Z',
+    });
+    expect(ctx.diagnostics.list()).toEqual([]);
+  });
+
   it('reports missing title', () => {
     const ctx = createContext();
     validateFrontmatter(ctx, { tags: ['blog'], created: '2026-04-20' }, 'post.md');

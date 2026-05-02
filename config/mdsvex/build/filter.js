@@ -8,7 +8,12 @@ import { DIAGNOSTIC_CODES, SEVERITY, VALIDATION_MODE } from '../constants.js';
  * @param {import('../../../src/entities/post/post').Post[]} posts
  * @param {import('../engine/index.js').MarkdownPipelineContext} ctx
  */
-export function validateDuplicateSlugs(posts, ctx) {
+/**
+ * @param {import('../../../src/entities/post/post').Post[]} posts
+ * @param {import('../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {Map<string, string>} fileMap
+ */
+export function validateDuplicateSlugs(posts, ctx, fileMap) {
   const seen = new Map();
   for (const post of posts) {
     if (seen.has(post.slug)) {
@@ -20,6 +25,7 @@ export function validateDuplicateSlugs(posts, ctx) {
           ctx.mode === VALIDATION_MODE.WARN
             ? `Duplicate post slug detected: "${post.slug}". This post would be skipped in strict mode.`
             : `Duplicate post slug detected: "${post.slug}".`,
+        file: fileMap.get(post.slug),
       });
     }
     seen.set(post.slug, true);

@@ -14,8 +14,8 @@ import { scanPosts } from './scan.js';
  * @param {import('../engine/index.js').MarkdownPipelineContext} ctx
  */
 export async function generateMarkdownArtifacts(ctx) {
-  const posts = await scanPosts();
-  validateDuplicateSlugs(posts, ctx);
+  const { posts, fileMap } = await scanPosts();
+  validateDuplicateSlugs(posts, ctx, fileMap);
   const diagnostics = ctx.diagnostics.list();
   const validPosts = filterValidPosts(posts, diagnostics, ctx.mode);
   const manifest = createContentManifest(validPosts);
