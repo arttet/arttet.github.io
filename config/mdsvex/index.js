@@ -1,6 +1,6 @@
 import { codeThemes } from '../../src/shared/config/codeThemes.js';
-import { createMarkdownEngine } from './engine.js';
-import { contentPasses, optimizationPasses, securityPasses } from './pass-groups.js';
+import { createMarkdownEngine } from './engine/index.js';
+import { contentPasses, optimizationPasses, securityPasses } from './engine/pass-groups.js';
 import { processCodeTabsContent } from './passes/content/code-tabs.js';
 import { processMathContent } from './passes/content/math.js';
 import { insertKatexStyles, insertSvelteImports } from './passes/content/svelte-script.js';
@@ -57,7 +57,7 @@ function createMarkdownPreprocess() {
 }
 
 /**
- * @returns {Promise<import('./engine.js').MarkdownPipelineContext>}
+ * @returns {Promise<import('./engine/index.js').MarkdownPipelineContext>}
  */
 export async function createMarkdownContext() {
   const { ctx } = await createMarkdownConfig();

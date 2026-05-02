@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createMarkdownEngine } from './engine.js';
+import { createMarkdownEngine } from './index.js';
 
 describe('markdown engine', () => {
   it('registers passes and merges mdsvex options in dependency order', async () => {

@@ -2,7 +2,7 @@ import {
   prependMarkupAfterFrontmatter,
   prependScriptAfterFrontmatter,
   replaceRange,
-} from '../preprocess-utils.js';
+} from '../_internal/preprocess-utils.js';
 
 /**
  * @param {string} content

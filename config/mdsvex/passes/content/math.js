@@ -1,5 +1,5 @@
 import katex from 'katex';
-import { splitByCodeBlocks, utf8ToBase64 } from '../preprocess-utils.js';
+import { splitByCodeBlocks, utf8ToBase64 } from '../_internal/preprocess-utils.js';
 
 /**
  * @param {string} content

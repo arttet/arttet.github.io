@@ -1,26 +1,28 @@
+import { COMPONENT_KIND } from '../constants.js';
+
 export const markdownComponentRegistry = {
   CodeBlock: {
-    kind: 'block',
+    kind: COMPONENT_KIND.BLOCK,
     allowedProps: ['lang', 'code', 'title', 'highlights', 'showLineNumbers'],
   },
   CodeTabs: {
-    kind: 'block',
+    kind: COMPONENT_KIND.BLOCK,
     allowedProps: ['title', 'tabs'],
   },
   MermaidBlock: {
-    kind: 'block',
+    kind: COMPONENT_KIND.BLOCK,
     allowedProps: ['source'],
   },
   MathCopy: {
-    kind: 'block',
+    kind: COMPONENT_KIND.BLOCK,
     allowedProps: ['display', 'b64Latex', 'b64Html'],
   },
   KaTeXStyles: {
-    kind: 'block',
+    kind: COMPONENT_KIND.BLOCK,
     allowedProps: [],
   },
   StaticHtml: {
-    kind: 'block',
+    kind: COMPONENT_KIND.BLOCK,
     allowedProps: ['html'],
   },
 };

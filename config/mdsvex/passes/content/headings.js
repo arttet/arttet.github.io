@@ -1,19 +1,18 @@
+import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+
+import { walk } from '../_internal/walk.js';
+
 /**
- * @typedef {Object} MarkdownNode
- * @property {string=} type
- * @property {number=} depth
- * @property {string=} value
- * @property {MarkdownNode[]=} children
- * @property {{ start: { line: number; column: number } }=} position
+ * @typedef {import('../_internal/walk.js').MarkdownNode} MarkdownNode
  */
 
 /**
- * @returns {import('../../engine.js').MarkdownPass}
+ * @returns {import('../../engine/index.js').MarkdownPass}
  */
 export function headingsPass() {
   return {
     name: 'headings',
-    phase: /** @type {const} */ ('validate'),
+    phase: PASS_PHASES.VALIDATE,
     mdsvex(ctx) {
       return {
         remarkPlugins: /** @type {import('mdsvex').MdsvexOptions['remarkPlugins']} */ ([
@@ -25,7 +24,7 @@ export function headingsPass() {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  */
 function createHeadingsRemarkPlugin(ctx) {
   return function headingsAttacher() {
@@ -61,7 +60,7 @@ function collectHeadings(node, acc = []) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {{ depth: number; position: { line: number; column: number } }[]} headings
  * @param {string=} file
  */
@@ -74,7 +73,7 @@ function validateHeadingHierarchy(ctx, headings, file) {
       h1Count += 1;
       if (h1Count > 1) {
         addDiagnostic(ctx, {
-          code: 'MDX014_MULTIPLE_H1',
+          code: DIAGNOSTIC_CODES.MULTIPLE_H1,
           message: 'Multiple h1 headings are not allowed.',
           file,
           position: heading.position,
@@ -84,7 +83,7 @@ function validateHeadingHierarchy(ctx, headings, file) {
 
     if (previousDepth > 0 && heading.depth > previousDepth + 1) {
       addDiagnostic(ctx, {
-        code: 'MDX015_HEADING_HIERARCHY_SKIP',
+        code: DIAGNOSTIC_CODES.HEADING_HIERARCHY_SKIP,
         message: `Heading hierarchy skip detected: h${previousDepth} → h${heading.depth}.`,
         file,
         position: heading.position,
@@ -96,7 +95,7 @@ function validateHeadingHierarchy(ctx, headings, file) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {MarkdownNode} tree
  * @param {string=} file
  */
@@ -113,7 +112,7 @@ function validateDuplicateHeadings(ctx, tree, file) {
     if (seen.has(key)) {
       const first = seen.get(key);
       addDiagnostic(ctx, {
-        code: 'MDX008_DUPLICATE_HEADING',
+        code: DIAGNOSTIC_CODES.DUPLICATE_HEADING,
         message: `Duplicate heading text detected: "${text.trim()}".`,
         file,
         position: node.position
@@ -138,27 +137,16 @@ function extractText(node) {
 }
 
 /**
- * @param {MarkdownNode} node
- * @param {(node: MarkdownNode) => void} visit
- */
-function walk(node, visit) {
-  visit(node);
-  for (const child of node.children ?? []) {
-    walk(child, visit);
-  }
-}
-
-/**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {{ code: string; message: string; file?: string; position: { line: number; column: number } }} diagnostic
  */
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
-    severity: 'critical',
+    severity: SEVERITY.CRITICAL,
     step: 'headings',
     message:
-      ctx.mode === 'warn'
+      ctx.mode === VALIDATION_MODE.WARN
         ? `${diagnostic.message} This post would be skipped in strict mode.`
         : diagnostic.message,
     file: diagnostic.file,

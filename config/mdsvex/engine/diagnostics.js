@@ -1,8 +1,10 @@
+import { SEVERITY } from '../constants.js';
+
 const severityRank = {
-  info: 0,
-  warning: 1,
-  error: 2,
-  critical: 3,
+  [SEVERITY.INFO]: 0,
+  [SEVERITY.WARNING]: 1,
+  [SEVERITY.ERROR]: 2,
+  [SEVERITY.CRITICAL]: 3,
 };
 
 /**

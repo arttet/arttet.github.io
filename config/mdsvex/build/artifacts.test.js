@@ -2,12 +2,12 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { createDiagnosticsReport } from './diagnostics.js';
+import { createDiagnosticsReport } from '../engine/diagnostics.js';
 import {
   createGeneratedArtifacts,
   generatedArtifactsDir,
   writeGeneratedArtifacts,
-} from './generated-artifacts.js';
+} from './artifacts.js';
 import { createKnowledgeGraph } from './knowledge-graph.js';
 import { createContentManifest } from './manifest.js';
 

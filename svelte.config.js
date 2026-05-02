@@ -32,6 +32,7 @@ const config = {
       $shared: 'src/shared',
       $entities: 'src/entities',
       $content: 'content',
+      $mdsvex: 'config/mdsvex',
     },
   },
 };

@@ -1,30 +1,13 @@
-import { createDiagnostics } from './diagnostics.js';
-import { markdownComponentRegistry } from './registry.js';
+import { VALIDATION_MODE } from '../constants.js';
+import { createContext } from './context.js';
 
 /**
- * @typedef {import('mdsvex').MdsvexOptions} MdsvexOptions
+ * @typedef {import('./context.js').MarkdownMode} MarkdownMode
+ * @typedef {import('./context.js').MarkdownPipelineContext} MarkdownPipelineContext
+ * @typedef {import('./context.js').PassContext} PassContext
+ * @typedef {import('./context.js').MarkdownPass} MarkdownPass
  * @typedef {import('./diagnostics.js').Diagnostic} Diagnostic
- */
-
-/**
- * @typedef {'strict' | 'warn'} MarkdownMode
- */
-
-/**
- * @typedef {Object} MarkdownPipelineContext
- * @property {MarkdownMode} mode
- * @property {ReturnType<typeof createDiagnostics>} diagnostics
- * @property {typeof markdownComponentRegistry} registry
- * @property {Record<string, unknown>} state
- */
-
-/**
- * @typedef {Object} MarkdownPass
- * @property {string} name
- * @property {'pre' | 'remark' | 'rehype' | 'validate' | 'post' | 'extract'} phase
- * @property {string[]=} requires
- * @property {(ctx: MarkdownPipelineContext) => void | Promise<void>=} setup
- * @property {(ctx: MarkdownPipelineContext) => Partial<MdsvexOptions>=} mdsvex
+ * @typedef {import('mdsvex').MdsvexOptions} MdsvexOptions
  */
 
 /**
@@ -56,7 +39,7 @@ export function createMarkdownEngine(options = {}) {
      */
     async toMdsvexConfig() {
       const orderedPasses = orderPasses(passes);
-      const ctx = createContext(options.mode ?? 'warn');
+      const ctx = createContext(options.mode ?? VALIDATION_MODE.WARN);
 
       for (const pass of orderedPasses) {
         // Pass setup follows dependency order; later passes may rely on earlier setup state.
@@ -66,19 +49,6 @@ export function createMarkdownEngine(options = {}) {
 
       return { config: mergeMdsvexOptions(orderedPasses, ctx), ctx };
     },
-  };
-}
-
-/**
- * @param {MarkdownMode} mode
- * @returns {MarkdownPipelineContext}
- */
-function createContext(mode) {
-  return {
-    mode,
-    diagnostics: createDiagnostics(),
-    registry: markdownComponentRegistry,
-    state: {},
   };
 }
 

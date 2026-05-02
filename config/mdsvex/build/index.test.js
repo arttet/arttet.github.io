@@ -1,7 +1,7 @@
 import { describe, it } from 'vitest';
-import { generateMarkdownArtifacts } from './build.js';
-import { createDiagnostics } from './diagnostics.js';
-import { markdownComponentRegistry } from './registry.js';
+import { generateMarkdownArtifacts } from './index.js';
+import { createDiagnostics } from '../engine/diagnostics.js';
+import { markdownComponentRegistry } from '../engine/registry.js';
 
 describe('markdown build artifacts', () => {
   it('generates artifacts without errors', async () => {
