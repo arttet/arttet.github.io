@@ -2,6 +2,7 @@
  * @typedef {Object} MarkdownNode
  * @property {string=} type
  * @property {number=} depth
+ * @property {string=} value
  * @property {MarkdownNode[]=} children
  * @property {{ start: { line: number; column: number } }=} position
  */
@@ -36,6 +37,7 @@ function createHeadingsRemarkPlugin(ctx) {
       const headings = collectHeadings(tree);
       const filePath = file.path ?? file.history?.[0];
       validateHeadingHierarchy(ctx, headings, filePath);
+      validateDuplicateHeadings(ctx, tree, filePath);
     };
   };
 }
@@ -90,6 +92,59 @@ function validateHeadingHierarchy(ctx, headings, file) {
     }
 
     previousDepth = heading.depth;
+  }
+}
+
+/**
+ * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {MarkdownNode} tree
+ * @param {string=} file
+ */
+function validateDuplicateHeadings(ctx, tree, file) {
+  /** @type {Map<string, { line: number; column: number }>} */
+  const seen = new Map();
+
+  walk(tree, (node) => {
+    if (node.type !== 'heading') return;
+    const text = extractText(node);
+    if (!text) return;
+
+    const key = text.trim().toLowerCase();
+    if (seen.has(key)) {
+      const first = seen.get(key);
+      addDiagnostic(ctx, {
+        code: 'MDX008_DUPLICATE_HEADING',
+        message: `Duplicate heading text detected: "${text.trim()}".`,
+        file,
+        position: node.position
+          ? { line: node.position.start.line, column: node.position.start.column }
+          : /** @type {{ line: number; column: number }} */ (first),
+      });
+    } else if (node.position) {
+      seen.set(key, { line: node.position.start.line, column: node.position.start.column });
+    }
+  });
+}
+
+/**
+ * @param {MarkdownNode} node
+ * @returns {string}
+ */
+function extractText(node) {
+  if (node.type === 'text' && typeof node.value === 'string') {
+    return node.value;
+  }
+  return node.children?.map(extractText).join('') ?? '';
+}
+
+/**
+ * @param {MarkdownNode} node
+ * @param {(node: MarkdownNode) => void} visit
+ */
+function walk(node, visit) {
+  visit(node);
+  for (const child of node.children ?? []) {
+    walk(child, visit);
   }
 }
 

@@ -1,4 +1,4 @@
-import { readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -22,7 +22,11 @@ export function linksPass(options = {}) {
     name: 'links',
     phase: /** @type {const} */ ('remark'),
     setup(ctx) {
-      ctx.state.knownSlugs = options.knownSlugs ?? getKnownSlugs();
+      const metadata = options.knownSlugs
+        ? { knownSlugs: options.knownSlugs, draftSlugs: new Set() }
+        : getSlugMetadata();
+      ctx.state.knownSlugs = metadata.knownSlugs;
+      ctx.state.draftSlugs = metadata.draftSlugs;
     },
     mdsvex(ctx) {
       return {
@@ -34,21 +38,41 @@ export function linksPass(options = {}) {
   };
 }
 
-function getKnownSlugs() {
+function getSlugMetadata() {
   /** @type {Set<string>} */
-  const slugs = new Set();
+  const knownSlugs = new Set();
+  /** @type {Set<string>} */
+  const draftSlugs = new Set();
 
   const blogDir = fileURLToPath(new URL('../../../../content/blog', import.meta.url));
   for (const year of readdirSync(blogDir)) {
     const yearDir = join(blogDir, year);
     for (const file of readdirSync(yearDir)) {
       if (file.endsWith('.md')) {
-        slugs.add(file.slice(0, -3));
+        const slug = file.slice(0, -3);
+        knownSlugs.add(slug);
+        if (isDraft(join(yearDir, file))) {
+          draftSlugs.add(slug);
+        }
       }
     }
   }
 
-  return slugs;
+  return { knownSlugs, draftSlugs };
+}
+
+/**
+ * @param {string} filePath
+ */
+function isDraft(filePath) {
+  try {
+    const content = readFileSync(filePath, 'utf8');
+    const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!match) return false;
+    return /^draft:\s*true$/m.test(match[1]);
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -82,10 +106,18 @@ function validateLinkUrl(node, ctx, file) {
   if (url.startsWith(BLOG_PATH_PREFIX)) {
     const slug = url.slice(BLOG_PATH_PREFIX.length).split('/')[0];
     const knownSlugs = /** @type {Set<string>} */ (ctx.state.knownSlugs);
+    const draftSlugs = /** @type {Set<string>} */ (ctx.state.draftSlugs);
     if (slug && !knownSlugs.has(slug)) {
       addDiagnostic(ctx, {
         code: 'MDX011_BROKEN_INTERNAL_LINK',
         message: `Broken internal link to unknown post: ${url}.`,
+        file: filePath,
+        node,
+      });
+    } else if (slug && draftSlugs.has(slug)) {
+      addDiagnostic(ctx, {
+        code: 'MDX009_LINK_TO_HIDDEN',
+        message: `Internal link points to a draft post: ${url}.`,
         file: filePath,
         node,
       });

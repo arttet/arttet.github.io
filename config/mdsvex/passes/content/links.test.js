@@ -38,11 +38,13 @@ function createContext(mode = 'warn') {
 
 /**
  * @param {Set<string>} knownSlugs
+ * @param {Set<string>} [draftSlugs]
  * @returns {(tree: import('./links.js').MarkdownNode, file: { path?: string }) => void}
  */
-function getRemarkPlugin(knownSlugs) {
+function getRemarkPlugin(knownSlugs, draftSlugs = new Set()) {
   const ctx = createContext();
   ctx.state.knownSlugs = knownSlugs;
+  ctx.state.draftSlugs = draftSlugs;
   const plugins = /** @type {any} */ (linksPass({ knownSlugs }).mdsvex)(ctx).remarkPlugins;
   const plugin = /** @type {any} */ (plugins?.[0]);
   if (typeof plugin !== 'function') {
@@ -129,5 +131,29 @@ describe('links pass', () => {
     transformer(root([linkNode('/about'), linkNode('/rss.xml')]), { path: 'post.md' });
 
     expect(ctx.diagnostics.list()).toEqual([]);
+  });
+
+  it('reports links to draft posts', () => {
+    const ctx = createContext();
+    ctx.state.knownSlugs = new Set(['draft-post']);
+    ctx.state.draftSlugs = new Set(['draft-post']);
+    const plugins = /** @type {any} */ (linksPass({ knownSlugs: new Set(['draft-post']) }).mdsvex)(
+      ctx
+    ).remarkPlugins;
+    const plugin = /** @type {any} */ (plugins?.[0]);
+    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    const transformer = /** @type {any} */ (plugin.call(/** @type {any} */ (null)));
+
+    transformer(root([linkNode('/blog/draft-post', 4, 2)]), { path: 'post.md' });
+
+    expect(ctx.diagnostics.list()).toEqual([
+      expect.objectContaining({
+        code: 'MDX009_LINK_TO_HIDDEN',
+        message: expect.stringContaining('draft-post'),
+        file: 'post.md',
+        line: 4,
+        column: 2,
+      }),
+    ]);
   });
 });
