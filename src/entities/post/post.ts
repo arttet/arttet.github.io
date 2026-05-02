@@ -11,6 +11,7 @@ export interface PostFrontmatter {
   hasCode?: boolean;
   hasCodeTabs?: boolean;
   hasImages?: boolean;
+  tocHeadings?: { depth: number; text: string; id: string }[];
 }
 
 export type Post = PostFrontmatter & {
