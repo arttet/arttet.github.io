@@ -173,4 +173,17 @@ describe('markdown diagnostics', () => {
       })
     ).toContain('No diagnostics.');
   });
+
+  it('checks for severity via has()', () => {
+    const diagnostics = createDiagnostics();
+    expect(diagnostics.has('warning')).toBe(false);
+    diagnostics.add({
+      code: 'MDX001',
+      severity: 'warning',
+      step: 'test',
+      message: 'Test',
+    });
+    expect(diagnostics.has('warning')).toBe(true);
+    expect(diagnostics.has('error')).toBe(false);
+  });
 });

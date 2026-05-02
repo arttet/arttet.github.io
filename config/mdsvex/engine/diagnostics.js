@@ -63,7 +63,7 @@ function sortDiagnostics(diagnostics) {
  * @param {Diagnostic[]} diagnostics
  */
 export function createDiagnostics(diagnostics = []) {
-  return {
+  return Object.freeze({
     /**
      * @param {Diagnostic} diagnostic
      */
@@ -77,7 +77,15 @@ export function createDiagnostics(diagnostics = []) {
     list() {
       return sortDiagnostics(diagnostics);
     },
-  };
+
+    /**
+     * @param {DiagnosticSeverity} severity
+     * @returns {boolean}
+     */
+    has(severity) {
+      return diagnostics.some((d) => d.severity === severity);
+    },
+  });
 }
 
 /**

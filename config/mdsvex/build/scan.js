@@ -27,14 +27,13 @@ export async function scanPosts() {
             const fm = parseFrontmatter(content);
             const slug = file.replace('.md', '');
             const body = content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
-            return /** @type {import('../../../src/entities/post/post').Post} */ (
-              /** @type {unknown} */ (
-                Object.assign({}, fm, {
-                  slug,
-                  readingTime: computeReadingTime(body),
-                })
-              )
-            );
+            return Object.freeze(/** @type {import('../../../src/entities/post/post').Post} */ (
+              /** @type {unknown} */ ({
+                ...fm,
+                slug,
+                readingTime: computeReadingTime(body),
+              })
+            ));
           })
       );
 

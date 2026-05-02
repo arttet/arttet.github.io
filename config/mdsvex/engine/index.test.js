@@ -65,19 +65,22 @@ describe('markdown engine', () => {
     ).rejects.toThrow('Multiple markdown passes attempted to define a highlighter');
   });
 
-  it('rejects undefined pass', () => {
+  it('ignores undefined pass', () => {
     expect(() =>
       createMarkdownEngine()
         // @ts-expect-error testing invalid input
         .use(undefined)
-    ).toThrow('Invalid markdown pass: expected object with "name", received undefined');
+    ).not.toThrow();
   });
 
-  it('rejects null pass in array', () => {
-    expect(() =>
-      createMarkdownEngine()
+  it('ignores null pass in array', async () => {
+    const { config } = await createMarkdownEngine()
+      .use([
+        { name: 'valid', phase: 'remark', mdsvex: () => ({ remarkPlugins: [() => undefined] }) },
         // @ts-expect-error testing invalid input
-        .use([{ name: 'valid', phase: 'remark' }, null])
-    ).toThrow('Invalid markdown pass: expected object with "name", received null');
+        null,
+      ])
+      .toMdsvexConfig();
+    expect(config.remarkPlugins).toHaveLength(1);
   });
 });

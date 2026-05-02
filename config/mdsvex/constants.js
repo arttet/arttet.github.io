@@ -87,3 +87,26 @@ export const KNOWLEDGE_GRAPH_VERSION = 'sprint-7-knowledge-graph-v1';
 export const BLOCKED_HTML_TAGS = Object.freeze(
   new Set(['script', 'style', 'iframe', 'object', 'embed', 'img'])
 );
+
+/**
+ * Recursively freeze a plain object, array, or any nested structure.
+ * Skips already-frozen values and non-objects.
+ *
+ * @template T
+ * @param {T} value
+ * @returns {T}
+ */
+export function deepFreeze(value) {
+  if (value === null || typeof value !== 'object' || Object.isFrozen(value)) {
+    return value;
+  }
+
+  for (const key of Reflect.ownKeys(value)) {
+    const child = /** @type {Record<string | symbol, unknown>} */ (value)[key];
+    if (child !== null && typeof child === 'object' && !Object.isFrozen(child)) {
+      deepFreeze(child);
+    }
+  }
+
+  return Object.freeze(value);
+}

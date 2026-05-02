@@ -16,17 +16,17 @@ import { imagesPass } from '../passes/optimization/images.js';
 import { securityGuardsPass } from '../passes/security/security-guards.js';
 
 /**
- * @returns {import('./index.js').MarkdownPass[]}
+ * @returns {readonly import('./index.js').MarkdownPass[]}
  */
 export function optimizationPasses() {
-  return [imagesPass()];
+  return Object.freeze([imagesPass()]);
 }
 
 /**
- * @returns {import('./index.js').MarkdownPass[]}
+ * @returns {readonly import('./index.js').MarkdownPass[]}
  */
 export function contentPasses() {
-  return [
+  return Object.freeze([
     frontmatterPass(),
     readingTimePass(),
     imagesGuardPass(),
@@ -41,12 +41,12 @@ export function contentPasses() {
     rehypeHeadingsPass(),
     tocPass(),
     codePass(),
-  ];
+  ]);
 }
 
 /**
- * @returns {import('./index.js').MarkdownPass[]}
+ * @returns {readonly import('./index.js').MarkdownPass[]}
  */
 export function securityPasses() {
-  return [securityGuardsPass()];
+  return Object.freeze([securityGuardsPass()]);
 }
