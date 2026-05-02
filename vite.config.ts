@@ -3,6 +3,8 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vitest/config';
+import { markdownCtx } from './mdsvex.config.js';
+import { generateMarkdownArtifacts } from './config/mdsvex/build.js';
 
 const analyze = process.env.ANALYZE === 'true';
 const isFastTest = process.env.VITEST_FAST === 'true';
@@ -20,6 +22,16 @@ export default defineConfig(({ mode }) => ({
     enhancedImages(),
     tailwindcss(),
     sveltekit(),
+    {
+      name: 'markdown-artifacts',
+      async closeBundle() {
+        if (process.env.MARKDOWN_DEBUG === 'true') {
+          // eslint-disable-next-line no-console
+          console.log('[markdown-artifacts] Generating artifacts...');
+        }
+        await generateMarkdownArtifacts(markdownCtx);
+      },
+    },
     ...(analyze
       ? [
           visualizer({

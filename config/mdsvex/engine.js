@@ -52,7 +52,7 @@ export function createMarkdownEngine(options = {}) {
     },
 
     /**
-     * @returns {Promise<MdsvexOptions>}
+     * @returns {Promise<{ config: MdsvexOptions; ctx: MarkdownPipelineContext }>}
      */
     async toMdsvexConfig() {
       const orderedPasses = orderPasses(passes);
@@ -64,7 +64,7 @@ export function createMarkdownEngine(options = {}) {
         await pass.setup?.(ctx);
       }
 
-      return mergeMdsvexOptions(orderedPasses, ctx);
+      return { config: mergeMdsvexOptions(orderedPasses, ctx), ctx };
     },
   };
 }

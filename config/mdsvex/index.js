@@ -10,3 +10,11 @@ export async function createMarkdownConfig() {
     .use(optimizationPasses())
     .toMdsvexConfig();
 }
+
+/**
+ * @returns {Promise<import('./engine.js').MarkdownPipelineContext>}
+ */
+export async function createMarkdownContext() {
+  const { ctx } = await createMarkdownConfig();
+  return ctx;
+}
