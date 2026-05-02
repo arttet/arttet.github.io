@@ -3,7 +3,7 @@ import { createMarkdownEngine } from './engine.js';
 
 describe('markdown engine', () => {
   it('registers passes and merges mdsvex options in dependency order', async () => {
-    const config = await createMarkdownEngine()
+    const { config } = await createMarkdownEngine()
       .use({
         name: 'base',
         phase: 'remark',
