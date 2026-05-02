@@ -51,7 +51,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/katex": "^0.16.8",
     "@types/node": "^25.6.0",
-    "@typescript/native-preview": "^7.0.0-dev.20260428.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260502.1",
     "@vitest/coverage-v8": "^4.1.5",
     "@webgpu/types": "^0.1.69",
     "cspell": "^10.0.0",
