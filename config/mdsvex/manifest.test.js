@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createContentManifest, pipelineVersion } from './manifest.js';
 
 describe('content manifest', () => {
-  it('creates deterministic post entries', () => {
+  it('creates deterministic post entries with feature flags', () => {
     const manifest = createContentManifest([
       {
         slug: 'b',
@@ -19,6 +19,9 @@ describe('content manifest', () => {
         updated: '2026-04-22',
         tags: ['z', 'a'],
         readingTime: 1,
+        hasMath: true,
+        hasCode: true,
+        hasImages: true,
       },
     ]);
 
@@ -34,17 +37,28 @@ describe('content manifest', () => {
       readingTime: 1,
       metadataHash: expect.stringMatching(/^[a-f0-9]{64}$/),
       features: {
-        hasMath: false,
+        hasMath: true,
         hasMermaid: false,
-        hasCode: false,
+        hasCode: true,
         hasCodeTabs: false,
-        hasImages: false,
+        hasImages: true,
         hasOptimizedImages: false,
         hasPriorityImage: false,
         hasImageLightbox: false,
         hasInteractiveBlocks: false,
       },
       assets: [],
+    });
+    expect(manifest.posts[1].features).toEqual({
+      hasMath: false,
+      hasMermaid: false,
+      hasCode: false,
+      hasCodeTabs: false,
+      hasImages: false,
+      hasOptimizedImages: false,
+      hasPriorityImage: false,
+      hasImageLightbox: false,
+      hasInteractiveBlocks: false,
     });
   });
 
