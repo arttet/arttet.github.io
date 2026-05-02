@@ -5,6 +5,8 @@ set dotenv-path := ".envrc"
 # Project Settings
 # ==============================================================================
 
+export BUILD_DIR := justfile_directory() / "target"
+
 build_dir := "target"
 site_name := "arttet.github.io"
 
@@ -172,3 +174,14 @@ mod deploy 'misc/justfiles/deployment.just'
 alias dl := deploy::list
 alias dc := deploy::create
 alias dd := deploy::delete
+
+# ==============================================================================
+# Pull Requests
+# ==============================================================================
+
+[group: 'Pull Requests']
+mod pr 'misc/justfiles/pr.just'
+
+alias prc := pr::create
+alias prr := pr::review
+alias prv := pr::view
