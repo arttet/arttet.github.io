@@ -8,7 +8,15 @@ import { mathDetectPass } from './passes/content/math-detect.js';
 import { mermaidPass } from './passes/content/mermaid.js';
 import { readingTimePass } from './passes/content/reading-time.js';
 import { rehypeHeadingsPass } from './passes/content/rehype-headings.js';
+import { imagesPass } from './passes/optimization/images.js';
 import { securityGuardsPass } from './passes/security/security-guards.js';
+
+/**
+ * @returns {import('./engine.js').MarkdownPass[]}
+ */
+export function optimizationPasses() {
+  return [imagesPass()];
+}
 
 /**
  * @returns {import('./engine.js').MarkdownPass[]}
