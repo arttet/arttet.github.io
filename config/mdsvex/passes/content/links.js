@@ -1,26 +1,24 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+
+import { walk } from '../_internal/walk.js';
 
 /**
- * @typedef {Object} MarkdownNode
- * @property {string=} type
- * @property {string=} url
- * @property {string=} value
- * @property {MarkdownNode[]=} children
- * @property {{ start: { line: number; column: number } }=} position
+ * @typedef {import('../_internal/walk.js').MarkdownNode} MarkdownNode
  */
 
 const BLOG_PATH_PREFIX = '/blog/';
 
 /**
  * @param {{ knownSlugs?: Set<string> }} [options]
- * @returns {import('../../engine.js').MarkdownPass}
+ * @returns {import('../../engine/index.js').MarkdownPass}
  */
 export function linksPass(options = {}) {
   return {
     name: 'links',
-    phase: /** @type {const} */ ('remark'),
+    phase: PASS_PHASES.REMARK,
     setup(ctx) {
       const metadata = options.knownSlugs
         ? { knownSlugs: options.knownSlugs, draftSlugs: new Set() }
@@ -76,7 +74,7 @@ function isDraft(filePath) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  */
 function createLinksRemarkPlugin(ctx) {
   return function linksAttacher() {
@@ -96,7 +94,7 @@ function createLinksRemarkPlugin(ctx) {
 
 /**
  * @param {MarkdownNode} node
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {{ path?: string; history?: string[] }} file
  */
 function validateLinkUrl(node, ctx, file) {
@@ -109,14 +107,14 @@ function validateLinkUrl(node, ctx, file) {
     const draftSlugs = /** @type {Set<string>} */ (ctx.state.draftSlugs);
     if (slug && !knownSlugs.has(slug)) {
       addDiagnostic(ctx, {
-        code: 'MDX011_BROKEN_INTERNAL_LINK',
+        code: DIAGNOSTIC_CODES.BROKEN_INTERNAL_LINK,
         message: `Broken internal link to unknown post: ${url}.`,
         file: filePath,
         node,
       });
     } else if (slug && draftSlugs.has(slug)) {
       addDiagnostic(ctx, {
-        code: 'MDX009_LINK_TO_HIDDEN',
+        code: DIAGNOSTIC_CODES.LINK_TO_HIDDEN,
         message: `Internal link points to a draft post: ${url}.`,
         file: filePath,
         node,
@@ -128,7 +126,7 @@ function validateLinkUrl(node, ctx, file) {
   if (url.startsWith('#')) {
     if (url.length <= 1) {
       addDiagnostic(ctx, {
-        code: 'MDX012_EMPTY_ANCHOR',
+        code: DIAGNOSTIC_CODES.EMPTY_ANCHOR,
         message: 'Empty anchor link is not allowed.',
         file: filePath,
         node,
@@ -139,27 +137,16 @@ function validateLinkUrl(node, ctx, file) {
 }
 
 /**
- * @param {MarkdownNode} node
- * @param {(node: MarkdownNode) => void} visit
- */
-function walk(node, visit) {
-  visit(node);
-  for (const child of node.children ?? []) {
-    walk(child, visit);
-  }
-}
-
-/**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {{ code: string; message: string; file?: string; node: MarkdownNode }} diagnostic
  */
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
-    severity: 'critical',
+    severity: SEVERITY.CRITICAL,
     step: 'links',
     message:
-      ctx.mode === 'warn'
+      ctx.mode === VALIDATION_MODE.WARN
         ? `${diagnostic.message} This post would be skipped in strict mode.`
         : diagnostic.message,
     file: diagnostic.file,

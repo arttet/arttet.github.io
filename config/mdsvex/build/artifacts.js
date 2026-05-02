@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { renderDiagnosticsMarkdown } from './diagnostics.js';
+import { ARTIFACTS } from '../constants.js';
+import { renderDiagnosticsMarkdown } from '../engine/diagnostics.js';
 
 export const generatedArtifactsDir = 'target/build/generated';
 
@@ -13,7 +14,7 @@ export const generatedArtifactsDir = 'target/build/generated';
 /**
  * @param {{
  *   manifest: import('./manifest.js').ContentManifest;
- *   diagnostics: import('./diagnostics.js').DiagnosticsReport;
+ *   diagnostics: import('../engine/diagnostics.js').DiagnosticsReport;
  *   knowledgeGraph: import('./knowledge-graph.js').KnowledgeGraph;
  * }} input
  * @returns {GeneratedArtifact[]}
@@ -21,19 +22,19 @@ export const generatedArtifactsDir = 'target/build/generated';
 export function createGeneratedArtifacts(input) {
   return [
     {
-      path: 'content-manifest.json',
+      path: ARTIFACTS.MANIFEST,
       content: stableJson(input.manifest),
     },
     {
-      path: 'diagnostics.json',
+      path: ARTIFACTS.DIAG_JSON,
       content: stableJson(input.diagnostics),
     },
     {
-      path: 'diagnostics.md',
+      path: ARTIFACTS.DIAG_MD,
       content: renderDiagnosticsMarkdown(input.diagnostics),
     },
     {
-      path: 'knowledge-graph.json',
+      path: ARTIFACTS.GRAPH,
       content: stableJson(input.knowledgeGraph),
     },
   ];

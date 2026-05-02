@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
+import { FEATURE_FLAGS, PIPELINE_VERSION } from '../constants.js';
 
-export const pipelineVersion = 'sprint-7-manifest-v1';
+export const pipelineVersion = PIPELINE_VERSION;
 
 /**
  * @typedef {Object} ContentManifestPost
@@ -23,7 +24,7 @@ export const pipelineVersion = 'sprint-7-manifest-v1';
  */
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {ContentManifest}
  */
 export function createContentManifest(posts) {
@@ -37,7 +38,7 @@ export function createContentManifest(posts) {
           summary: post.summary,
           created: post.created,
           updated: post.updated,
-          tags: post.tags.toSorted((a, b) => a.localeCompare(b)),
+          tags: [...post.tags].toSorted((a, b) => a.localeCompare(b)),
           readingTime: post.readingTime,
         };
 
@@ -64,18 +65,18 @@ function hashMetadata(entry) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post} post
+ * @param {import('../../../src/entities/post/post').Post} post
  */
 function createFeatures(post) {
   return {
-    hasMath: post.hasMath ?? false,
-    hasMermaid: post.hasMermaid ?? false,
-    hasCode: post.hasCode ?? false,
-    hasCodeTabs: post.hasCodeTabs ?? false,
-    hasImages: post.hasImages ?? false,
-    hasOptimizedImages: false,
-    hasPriorityImage: false,
-    hasImageLightbox: false,
-    hasInteractiveBlocks: false,
+    [FEATURE_FLAGS.HAS_MATH]: post.hasMath ?? false,
+    [FEATURE_FLAGS.HAS_MERMAID]: post.hasMermaid ?? false,
+    [FEATURE_FLAGS.HAS_CODE]: post.hasCode ?? false,
+    [FEATURE_FLAGS.HAS_CODE_TABS]: post.hasCodeTabs ?? false,
+    [FEATURE_FLAGS.HAS_IMAGES]: post.hasImages ?? false,
+    [FEATURE_FLAGS.HAS_OPTIMIZED_IMAGES]: false,
+    [FEATURE_FLAGS.HAS_PRIORITY_IMAGE]: false,
+    [FEATURE_FLAGS.HAS_IMAGE_LIGHTBOX]: false,
+    [FEATURE_FLAGS.HAS_INTERACTIVE_BLOCKS]: false,
   };
 }

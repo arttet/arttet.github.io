@@ -1,26 +1,34 @@
+import {
+  BLOCKED_HTML_TAGS,
+  DIAGNOSTIC_CODES,
+  PASS_PHASES,
+  SAFE_PROTOCOLS,
+  SEVERITY,
+  VALIDATION_MODE,
+} from '../../constants.js';
+import { walk } from '../_internal/walk.js';
+
 const RAW_HTML_PATTERNS = [
-  { code: 'MDX003_RAW_HTML', pattern: /<\s*script\b/i, label: '<script>' },
-  { code: 'MDX003_RAW_HTML', pattern: /<\s*style\b/i, label: '<style>' },
-  { code: 'MDX003_RAW_HTML', pattern: /\{@html\b/i, label: '{@html}' },
-  { code: 'MDX003_RAW_HTML', pattern: /<\s*iframe\b/i, label: '<iframe>' },
-  { code: 'MDX003_RAW_HTML', pattern: /<\s*object\b/i, label: '<object>' },
-  { code: 'MDX003_RAW_HTML', pattern: /<\s*embed\b/i, label: '<embed>' },
-  { code: 'MDX003_RAW_HTML', pattern: /<\s*img\b/i, label: '<img>' },
+  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*script\b/i, label: '<script>' },
+  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*style\b/i, label: '<style>' },
+  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /\{@html\b/i, label: '{@html}' },
+  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*iframe\b/i, label: '<iframe>' },
+  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*object\b/i, label: '<object>' },
+  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*embed\b/i, label: '<embed>' },
+  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*img\b/i, label: '<img>' },
   {
-    code: 'MDX004_UNSAFE_EVENT_HANDLER',
+    code: DIAGNOSTIC_CODES.UNSAFE_EVENT_HANDLER,
     pattern: /[\s/](?:on:[\w|:-]+|on\w+)\s*=/i,
     label: 'event handler',
   },
 ];
 
-const HTML_TAGS = new Set(['script', 'style', 'iframe', 'object', 'embed', 'img']);
-
 export function securityGuardsPass() {
   return {
     name: 'security-guards',
-    phase: /** @type {const} */ ('validate'),
+    phase: PASS_PHASES.VALIDATE,
     /**
-     * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+     * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
      */
     mdsvex(ctx) {
       return {
@@ -33,7 +41,7 @@ export function securityGuardsPass() {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  */
 function createSecurityGuardRemarkPlugin(ctx) {
   /**
@@ -48,7 +56,7 @@ function createSecurityGuardRemarkPlugin(ctx) {
 
 /**
  * @param {MarkdownNode} tree
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {string=} file
  */
 export function validateMarkdownTree(tree, ctx, file) {
@@ -65,7 +73,7 @@ export function validateMarkdownTree(tree, ctx, file) {
 
 /**
  * @param {MarkdownNode} node
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {string=} file
  */
 function validateHtmlNode(node, ctx, file) {
@@ -89,7 +97,7 @@ function validateHtmlNode(node, ctx, file) {
 /**
  * @param {string} value
  * @param {MarkdownNode} node
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {string=} file
  */
 function validateHtmlUrls(value, node, ctx, file) {
@@ -111,7 +119,7 @@ function validateHtmlUrls(value, node, ctx, file) {
 
       if (!isSafeUrl(url)) {
         addDiagnostic(ctx, {
-          code: 'MDX002_UNSAFE_URL',
+          code: DIAGNOSTIC_CODES.UNSAFE_URL,
           message: `Unsafe URL is not allowed in markdown: ${url}.`,
           file,
           node,
@@ -123,14 +131,14 @@ function validateHtmlUrls(value, node, ctx, file) {
 
 /**
  * @param {MarkdownNode} node
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {string=} file
  */
 function validateUrlNode(node, ctx, file) {
   const url = node.url ?? '';
   if (!isSafeUrl(url)) {
     addDiagnostic(ctx, {
-      code: 'MDX002_UNSAFE_URL',
+      code: DIAGNOSTIC_CODES.UNSAFE_URL,
       message: `Unsafe URL is not allowed in markdown: ${url}.`,
       file,
       node,
@@ -141,14 +149,14 @@ function validateUrlNode(node, ctx, file) {
 /**
  * @param {string} value
  * @param {MarkdownNode} node
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {string=} file
  */
 function validateComponents(value, node, ctx, file) {
   for (const match of value.matchAll(/<([A-Z][A-Za-z0-9]*)(\s(?:[^"'>]|"[^"]*"|'[^']*')*)?\/?>/g)) {
     const name = match[1] ?? '';
     const attrs = match[2] ?? '';
-    if (HTML_TAGS.has(name.toLowerCase())) {
+    if (BLOCKED_HTML_TAGS.has(name.toLowerCase())) {
       continue;
     }
 
@@ -156,7 +164,7 @@ function validateComponents(value, node, ctx, file) {
 
     if (!component) {
       addDiagnostic(ctx, {
-        code: 'MDX001_UNKNOWN_COMPONENT',
+        code: DIAGNOSTIC_CODES.UNKNOWN_COMPONENT,
         message: `Unknown markdown component <${name}>.`,
         file,
         node,
@@ -167,7 +175,7 @@ function validateComponents(value, node, ctx, file) {
     for (const prop of readAttributeNames(attrs)) {
       if (!component.allowedProps.includes(prop)) {
         addDiagnostic(ctx, {
-          code: 'MDX005_UNKNOWN_COMPONENT_PROP',
+          code: DIAGNOSTIC_CODES.UNKNOWN_COMPONENT_PROP,
           message: `Unknown prop "${prop}" on markdown component <${name}>.`,
           file,
           node,
@@ -178,7 +186,7 @@ function validateComponents(value, node, ctx, file) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {string} name
  */
 function getRegisteredComponent(ctx, name) {
@@ -219,8 +227,7 @@ function isSafeUrl(url) {
   }
 
   // Allow specific safe protocols
-  const safeProtocols = ['http://', 'https://', 'mailto:', 'tel:', 'sms:'];
-  if (safeProtocols.some((p) => normalized.startsWith(p))) {
+  if (SAFE_PROTOCOLS.some((p) => normalized.startsWith(p))) {
     return true;
   }
 
@@ -229,28 +236,16 @@ function isSafeUrl(url) {
 }
 
 /**
- * @param {MarkdownNode} node
- * @param {(node: MarkdownNode) => void} visit
- */
-function walk(node, visit) {
-  visit(node);
-
-  for (const child of node.children ?? []) {
-    walk(child, visit);
-  }
-}
-
-/**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {{ code: string; message: string; file?: string; node: MarkdownNode }} diagnostic
  */
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
-    severity: 'critical',
+    severity: SEVERITY.CRITICAL,
     step: 'security-guards',
     message:
-      ctx.mode === 'warn'
+      ctx.mode === VALIDATION_MODE.WARN
         ? `${diagnostic.message} This post would be skipped in strict mode.`
         : diagnostic.message,
     file: diagnostic.file,

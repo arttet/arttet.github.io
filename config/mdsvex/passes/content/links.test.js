@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createDiagnostics } from '../../diagnostics.js';
-import { markdownComponentRegistry } from '../../registry.js';
+import { createDiagnostics } from '../../engine/diagnostics.js';
+import { markdownComponentRegistry } from '../../engine/registry.js';
 import { linksPass } from './links.js';
 
 /**
@@ -24,8 +24,8 @@ function linkNode(url, line = 1, column = 1) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownMode} [mode]
- * @returns {import('../../engine.js').MarkdownPipelineContext}
+ * @param {import('../../engine/index.js').MarkdownMode} [mode]
+ * @returns {import('../../engine/index.js').MarkdownPipelineContext}
  */
 function createContext(mode = 'warn') {
   return {

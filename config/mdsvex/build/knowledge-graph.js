@@ -1,4 +1,6 @@
-export const knowledgeGraphVersion = 'sprint-7-knowledge-graph-v1';
+import { KNOWLEDGE_GRAPH_VERSION } from '../constants.js';
+
+export const knowledgeGraphVersion = KNOWLEDGE_GRAPH_VERSION;
 
 /**
  * @typedef {'post' | 'tag' | 'image' | 'code' | 'heading' | 'project'} KnowledgeGraphNodeType
@@ -32,7 +34,7 @@ export const knowledgeGraphVersion = 'sprint-7-knowledge-graph-v1';
  */
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraph}
  */
 export function createKnowledgeGraph(posts) {
@@ -65,7 +67,7 @@ export function createKnowledgeGraph(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphNode[]}
  */
 function createPostNodes(posts) {
@@ -83,7 +85,7 @@ function createPostNodes(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphNode[]}
  */
 function createTagNodes(posts) {
@@ -102,7 +104,7 @@ function createTagNodes(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphEdge[]}
  */
 function createPostTagEdges(posts) {
@@ -118,7 +120,7 @@ function createPostTagEdges(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphEdge[]}
  */
 function createRelatedPostEdges(posts) {
@@ -147,8 +149,8 @@ function createRelatedPostEdges(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post} first
- * @param {import('../../src/entities/post/post').Post} second
+ * @param {import('../../../src/entities/post/post').Post} first
+ * @param {import('../../../src/entities/post/post').Post} second
  * @returns {string[]}
  */
 function getSharedTags(first, second) {
@@ -157,7 +159,7 @@ function getSharedTags(first, second) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphNode[]}
  */
 function createHeadingNodes(posts) {
@@ -175,7 +177,7 @@ function createHeadingNodes(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphNode[]}
  */
 function createCodeNodes(posts) {
@@ -193,7 +195,7 @@ function createCodeNodes(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphNode[]}
  */
 function createImageNodes(posts) {
@@ -211,7 +213,7 @@ function createImageNodes(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphEdge[]}
  */
 function createHeadingEdges(posts) {
@@ -225,7 +227,7 @@ function createHeadingEdges(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphEdge[]}
  */
 function createCodeEdges(posts) {
@@ -239,7 +241,7 @@ function createCodeEdges(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphEdge[]}
  */
 function createImageEdges(posts) {
@@ -253,7 +255,7 @@ function createImageEdges(posts) {
 }
 
 /**
- * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('../../../src/entities/post/post').Post[]} posts
  * @returns {KnowledgeGraphEdge[]}
  */
 function createFeatureEdges(posts) {

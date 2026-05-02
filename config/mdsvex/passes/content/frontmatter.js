@@ -1,3 +1,5 @@
+import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+
 /**
  * @typedef {Object} MarkdownNode
  * @property {string=} type
@@ -9,12 +11,12 @@
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
- * @returns {import('../../engine.js').MarkdownPass}
+ * @returns {import('../../engine/index.js').MarkdownPass}
  */
 export function frontmatterPass() {
   return {
     name: 'frontmatter',
-    phase: /** @type {const} */ ('validate'),
+    phase: PASS_PHASES.VALIDATE,
     mdsvex(ctx) {
       return {
         remarkPlugins: /** @type {import('mdsvex').MdsvexOptions['remarkPlugins']} */ ([
@@ -26,7 +28,7 @@ export function frontmatterPass() {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  */
 function createFrontmatterRemarkPlugin(ctx) {
   return function frontmatterAttacher() {
@@ -41,14 +43,14 @@ function createFrontmatterRemarkPlugin(ctx) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {unknown} fm
  * @param {string=} file
  */
 export function validateFrontmatter(ctx, fm, file) {
   if (!fm || typeof fm !== 'object') {
     addDiagnostic(ctx, {
-      code: 'MDX010_INVALID_FRONTMATTER',
+      code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: 'Frontmatter is missing or not an object.',
       file,
     });
@@ -68,7 +70,7 @@ export function validateFrontmatter(ctx, fm, file) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {Record<string, unknown>} data
  * @param {string} key
  * @param {string=} file
@@ -77,7 +79,7 @@ function validateRequiredString(ctx, data, key, file) {
   const value = data[key];
   if (typeof value !== 'string' || value.trim().length === 0) {
     addDiagnostic(ctx, {
-      code: 'MDX010_INVALID_FRONTMATTER',
+      code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a non-empty string.`,
       file,
     });
@@ -85,7 +87,7 @@ function validateRequiredString(ctx, data, key, file) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {Record<string, unknown>} data
  * @param {string} key
  * @param {string=} file
@@ -98,7 +100,7 @@ function validateStringArray(ctx, data, key, file) {
     value.some((v) => typeof v !== 'string' || v.trim().length === 0)
   ) {
     addDiagnostic(ctx, {
-      code: 'MDX010_INVALID_FRONTMATTER',
+      code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a non-empty array of non-empty strings.`,
       file,
     });
@@ -106,7 +108,7 @@ function validateStringArray(ctx, data, key, file) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {Record<string, unknown>} data
  * @param {string} key
  * @param {boolean} required
@@ -117,7 +119,7 @@ function validateIsoDate(ctx, data, key, required, file) {
   if (value === undefined) {
     if (required) {
       addDiagnostic(ctx, {
-        code: 'MDX010_INVALID_FRONTMATTER',
+        code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
         message: `Frontmatter "${key}" is required and must be a valid ISO 8601 date (YYYY-MM-DD).`,
         file,
       });
@@ -126,7 +128,7 @@ function validateIsoDate(ctx, data, key, required, file) {
   }
   if (typeof value !== 'string' || !ISO_DATE_PATTERN.test(value)) {
     addDiagnostic(ctx, {
-      code: 'MDX010_INVALID_FRONTMATTER',
+      code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a valid ISO 8601 date (YYYY-MM-DD).`,
       file,
     });
@@ -134,7 +136,7 @@ function validateIsoDate(ctx, data, key, required, file) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {Record<string, unknown>} data
  * @param {string} key
  * @param {string=} file
@@ -143,7 +145,7 @@ function validateOptionalString(ctx, data, key, file) {
   const value = data[key];
   if (value !== undefined && typeof value !== 'string') {
     addDiagnostic(ctx, {
-      code: 'MDX010_INVALID_FRONTMATTER',
+      code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a string when provided.`,
       file,
     });
@@ -151,7 +153,7 @@ function validateOptionalString(ctx, data, key, file) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {Record<string, unknown>} data
  * @param {string} key
  * @param {string=} file
@@ -160,7 +162,7 @@ function validateOptionalBoolean(ctx, data, key, file) {
   const value = data[key];
   if (value !== undefined && typeof value !== 'boolean') {
     addDiagnostic(ctx, {
-      code: 'MDX010_INVALID_FRONTMATTER',
+      code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a boolean when provided.`,
       file,
     });
@@ -168,16 +170,16 @@ function validateOptionalBoolean(ctx, data, key, file) {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
  * @param {{ code: string; message: string; file?: string }} diagnostic
  */
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
-    severity: 'critical',
+    severity: SEVERITY.CRITICAL,
     step: 'frontmatter',
     message:
-      ctx.mode === 'warn'
+      ctx.mode === VALIDATION_MODE.WARN
         ? `${diagnostic.message} This post would be skipped in strict mode.`
         : diagnostic.message,
     file: diagnostic.file,

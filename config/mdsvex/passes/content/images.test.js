@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { createDiagnostics } from '../../diagnostics.js';
-import { markdownComponentRegistry } from '../../registry.js';
+import { DIAGNOSTIC_CODES } from '../../constants.js';
+import { createDiagnostics } from '../../engine/diagnostics.js';
+import { markdownComponentRegistry } from '../../engine/registry.js';
 import { imagesGuardPass } from './images.js';
 
 /**
@@ -19,8 +20,8 @@ function imageNode(url, alt = '') {
 }
 
 /**
- * @param {import('../../engine.js').MarkdownMode} [mode]
- * @returns {import('../../engine.js').MarkdownPipelineContext}
+ * @param {import('../../engine/index.js').MarkdownMode} [mode]
+ * @returns {import('../../engine/index.js').MarkdownPipelineContext}
  */
 function createContext(mode = 'warn') {
   return {
@@ -55,13 +56,13 @@ describe('images guard pass', () => {
     const diagnostics = ctx.diagnostics.list();
     expect(diagnostics).toHaveLength(2);
     expect(diagnostics[0]).toMatchObject({
-      code: 'MDX004_IMAGE_MISSING_ALT',
+      code: DIAGNOSTIC_CODES.IMAGE_MISSING_ALT,
       file: 'post.md',
       severity: 'critical',
       step: 'images',
     });
     expect(diagnostics[1]).toMatchObject({
-      code: 'MDX004_IMAGE_MISSING_ALT',
+      code: DIAGNOSTIC_CODES.IMAGE_MISSING_ALT,
       file: 'post.md',
       severity: 'critical',
       step: 'images',

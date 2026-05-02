@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vitest/config';
 import { markdownCtx } from './mdsvex.config.js';
-import { generateMarkdownArtifacts } from './config/mdsvex/build.js';
+import { generateMarkdownArtifacts } from './config/mdsvex/build/index.js';
 
 const analyze = process.env.ANALYZE === 'true';
 const isFastTest = process.env.VITEST_FAST === 'true';
