@@ -13,15 +13,67 @@ const contentDir = 'content/blog';
  */
 export async function generateMarkdownArtifacts(ctx) {
   const posts = await scanPosts();
+  validateDuplicateSlugs(posts, ctx);
   const diagnostics = ctx.diagnostics.list();
-  const manifest = createContentManifest(posts);
-  const knowledgeGraph = createKnowledgeGraph(posts);
+  const validPosts = filterValidPosts(posts, diagnostics, ctx.mode);
+  const manifest = createContentManifest(validPosts);
+  const knowledgeGraph = createKnowledgeGraph(validPosts);
   const report = createDiagnosticsReport(diagnostics, {
     pipelineVersion: manifest.pipelineVersion,
   });
 
   const artifacts = createGeneratedArtifacts({ manifest, diagnostics: report, knowledgeGraph });
   await writeGeneratedArtifacts(artifacts);
+}
+
+/**
+ * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('./engine.js').MarkdownPipelineContext} ctx
+ */
+function validateDuplicateSlugs(posts, ctx) {
+  const seen = new Map();
+  for (const post of posts) {
+    if (seen.has(post.slug)) {
+      ctx.diagnostics.add({
+        code: 'MDX007_DUPLICATE_SLUG',
+        severity: 'critical',
+        step: 'slug-guard',
+        message:
+          ctx.mode === 'warn'
+            ? `Duplicate post slug detected: "${post.slug}". This post would be skipped in strict mode.`
+            : `Duplicate post slug detected: "${post.slug}".`,
+      });
+    }
+    seen.set(post.slug, true);
+  }
+}
+
+/**
+ * @param {import('../../src/entities/post/post').Post[]} posts
+ * @param {import('./diagnostics.js').Diagnostic[]} diagnostics
+ * @param {import('./engine.js').MarkdownMode} mode
+ * @returns {import('../../src/entities/post/post').Post[]}
+ */
+function filterValidPosts(posts, diagnostics, mode) {
+  if (mode !== 'strict') return posts;
+
+  const invalidSlugs = new Set();
+  for (const diagnostic of diagnostics) {
+    if (diagnostic.severity === 'critical' && diagnostic.file) {
+      const slug = extractSlugFromPath(diagnostic.file);
+      if (slug) invalidSlugs.add(slug);
+    }
+  }
+
+  return posts.filter((post) => !invalidSlugs.has(post.slug));
+}
+
+/**
+ * @param {string} filePath
+ * @returns {string | undefined}
+ */
+function extractSlugFromPath(filePath) {
+  return filePath.split('/').pop()?.replace('.md', '');
 }
 
 /**
