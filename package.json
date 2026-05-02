@@ -16,7 +16,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test:unit": "VITEST_FAST=true vitest run --maxWorkers=100% --testTimeout=10000 --hookTimeout=10000",
     "test:unit:fast": "VITEST_FAST=true vitest run --maxWorkers=100% --testTimeout=10000 --hookTimeout=10000",
-    "test:markdown": "vitest run tests/markdown config/mdsvex src/lib/math-preprocessor.test.ts",
+    "test:markdown": "vitest run tests/markdown config/mdsvex",
     "test:unit:coverage": "vitest run --coverage",
     "test:unit:coverage:ci": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=target/test-results/vitest.junit.xml --maxWorkers=100% --testTimeout=10000 --hookTimeout=10000",
     "test:lhci": "bun scripts/run-lhci.mjs",
