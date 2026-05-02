@@ -11,6 +11,17 @@ import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+function isValidDateString(value) {
+  if (typeof value !== 'string') return false;
+  if (ISO_DATE_PATTERN.test(value)) return true;
+  const date = new Date(value);
+  return !Number.isNaN(date.getTime());
+}
+
+/**
  * @returns {import('../../engine/index.js').MarkdownPass}
  */
 export function frontmatterPass() {
@@ -126,7 +137,7 @@ function validateIsoDate(ctx, data, key, required, file) {
     }
     return;
   }
-  if (typeof value !== 'string' || !ISO_DATE_PATTERN.test(value)) {
+  if (!isValidDateString(value)) {
     addDiagnostic(ctx, {
       code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a valid ISO 8601 date (YYYY-MM-DD).`,

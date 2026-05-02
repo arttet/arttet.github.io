@@ -42,18 +42,22 @@ function getSlugMetadata() {
   /** @type {Set<string>} */
   const draftSlugs = new Set();
 
-  const blogDir = fileURLToPath(new URL('../../../../content/blog', import.meta.url));
-  for (const year of readdirSync(blogDir)) {
-    const yearDir = join(blogDir, year);
-    for (const file of readdirSync(yearDir)) {
-      if (file.endsWith('.md')) {
-        const slug = file.slice(0, -3);
-        knownSlugs.add(slug);
-        if (isDraft(join(yearDir, file))) {
-          draftSlugs.add(slug);
+  try {
+    const blogDir = fileURLToPath(new URL('../../../../content/blog', import.meta.url));
+    for (const year of readdirSync(blogDir)) {
+      const yearDir = join(blogDir, year);
+      for (const file of readdirSync(yearDir)) {
+        if (file.endsWith('.md')) {
+          const slug = file.slice(0, -3);
+          knownSlugs.add(slug);
+          if (isDraft(join(yearDir, file))) {
+            draftSlugs.add(slug);
+          }
         }
       }
     }
+  } catch {
+    // Fallback when import.meta.url is not a file URL (e.g. test environments).
   }
 
   return { knownSlugs, draftSlugs };
