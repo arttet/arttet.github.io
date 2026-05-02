@@ -12,6 +12,14 @@ export interface PostFrontmatter {
   hasCodeTabs?: boolean;
   hasImages?: boolean;
   tocHeadings?: { depth: number; text: string; id: string }[];
+  extracted?: {
+    headings?: string[];
+    codeLangs?: string[];
+    images?: string[];
+    links?: string[];
+    hasMath?: boolean;
+    hasMermaid?: boolean;
+  };
 }
 
 export type Post = PostFrontmatter & {
