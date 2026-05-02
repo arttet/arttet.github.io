@@ -180,7 +180,7 @@ Imports flow upward only: `shared → entities → features → widgets → rout
 - `src/shared/config/site.ts` — Site config: nav, author, particles, theme defaults, code themes.
 - `src/app.css` — Design tokens (`@theme`), `.glass`, `.mesh-gradient`, dark/light overrides.
 - `src/app.html` — HTML shell with inline theme-avoid-flash script.
-- `svelte.config.js` — Preprocess order: `mathPreprocess → vitePreprocess → mdsvex`.
+- `svelte.config.js` — Preprocess order: `markdownPreprocess → vitePreprocess → mdsvex`.
 - `vite.config.ts` — Build chunks: `markdown-katex`, `markdown-mermaid`, `markdown-runtime`.
 - `mdsvex.config.js` — Delegates to `config/mdsvex/index.js`.
 
@@ -192,7 +192,7 @@ Posts: `content/blog/YYYY/YYYY-MM-DD-slug.md` with frontmatter (`title`, `tags`,
 
 Pipeline at build time:
 
-1. `mathPreprocess` — Preserves LaTeX backslashes before Vite/Svelte processing.
+1. `markdownPreprocess` — Preserves LaTeX backslashes before Vite/Svelte processing.
 2. `vitePreprocess` — Standard Svelte/Vite compile.
 3. `mdsvex` — Custom engine (`config/mdsvex/engine.js`) with passes:
    - `readingTimePass`
