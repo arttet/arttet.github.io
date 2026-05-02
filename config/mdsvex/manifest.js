@@ -44,7 +44,7 @@ export function createContentManifest(posts) {
         return {
           ...entry,
           metadataHash: hashMetadata(entry),
-          features: createEmptyFeatures(),
+          features: createFeatures(post),
           assets: [],
         };
       })
@@ -63,13 +63,16 @@ function hashMetadata(entry) {
   return createHash('sha256').update(JSON.stringify(entry)).digest('hex');
 }
 
-function createEmptyFeatures() {
+/**
+ * @param {import('../../src/entities/post/post').Post} post
+ */
+function createFeatures(post) {
   return {
-    hasMath: false,
-    hasMermaid: false,
-    hasCode: false,
-    hasCodeTabs: false,
-    hasImages: false,
+    hasMath: post.hasMath ?? false,
+    hasMermaid: post.hasMermaid ?? false,
+    hasCode: post.hasCode ?? false,
+    hasCodeTabs: post.hasCodeTabs ?? false,
+    hasImages: post.hasImages ?? false,
     hasOptimizedImages: false,
     hasPriorityImage: false,
     hasImageLightbox: false,
