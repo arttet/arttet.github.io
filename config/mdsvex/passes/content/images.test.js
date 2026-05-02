@@ -37,7 +37,9 @@ describe('images guard pass', () => {
     const ctx = createContext();
     const plugins = /** @type {any} */ (imagesGuardPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     plugin.call(/** @type {any} */ (null))(root([imageNode('/img.png', 'Description')]), {
       path: 'post.md',
     });
@@ -48,7 +50,9 @@ describe('images guard pass', () => {
     const ctx = createContext();
     const plugins = /** @type {any} */ (imagesGuardPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     plugin.call(/** @type {any} */ (null))(root([imageNode('/img.png', ''), imageNode('/x.jpg')]), {
       path: 'post.md',
     });
@@ -73,7 +77,9 @@ describe('images guard pass', () => {
     const ctx = createContext();
     const plugins = /** @type {any} */ (imagesGuardPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     plugin.call(/** @type {any} */ (null))(root([{ type: 'text', value: 'hello' }]), {
       path: 'post.md',
     });

@@ -107,10 +107,11 @@ describe('visibleTabScope action', () => {
 
   it('works without IntersectionObserver', () => {
     // Delete the mocked IntersectionObserver globally
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const originalIO = (globalThis as any).IntersectionObserver;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (globalThis as any).IntersectionObserver;
+    const originalIO = (
+      globalThis as unknown as { IntersectionObserver?: typeof IntersectionObserver }
+    ).IntersectionObserver;
+    delete (globalThis as unknown as { IntersectionObserver?: typeof IntersectionObserver })
+      .IntersectionObserver;
 
     const node = document.createElement('div');
     node.innerHTML = '<button type="button">Home</button>';

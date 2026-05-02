@@ -70,7 +70,9 @@ function isDraft(filePath) {
   try {
     const content = readFileSync(filePath, 'utf8');
     const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-    if (!match) return false;
+    if (!match) {
+      return false;
+    }
     return /^draft:\s*true$/m.test(match[1]);
   } catch {
     return false;

@@ -24,7 +24,7 @@
   }
 
   function keepTocLinkVisible(id: string) {
-    if (!shouldKeepTocLinkVisible()) return;
+    if (!shouldKeepTocLinkVisible()) {return;}
 
     const nav = document.querySelector<HTMLElement>('nav[aria-label="Table of contents"]');
     const activeLink = Array.from(nav?.querySelectorAll<HTMLAnchorElement>('a[href]') ?? []).find(
@@ -35,7 +35,7 @@
 
   function setActiveHeading(id: string, options: { keepTocVisible?: boolean } = {}) {
     activeId = id;
-    if (!options.keepTocVisible) return;
+    if (!options.keepTocVisible) {return;}
 
     requestAnimationFrame(() => {
       keepTocLinkVisible(id);
@@ -43,7 +43,7 @@
   }
 
   function onTocKeydown(event: KeyboardEvent, id: string) {
-    if (event.key !== 'Enter') return;
+    if (event.key !== 'Enter') {return;}
     requestAnimationFrame(() => {
       focusHeadingAnchor(id);
       setActiveHeading(id, { keepTocVisible: true });
@@ -54,7 +54,7 @@
     // Re-run on route change so navigating between posts rescans headings.
     void page.params.slug;
 
-    if (!browser) return;
+    if (!browser) {return;}
 
     const prose = document.querySelector('.prose');
     const nodes = prose
@@ -102,7 +102,7 @@
     };
 
     window.addEventListener('article-anchor-activate', onAnchorActivate);
-    for (const node of nodes) observer.observe(node);
+    for (const node of nodes) {observer.observe(node);}
     return () => {
       observer.disconnect();
       window.removeEventListener('article-anchor-activate', onAnchorActivate);

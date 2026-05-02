@@ -15,7 +15,6 @@ export function useHighlighter() {
       const html = await highlightOnDemand(code, lang);
       highlighted = html;
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error('Highlighter failed:', e);
     } finally {
       isLoading = false;

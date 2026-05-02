@@ -44,7 +44,7 @@ export function createMarkdownEngine(options = {}) {
 
       for (const pass of orderedPasses) {
         // Pass setup follows dependency order; later passes may rely on earlier setup state.
-        // eslint-disable-next-line no-await-in-loop
+        // oxlint-disable-next-line no-await-in-loop
         await pass.setup?.(ctx);
       }
 
@@ -111,7 +111,9 @@ function mergeMdsvexOptions(passes, ctx) {
 
   for (const pass of passes) {
     const partial = pass.mdsvex?.(ctx);
-    if (!partial) continue;
+    if (!partial) {
+      continue;
+    }
 
     config.remarkPlugins?.push(...(partial.remarkPlugins ?? []));
     config.rehypePlugins?.push(...(partial.rehypePlugins ?? []));

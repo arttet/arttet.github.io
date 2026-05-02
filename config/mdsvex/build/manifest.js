@@ -51,7 +51,9 @@ export function createContentManifest(posts) {
       })
       .toSorted((a, b) => {
         const date = b.created.localeCompare(a.created);
-        if (date !== 0) return date;
+        if (date !== 0) {
+return date;
+}
         return a.slug.localeCompare(b.slug);
       }),
   };

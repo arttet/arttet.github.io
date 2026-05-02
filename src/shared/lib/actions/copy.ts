@@ -70,7 +70,6 @@ export function copy(node: HTMLElement) {
           btn.style.pointerEvents = '';
         }, 1800);
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error('Clipboard copy failed:', e);
       }
     };

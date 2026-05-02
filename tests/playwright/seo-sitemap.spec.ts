@@ -55,7 +55,9 @@ test.describe('SEO & Sitemap', () => {
   test('manifest.json is valid and reachable', async ({ page }) => {
     const response = await page.goto('/manifest.json');
     expect(response?.status()).toBe(200);
-    if (!response) throw new Error('No response from manifest.json');
+    if (!response) {
+      throw new Error('No response from manifest.json');
+    }
     const data = await response.json();
     expect(data.name).toBe('Artyom Tetyukhin');
     expect(data.icons.length).toBeGreaterThan(0);

@@ -24,7 +24,7 @@
   ]);
 
   $effect(() => {
-    if (!browser) return;
+    if (!browser) {return;}
 
     function onScroll() {
       const el = document.documentElement;
@@ -38,11 +38,11 @@
   });
 
   $effect(() => {
-    if (!browser) return;
+    if (!browser) {return;}
 
     const raf = requestAnimationFrame(() => {
       const total = document.documentElement.scrollHeight - window.innerHeight;
-      if (total <= 0) return;
+      if (total <= 0) {return;}
       milestones = Array.from(document.querySelectorAll<HTMLElement>('.prose h2')).map(
         (h) => h.offsetTop / total,
       );

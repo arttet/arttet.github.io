@@ -44,16 +44,24 @@ const severityRank = {
 function sortDiagnostics(diagnostics) {
   return diagnostics.toSorted((a, b) => {
     const file = (a.file ?? '').localeCompare(b.file ?? '');
-    if (file !== 0) return file;
+    if (file !== 0) {
+      return file;
+    }
 
     const line = (a.line ?? 0) - (b.line ?? 0);
-    if (line !== 0) return line;
+    if (line !== 0) {
+      return line;
+    }
 
     const column = (a.column ?? 0) - (b.column ?? 0);
-    if (column !== 0) return column;
+    if (column !== 0) {
+      return column;
+    }
 
     const severity = severityRank[b.severity] - severityRank[a.severity];
-    if (severity !== 0) return severity;
+    if (severity !== 0) {
+      return severity;
+    }
 
     return a.code.localeCompare(b.code);
   });

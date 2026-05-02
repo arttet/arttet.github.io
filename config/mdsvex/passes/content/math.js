@@ -35,7 +35,6 @@ function renderDisplay(math) {
     const b64Html = utf8ToBase64(html);
     return `\n\n<MathCopy display={true} b64Latex="${b64Latex}" b64Html="${b64Html}" />\n\n`;
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.error('KaTeX display render failed:', e);
     return `<code>$$${math}$$</code>`;
   }
@@ -55,7 +54,6 @@ function renderInline(math) {
     const b64Html = utf8ToBase64(html);
     return `<MathCopy display={false} b64Latex="${b64Latex}" b64Html="${b64Html}" />`;
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.error('KaTeX inline render failed:', e);
     return `<MathCopy display={false} b64Latex="${utf8ToBase64(math.trim())}" b64Html="" />`;
   }

@@ -23,7 +23,9 @@ async function hideChrome(page: Page) {
 async function waitForContentSettled(page: Page) {
   await page.waitForFunction(() => {
     const diagrams = document.querySelectorAll('.mermaid');
-    if (diagrams.length === 0) return true;
+    if (diagrams.length === 0) {
+      return true;
+    }
     return Array.from(diagrams).every((el) => (el as HTMLElement).dataset.processed === 'true');
   });
   await page.evaluate(

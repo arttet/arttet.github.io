@@ -73,7 +73,6 @@ async function preloadLanguages(highlighter, languages) {
       const loader = languages[lang];
 
       if (!loader) {
-        // eslint-disable-next-line no-console
         console.warn(`Unknown Shiki language configured for markdown: ${lang}`);
         return Promise.resolve();
       }
@@ -165,7 +164,6 @@ function renderHighlightedCode(code, lang) {
 
     return trustedSvelteHtml(html);
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.error('Shiki highlighting failed:', e);
     return renderPlainCode(code);
   }

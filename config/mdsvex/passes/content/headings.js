@@ -104,9 +104,13 @@ function validateDuplicateHeadings(ctx, tree, file) {
   const seen = new Map();
 
   walk(tree, (node) => {
-    if (node.type !== 'heading') return;
+    if (node.type !== 'heading') {
+      return;
+    }
     const text = extractText(node);
-    if (!text) return;
+    if (!text) {
+      return;
+    }
 
     const key = text.trim().toLowerCase();
     if (seen.has(key)) {

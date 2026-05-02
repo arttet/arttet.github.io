@@ -33,8 +33,7 @@ test.describe('Blog post', () => {
     const firstCodeText = await firstCodeBlock.locator('code').textContent();
     expect(firstCodeText).toContain('\n');
 
-    const whiteSpace = await firstCodeBlock.evaluate((node) => getComputedStyle(node).whiteSpace);
-    expect(['pre', 'pre-wrap', 'break-spaces']).toContain(whiteSpace);
+    await expect(firstCodeBlock).toHaveCSS('white-space', /pre|pre-wrap|break-spaces/);
   });
 
   test('tabbed code preserves multiline formatting', async ({ page }) => {

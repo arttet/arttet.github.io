@@ -105,7 +105,9 @@ function validateHtmlUrls(value, node, ctx, file) {
     /<([a-zA-Z0-9:-]+)((?:[^>"'{]|"[^"]*"|'[^']*'|\{(?:[^{}]|\{[^{}]*\})*\})*?)\s*\/?>/g
   )) {
     const attrs = match[2] ?? '';
-    if (!attrs) continue;
+    if (!attrs) {
+      continue;
+    }
 
     for (const attrMatch of attrs.matchAll(
       /\b(?:href|src)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi
@@ -214,7 +216,9 @@ function readAttributeNames(attrs) {
  */
 function isSafeUrl(url) {
   const normalized = url.trim().toLowerCase();
-  if (normalized === '') return true;
+  if (normalized === '') {
+    return true;
+  }
 
   // Allow relative URLs
   if (

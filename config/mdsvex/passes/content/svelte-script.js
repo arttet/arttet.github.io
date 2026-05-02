@@ -1,8 +1,4 @@
-import {
-  prependMarkupAfterFrontmatter,
-  prependScriptAfterFrontmatter,
-  replaceRange,
-} from '../_internal/preprocess-utils.js';
+import { prependScriptAfterFrontmatter, replaceRange } from '../_internal/preprocess-utils.js';
 
 /**
  * @param {string} content
@@ -49,21 +45,6 @@ function findSvelteInstanceScriptOpen(content) {
 
 /**
  * @param {string} content
- * @param {number} fromIndex
- */
-function findSvelteScriptClose(content, fromIndex = 0) {
-  const lower = content.toLowerCase();
-  const start = lower.indexOf('</script', fromIndex);
-  if (start === -1) {
-    return null;
-  }
-
-  const end = lower.indexOf('>', start);
-  return end === -1 ? null : { tag: content.slice(start, end + 1), start, end: end + 1 };
-}
-
-/**
- * @param {string} content
  * @param {string[]} imports
  */
 export function insertSvelteImports(content, imports) {
@@ -98,28 +79,6 @@ export function insertSvelteImports(content, imports) {
   }
 
   return { code: processed, instanceScriptOpen };
-}
-
-/**
- * @param {string} content
- * @param {{ end: number } | null} instanceScriptOpen
- */
-export function insertKatexStyles(content, instanceScriptOpen) {
-  if (content.includes('<KaTeXStyles')) {
-    return content;
-  }
-
-  const closingScriptTag = findSvelteScriptClose(content, instanceScriptOpen?.end ?? 0);
-  if (closingScriptTag) {
-    return replaceRange(
-      content,
-      closingScriptTag.start,
-      closingScriptTag.end,
-      `${closingScriptTag.tag}\n\n<KaTeXStyles />`
-    );
-  }
-
-  return prependMarkupAfterFrontmatter(content, '<KaTeXStyles />');
 }
 
 /**

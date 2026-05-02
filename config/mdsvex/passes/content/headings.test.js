@@ -43,7 +43,9 @@ describe('headings pass', () => {
     const ctx = createContext();
     const plugins = /** @type {any} */ (headingsPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     plugin.call(/** @type {any} */ (null))(root([headingNode(1), headingNode(2), headingNode(3)]), {
       path: 'post.md',
     });
@@ -54,7 +56,9 @@ describe('headings pass', () => {
     const ctx = createContext();
     const plugins = /** @type {any} */ (headingsPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     plugin.call(/** @type {any} */ (null))(
       root([headingNode(1, 1), headingNode(1, 5, 1, 'Another H1')]),
       {
@@ -75,7 +79,9 @@ describe('headings pass', () => {
     const ctx = createContext();
     const plugins = /** @type {any} */ (headingsPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     plugin.call(/** @type {any} */ (null))(root([headingNode(1), headingNode(3)]), {
       path: 'post.md',
     });
@@ -93,7 +99,9 @@ describe('headings pass', () => {
     const ctx = createContext();
     const plugins = /** @type {any} */ (headingsPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     plugin.call(/** @type {any} */ (null))(
       root([headingNode(2, 1, 1, 'A'), headingNode(2, 2, 1, 'B'), headingNode(2, 3, 1, 'C')]),
       {
@@ -107,7 +115,9 @@ describe('headings pass', () => {
     const ctx = createContext();
     const plugins = /** @type {any} */ (headingsPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     plugin.call(/** @type {any} */ (null))(
       root([headingNode(2, 1, 1, 'Same'), headingNode(3, 5, 1, 'Same')]),
       {

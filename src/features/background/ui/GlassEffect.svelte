@@ -13,7 +13,7 @@ function update() {
 }
 
 function scheduleUpdate() {
-  if (raf) return;
+  if (raf) {return;}
   raf = requestAnimationFrame(() => {
     raf = 0;
     update();
@@ -31,7 +31,7 @@ onMount(() => {
   window.addEventListener('resize', scheduleUpdate, { passive: true });
 
   return () => {
-    if (raf) cancelAnimationFrame(raf);
+    if (raf) {cancelAnimationFrame(raf);}
     raf = 0;
     window.removeEventListener('scroll', scheduleUpdate);
     window.removeEventListener('resize', scheduleUpdate);

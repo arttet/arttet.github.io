@@ -52,7 +52,7 @@ async function renderCodeTabs(block, themes, groupIndex) {
     .join('');
   const html = `<div class="not-prose my-6 rounded-lg border border-[--color-border] overflow-hidden" data-code-tabs><div role="tablist" aria-label="Code examples" class="flex items-center bg-[--code-bg] border-b border-[--color-border] px-1">${buttons}</div>${panel}</div>`;
 
-  return `\n\n<StaticHtml html={\`${escapeJsTemplateLiteral(html)}\`} />\n\n`;
+  return `\n\n{@html \`${escapeJsTemplateLiteral(html)}\`}\n\n`;
 }
 
 /**
@@ -99,7 +99,6 @@ async function renderCodeTabPanel(tab, themes) {
       safeLang
     );
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.error('CodeTabs highlighting failed:', e);
     return `<pre tabindex="-1" class="shiki m-0 font-mono" data-language="${safeLang}"><code>${escapeHtml(tab.code.trim())}</code></pre>`;
   }
