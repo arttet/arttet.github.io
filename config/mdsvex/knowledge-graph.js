@@ -38,13 +38,29 @@ export const knowledgeGraphVersion = 'sprint-7-knowledge-graph-v1';
 export function createKnowledgeGraph(posts) {
   const postNodes = createPostNodes(posts);
   const tagNodes = createTagNodes(posts);
+  const headingNodes = createHeadingNodes(posts);
+  const codeNodes = createCodeNodes(posts);
+  const imageNodes = createImageNodes(posts);
   const postTagEdges = createPostTagEdges(posts);
   const relatedPostEdges = createRelatedPostEdges(posts);
+  const headingEdges = createHeadingEdges(posts);
+  const codeEdges = createCodeEdges(posts);
+  const imageEdges = createImageEdges(posts);
+  const featureEdges = createFeatureEdges(posts);
 
   return {
     version: knowledgeGraphVersion,
-    nodes: [...postNodes, ...tagNodes].toSorted(compareNodes),
-    edges: [...postTagEdges, ...relatedPostEdges].toSorted(compareEdges),
+    nodes: [...postNodes, ...tagNodes, ...headingNodes, ...codeNodes, ...imageNodes].toSorted(
+      compareNodes
+    ),
+    edges: [
+      ...postTagEdges,
+      ...relatedPostEdges,
+      ...headingEdges,
+      ...codeEdges,
+      ...imageEdges,
+      ...featureEdges,
+    ].toSorted(compareEdges),
   };
 }
 
@@ -138,6 +154,154 @@ function createRelatedPostEdges(posts) {
 function getSharedTags(first, second) {
   const secondTags = new Set(second.tags);
   return first.tags.filter((tag) => secondTags.has(tag)).toSorted((a, b) => a.localeCompare(b));
+}
+
+/**
+ * @param {import('../../src/entities/post/post').Post[]} posts
+ * @returns {KnowledgeGraphNode[]}
+ */
+function createHeadingNodes(posts) {
+  /** @type {Map<string, KnowledgeGraphNode>} */
+  const nodes = new Map();
+  for (const post of posts) {
+    for (const heading of post.extracted?.headings ?? []) {
+      const id = toHeadingId(post.slug, heading);
+      if (!nodes.has(id)) {
+        nodes.set(id, { id, type: 'heading', label: heading });
+      }
+    }
+  }
+  return [...nodes.values()];
+}
+
+/**
+ * @param {import('../../src/entities/post/post').Post[]} posts
+ * @returns {KnowledgeGraphNode[]}
+ */
+function createCodeNodes(posts) {
+  /** @type {Map<string, KnowledgeGraphNode>} */
+  const nodes = new Map();
+  for (const post of posts) {
+    for (const lang of post.extracted?.codeLangs ?? []) {
+      const id = toCodeId(lang);
+      if (!nodes.has(id)) {
+        nodes.set(id, { id, type: 'code', label: lang });
+      }
+    }
+  }
+  return [...nodes.values()];
+}
+
+/**
+ * @param {import('../../src/entities/post/post').Post[]} posts
+ * @returns {KnowledgeGraphNode[]}
+ */
+function createImageNodes(posts) {
+  /** @type {Map<string, KnowledgeGraphNode>} */
+  const nodes = new Map();
+  for (const post of posts) {
+    for (const url of post.extracted?.images ?? []) {
+      const id = toImageId(url);
+      if (!nodes.has(id)) {
+        nodes.set(id, { id, type: 'image', label: url });
+      }
+    }
+  }
+  return [...nodes.values()];
+}
+
+/**
+ * @param {import('../../src/entities/post/post').Post[]} posts
+ * @returns {KnowledgeGraphEdge[]}
+ */
+function createHeadingEdges(posts) {
+  return posts.flatMap((post) =>
+    (post.extracted?.headings ?? []).map((heading) => ({
+      from: toPostId(post.slug),
+      to: toHeadingId(post.slug, heading),
+      type: /** @type {const} */ ('references_heading'),
+    }))
+  );
+}
+
+/**
+ * @param {import('../../src/entities/post/post').Post[]} posts
+ * @returns {KnowledgeGraphEdge[]}
+ */
+function createCodeEdges(posts) {
+  return posts.flatMap((post) =>
+    (post.extracted?.codeLangs ?? []).map((lang) => ({
+      from: toPostId(post.slug),
+      to: toCodeId(lang),
+      type: /** @type {const} */ ('contains_code'),
+    }))
+  );
+}
+
+/**
+ * @param {import('../../src/entities/post/post').Post[]} posts
+ * @returns {KnowledgeGraphEdge[]}
+ */
+function createImageEdges(posts) {
+  return posts.flatMap((post) =>
+    (post.extracted?.images ?? []).map((url) => ({
+      from: toPostId(post.slug),
+      to: toImageId(url),
+      type: /** @type {const} */ ('contains_image'),
+    }))
+  );
+}
+
+/**
+ * @param {import('../../src/entities/post/post').Post[]} posts
+ * @returns {KnowledgeGraphEdge[]}
+ */
+function createFeatureEdges(posts) {
+  /** @type {KnowledgeGraphEdge[]} */
+  const edges = [];
+  for (const post of posts) {
+    if (post.extracted?.hasMath) {
+      edges.push({
+        from: toPostId(post.slug),
+        to: `math:${post.slug}`,
+        type: /** @type {const} */ ('contains_math'),
+      });
+    }
+    if (post.extracted?.hasMermaid) {
+      edges.push({
+        from: toPostId(post.slug),
+        to: `diagram:${post.slug}`,
+        type: /** @type {const} */ ('contains_mermaid'),
+      });
+    }
+  }
+  return edges;
+}
+
+/**
+ * @param {string} slug
+ * @param {string} heading
+ */
+function toHeadingId(slug, heading) {
+  return `heading:${slug}#${heading
+    .trim()
+    .toLowerCase()
+    .replaceAll(/\s+/g, '-')
+    .replaceAll(/[^a-z0-9-]/g, '')}`;
+}
+
+/**
+ * @param {string} lang
+ */
+function toCodeId(lang) {
+  return `code:${lang}`;
+}
+
+/**
+ * @param {string} url
+ */
+function toImageId(url) {
+  return `image:${url}`;
 }
 
 /**

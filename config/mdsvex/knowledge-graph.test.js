@@ -120,6 +120,39 @@ describe('knowledge graph', () => {
     ]);
   });
 
+  it('creates heading, code, image nodes and edges from extracted data', () => {
+    const graph = createKnowledgeGraph([
+      {
+        slug: 'post-a',
+        title: 'A',
+        created: '2026-04-20',
+        tags: ['svelte'],
+        readingTime: 1,
+        extracted: {
+          headings: ['Intro', 'Setup'],
+          codeLangs: ['js', 'sh'],
+          images: ['/img/a.png'],
+          hasMath: true,
+          hasMermaid: true,
+        },
+      },
+    ]);
+
+    const nodeIds = graph.nodes.map((n) => n.id);
+    expect(nodeIds).toContain('heading:post-a#intro');
+    expect(nodeIds).toContain('heading:post-a#setup');
+    expect(nodeIds).toContain('code:js');
+    expect(nodeIds).toContain('code:sh');
+    expect(nodeIds).toContain('image:/img/a.png');
+
+    const edgeTypes = graph.edges.map((e) => e.type);
+    expect(edgeTypes).toContain('references_heading');
+    expect(edgeTypes).toContain('contains_code');
+    expect(edgeTypes).toContain('contains_image');
+    expect(edgeTypes).toContain('contains_math');
+    expect(edgeTypes).toContain('contains_mermaid');
+  });
+
   it('does not mutate input post tags', () => {
     const posts = [
       {
