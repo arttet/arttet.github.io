@@ -1,6 +1,6 @@
-import { COMPONENT_KIND } from '../constants.js';
+import { COMPONENT_KIND, deepFreeze } from '../constants.js';
 
-export const markdownComponentRegistry = {
+export const markdownComponentRegistry = deepFreeze({
   CodeBlock: {
     kind: COMPONENT_KIND.BLOCK,
     allowedProps: ['lang', 'code', 'title', 'highlights', 'showLineNumbers'],
@@ -25,4 +25,4 @@ export const markdownComponentRegistry = {
     kind: COMPONENT_KIND.BLOCK,
     allowedProps: ['html'],
   },
-};
+});

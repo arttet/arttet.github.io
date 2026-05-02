@@ -1,4 +1,4 @@
-import { VALIDATION_MODE } from '../constants.js';
+import { deepFreeze, VALIDATION_MODE } from '../constants.js';
 import { createContext } from './context.js';
 
 /**
@@ -19,18 +19,18 @@ export function createMarkdownEngine(options = {}) {
 
   return {
     /**
-     * @param {MarkdownPass | MarkdownPass[]} pass
+     * @param {MarkdownPass | readonly MarkdownPass[]} pass
      */
     use(pass) {
-      const items = Array.isArray(pass) ? pass : [pass];
+      const items = (Array.isArray(pass) ? pass : [pass]).filter(Boolean);
       for (const item of items) {
-        if (!item || typeof item.name !== 'string') {
+        if (typeof item.name !== 'string') {
           throw new TypeError(
             `Invalid markdown pass: expected object with "name", received ${item}`
           );
         }
       }
-      passes.push(...items);
+      passes.push(...items.map((item) => deepFreeze(item)));
       return this;
     },
 
@@ -38,7 +38,8 @@ export function createMarkdownEngine(options = {}) {
      * @returns {Promise<{ config: MdsvexOptions; ctx: MarkdownPipelineContext }>}
      */
     async toMdsvexConfig() {
-      const orderedPasses = orderPasses(passes);
+      const orderedPasses = orderPasses([...passes]);
+      Object.freeze(passes);
       const ctx = createContext(options.mode ?? VALIDATION_MODE.WARN);
 
       for (const pass of orderedPasses) {
