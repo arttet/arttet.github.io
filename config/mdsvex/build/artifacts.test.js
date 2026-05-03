@@ -44,6 +44,9 @@ describe('generated markdown artifacts', () => {
       await expect(readFile(join(outputDir, 'knowledge-graph.json'), 'utf8')).resolves.toContain(
         '"nodes"'
       );
+      await expect(readFile(join(outputDir, 'diagnostics.json'), 'utf8')).resolves.toContain(
+        '"diagnostics"'
+      );
     } finally {
       await rm(outputDir, { force: true, recursive: true });
     }
