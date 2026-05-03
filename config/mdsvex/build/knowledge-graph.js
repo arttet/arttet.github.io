@@ -7,7 +7,7 @@ export const knowledgeGraphVersion = KNOWLEDGE_GRAPH_VERSION;
  */
 
 /**
- * @typedef {'tagged_with' | 'links_to' | 'contains_code' | 'contains_math' | 'contains_mermaid' | 'contains_image' | 'references_heading' | 'mentions_project' | 'related_by_tag'} KnowledgeGraphEdgeType
+ * @typedef {'tagged_with' | 'links_to' | 'contains_code' | 'contains_image' | 'references_heading' | 'mentions_project' | 'related_by_tag'} KnowledgeGraphEdgeType
  */
 
 /**
@@ -48,8 +48,6 @@ export function createKnowledgeGraph(posts) {
   const headingEdges = createHeadingEdges(posts);
   const codeEdges = createCodeEdges(posts);
   const imageEdges = createImageEdges(posts);
-  const featureEdges = createFeatureEdges(posts);
-
   return {
     version: knowledgeGraphVersion,
     nodes: [...postNodes, ...tagNodes, ...headingNodes, ...codeNodes, ...imageNodes].toSorted(
@@ -61,7 +59,6 @@ export function createKnowledgeGraph(posts) {
       ...headingEdges,
       ...codeEdges,
       ...imageEdges,
-      ...featureEdges,
     ].toSorted(compareEdges),
   };
 }
@@ -79,7 +76,9 @@ function createPostNodes(posts) {
       slug: post.slug,
       created: post.created,
       updated: post.updated,
-      tags: post.tags.toSorted((a, b) => a.localeCompare(b)),
+      tags: [...new Set(post.tags.map(normalizeTagSlug))].toSorted((a, b) => a.localeCompare(b)),
+      hasMath: post.extracted?.hasMath ?? false,
+      hasMermaid: post.extracted?.hasMermaid ?? false,
     },
   }));
 }
@@ -89,7 +88,7 @@ function createPostNodes(posts) {
  * @returns {KnowledgeGraphNode[]}
  */
 function createTagNodes(posts) {
-  const tags = new Set(posts.flatMap((post) => post.tags));
+  const tags = new Set(posts.flatMap((post) => post.tags.map(normalizeTagSlug)));
 
   return [...tags]
     .toSorted((a, b) => a.localeCompare(b))
@@ -98,7 +97,7 @@ function createTagNodes(posts) {
       type: 'tag',
       label: tag,
       meta: {
-        slug: normalizeTagSlug(tag),
+        slug: tag,
       },
     }));
 }
@@ -109,7 +108,7 @@ function createTagNodes(posts) {
  */
 function createPostTagEdges(posts) {
   return posts.flatMap((post) =>
-    post.tags
+    [...new Set(post.tags.map(normalizeTagSlug))]
       .toSorted((a, b) => a.localeCompare(b))
       .map((tag) => ({
         from: toPostId(post.slug),
@@ -156,8 +155,10 @@ continue;
  * @returns {string[]}
  */
 function getSharedTags(first, second) {
-  const secondTags = new Set(second.tags);
-  return first.tags.filter((tag) => secondTags.has(tag)).toSorted((a, b) => a.localeCompare(b));
+  const secondTags = new Set(second.tags.map(normalizeTagSlug));
+  return [...new Set(first.tags.map(normalizeTagSlug))]
+    .filter((tag) => secondTags.has(tag))
+    .toSorted((a, b) => a.localeCompare(b));
 }
 
 /**
@@ -256,31 +257,7 @@ function createImageEdges(posts) {
   );
 }
 
-/**
- * @param {import('../../../src/entities/post/post').Post[]} posts
- * @returns {KnowledgeGraphEdge[]}
- */
-function createFeatureEdges(posts) {
-  /** @type {KnowledgeGraphEdge[]} */
-  const edges = [];
-  for (const post of posts) {
-    if (post.extracted?.hasMath) {
-      edges.push({
-        from: toPostId(post.slug),
-        to: `math:${post.slug}`,
-        type: /** @type {const} */ ('contains_math'),
-      });
-    }
-    if (post.extracted?.hasMermaid) {
-      edges.push({
-        from: toPostId(post.slug),
-        to: `diagram:${post.slug}`,
-        type: /** @type {const} */ ('contains_mermaid'),
-      });
-    }
-  }
-  return edges;
-}
+
 
 /**
  * @param {string} slug
@@ -291,7 +268,9 @@ function toHeadingId(slug, heading) {
     .trim()
     .toLowerCase()
     .replaceAll(/\s+/g, '-')
-    .replaceAll(/[^a-z0-9-]/g, '')}`;
+    .replaceAll(/[^a-z0-9-]/g, '')
+    .replaceAll(/--+/g, '-')
+    .replaceAll(/^-|-$/g, '')}`;
 }
 
 /**
