@@ -127,4 +127,23 @@ describe('extraction pass', () => {
     expect(getExtracted(fileA)?.headings).toEqual(['A']);
     expect(getExtracted(fileB)).toBeUndefined();
   });
+
+  it('deduplicates repeated headings', () => {
+    const file = { data: {} };
+    getRemarkPlugin()(
+      root([headingNode(1, [textNode('Intro')]), headingNode(2, [textNode('Intro')])]),
+      file
+    );
+    expect(getExtracted(file)?.headings).toEqual(['Intro']);
+  });
+
+  it('deduplicates repeated images and links', () => {
+    const file = { data: {} };
+    getRemarkPlugin()(
+      root([imageNode('/img.png'), imageNode('/img.png'), linkNode('/a'), linkNode('/a')]),
+      file
+    );
+    expect(getExtracted(file)?.images).toEqual(['/img.png']);
+    expect(getExtracted(file)?.links).toEqual(['/a']);
+  });
 });
