@@ -1,4 +1,4 @@
-import type { SimulationState } from '../core/SimulationState';
+import type { SimulationState } from '../../model/SimulationState';
 
 export interface IPass {
   init(device: GPUDevice, format: GPUTextureFormat): Promise<void>;

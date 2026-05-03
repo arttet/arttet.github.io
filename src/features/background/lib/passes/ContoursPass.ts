@@ -1,51 +1,18 @@
-import { VF_H, VF_W } from '../core/SimulationConstants';
-import type { SimulationState } from '../core/SimulationState';
-import edgesShader from '../shaders/edges.wgsl?raw';
+import { marchingSquares } from '../../model/MarchingSquares';
+import { GRID_H, GRID_W } from '../../model/SimulationConstants';
+import type { SimulationState } from '../../model/SimulationState';
+import edgesShader from '../../shaders/edges.wgsl?raw';
 import type { IPass } from './IPass';
 
-const SEEDS_X = 20;
-const SEEDS_Y = 12;
-const STEPS = 20;
-const STEP_PX = 15;
-const MAX_SEGS = 4_560; // SEEDS_X × SEEDS_Y × (STEPS - 1)
+const LEVELS = 6;
+const MAX_SEGS = 24_000;
 
 const ADDITIVE_BLEND: GPUBlendState = {
   color: { srcFactor: 'src-alpha', dstFactor: 'one', operation: 'add' },
   alpha: { srcFactor: 'one', dstFactor: 'one', operation: 'add' },
 };
 
-function bilinearSample(
-  field: Float32Array,
-  gridW: number,
-  gridH: number,
-  u: number,
-  v: number
-): [number, number] {
-  const x = Math.max(0, Math.min(gridW - 0.001, u));
-  const y = Math.max(0, Math.min(gridH - 0.001, v));
-  const col = Math.floor(x);
-  const row = Math.floor(y);
-  const tx = x - col;
-  const ty = y - row;
-  const stride = gridW + 1;
-  const i00 = (row * stride + col) * 2;
-  const i10 = (row * stride + col + 1) * 2;
-  const i01 = ((row + 1) * stride + col) * 2;
-  const i11 = ((row + 1) * stride + col + 1) * 2;
-  const vx =
-    field[i00] * (1 - tx) * (1 - ty) +
-    field[i10] * tx * (1 - ty) +
-    field[i01] * (1 - tx) * ty +
-    field[i11] * tx * ty;
-  const vy =
-    field[i00 + 1] * (1 - tx) * (1 - ty) +
-    field[i10 + 1] * tx * (1 - ty) +
-    field[i01 + 1] * (1 - tx) * ty +
-    field[i11 + 1] * tx * ty;
-  return [vx, vy];
-}
-
-export class FlowPass implements IPass {
+export class ContoursPass implements IPass {
   // biome-ignore lint/correctness/noUnusedPrivateClassMembers: used via destructuring
   private device: GPUDevice | null = null;
   private pipeline: GPURenderPipeline | null = null;
@@ -54,14 +21,11 @@ export class FlowPass implements IPass {
   private bindGroup: GPUBindGroup | null = null;
   private uniform = new Float32Array(4); // opacity, lineWidth, w, h
   private cpuBuffer = new Float32Array(MAX_SEGS * 12);
-  private velField = new Float32Array((VF_W + 1) * (VF_H + 1) * 2);
+  private heightmap = new Float32Array((GRID_W + 1) * (GRID_H + 1));
+  private segTemp = new Float32Array(MAX_SEGS * 4);
   private totalSegs = 0;
   private frame = 0;
   private palette: [number, number, number][] = [[0.0, 1.0, 1.0]];
-  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: used via destructuring
-  private width = 0;
-  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: used via destructuring
-  private height = 0;
 
   async init(device: GPUDevice, format: GPUTextureFormat): Promise<void> {
     this.device = device;
@@ -112,69 +76,58 @@ export class FlowPass implements IPass {
     if (!device || !vertexBuffer || !uniformBuffer) {
       return;
     }
-    this.width = width;
-    this.height = height;
     this.frame++;
-    if (this.frame % 3 !== 0) {
+    if (this.frame % 2 !== 0) {
       return;
     }
 
-    this.velField.set(state.velField);
-
-    const cellW = width / VF_W;
-    const cellH = height / VF_H;
-    let out = 0;
-
-    for (let sy = 0; sy < SEEDS_Y; sy++) {
-      for (let sx = 0; sx < SEEDS_X; sx++) {
-        let x = (sx + 0.5) * (width / SEEDS_X);
-        let y = (sy + 0.5) * (height / SEEDS_Y);
-        const color = this.palette[(sy * SEEDS_X + sx) % this.palette.length];
-
-        for (let step = 0; step < STEPS - 1 && out < MAX_SEGS; step++) {
-          const [vx, vy] = bilinearSample(this.velField, VF_W, VF_H, x / cellW, y / cellH);
-          const len = Math.hypot(vx, vy);
-          if (len < 0.01) {
-            break;
-          }
-
-          const nx = x + (vx / len) * STEP_PX;
-          const ny = y + (vy / len) * STEP_PX;
-          const alpha = 0.6 * (1 - step / STEPS);
-
-          const ndcX1 = (x / width) * 2 - 1;
-          const ndcY1 = 1 - (y / height) * 2;
-          const ndcX2 = (nx / width) * 2 - 1;
-          const ndcY2 = 1 - (ny / height) * 2;
-
-          const d = out * 12;
-          this.cpuBuffer[d + 0] = ndcX1;
-          this.cpuBuffer[d + 1] = ndcY1;
-          this.cpuBuffer[d + 2] = ndcX2;
-          this.cpuBuffer[d + 3] = ndcY2;
-          this.cpuBuffer[d + 4] = color[0];
-          this.cpuBuffer[d + 5] = color[1];
-          this.cpuBuffer[d + 6] = color[2];
-          this.cpuBuffer[d + 7] = alpha;
-          this.cpuBuffer[d + 8] = color[0];
-          this.cpuBuffer[d + 9] = color[1];
-          this.cpuBuffer[d + 10] = color[2];
-          this.cpuBuffer[d + 11] = alpha * 0.3;
-
-          out++;
-          x = nx;
-          y = ny;
-        }
+    this.heightmap.set(state.heightmap);
+    let maxH = 0;
+    for (let i = 0; i < this.heightmap.length; i++) {
+      if (this.heightmap[i] > maxH) {
+        maxH = this.heightmap[i];
       }
     }
+    if (maxH < 1e-6) {
+      this.totalSegs = 0;
+      return;
+    }
 
+    let out = 0;
+    for (let lv = 0; lv < LEVELS; lv++) {
+      const threshold = (maxH * (lv + 1)) / (LEVELS + 1);
+      const alpha = 0.08 + (lv / (LEVELS - 1)) * 0.57;
+      const color = this.palette[lv % this.palette.length];
+
+      const count = marchingSquares(this.heightmap, GRID_W, GRID_H, threshold, this.segTemp);
+      for (let i = 0; i < count && out < MAX_SEGS; i++, out++) {
+        const s = i * 4;
+        const x1 = (this.segTemp[s + 0] / GRID_W) * 2 - 1;
+        const y1 = 1 - (this.segTemp[s + 1] / GRID_H) * 2;
+        const x2 = (this.segTemp[s + 2] / GRID_W) * 2 - 1;
+        const y2 = 1 - (this.segTemp[s + 3] / GRID_H) * 2;
+        const d = out * 12;
+        this.cpuBuffer[d + 0] = x1;
+        this.cpuBuffer[d + 1] = y1;
+        this.cpuBuffer[d + 2] = x2;
+        this.cpuBuffer[d + 3] = y2;
+        this.cpuBuffer[d + 4] = color[0];
+        this.cpuBuffer[d + 5] = color[1];
+        this.cpuBuffer[d + 6] = color[2];
+        this.cpuBuffer[d + 7] = alpha;
+        this.cpuBuffer[d + 8] = color[0];
+        this.cpuBuffer[d + 9] = color[1];
+        this.cpuBuffer[d + 10] = color[2];
+        this.cpuBuffer[d + 11] = alpha;
+      }
+    }
     this.totalSegs = out;
     if (out > 0) {
       device.queue.writeBuffer(vertexBuffer, 0, this.cpuBuffer.buffer, 0, out * 48);
     }
 
     this.uniform[0] = 1.0; // opacity
-    this.uniform[1] = 1.0; // lineWidth
+    this.uniform[1] = 1.5; // lineWidth
     this.uniform[2] = width;
     this.uniform[3] = height;
     device.queue.writeBuffer(uniformBuffer, 0, this.uniform.buffer);
@@ -190,10 +143,7 @@ export class FlowPass implements IPass {
     pass.draw(4, this.totalSegs);
   }
 
-  resize(width: number, height: number): void {
-    this.width = width;
-    this.height = height;
-  }
+  resize(_w: number, _h: number): void {}
 
   setPalette(colors: [number, number, number][]): void {
     this.palette = colors;

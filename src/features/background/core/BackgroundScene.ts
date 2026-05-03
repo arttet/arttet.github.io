@@ -1,9 +1,9 @@
-import type { SimulationState } from '$features/engine/core/SimulationState';
-import { CompositePass } from '$features/engine/passes/CompositePass';
-import { ContoursPass } from '$features/engine/passes/ContoursPass';
-import { FlowPass } from '$features/engine/passes/FlowPass';
-import type { IPass } from '$features/engine/passes/IPass';
-import { ParticlesPass } from '$features/engine/passes/ParticlesPass';
+import type { SimulationState } from '../model/SimulationState';
+import { CompositePass } from '../lib/passes/CompositePass';
+import { ContoursPass } from '../lib/passes/ContoursPass';
+import { FlowPass } from '../lib/passes/FlowPass';
+import type { IPass } from '../lib/passes/IPass';
+import { ParticlesPass } from '../lib/passes/ParticlesPass';
 
 import { site } from '$shared/config/site';
 
@@ -76,7 +76,7 @@ export class BackgroundScene {
     canvas.width = this.width;
     canvas.height = this.height;
 
-    this.worker = new Worker(new URL('../../engine/core/simulation.worker.ts', import.meta.url), {
+    this.worker = new Worker(new URL('../model/simulation.worker.ts', import.meta.url), {
       type: 'module',
     });
     this.worker.addEventListener('message', (e: MessageEvent) => {

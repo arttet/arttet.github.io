@@ -1,7 +1,7 @@
-import type { SimulationState } from '../core/SimulationState';
-import edgesShader from '../shaders/edges.wgsl?raw';
-import particlesShader from '../shaders/particles.wgsl?raw';
-import trianglesShader from '../shaders/triangles.wgsl?raw';
+import type { SimulationState } from '../../model/SimulationState';
+import edgesShader from '../../shaders/edges.wgsl?raw';
+import particlesShader from '../../shaders/particles.wgsl?raw';
+import trianglesShader from '../../shaders/triangles.wgsl?raw';
 import type { IPass } from './IPass';
 
 // Pre-allocate buffers for up to this many particles (covers spawn pool)
