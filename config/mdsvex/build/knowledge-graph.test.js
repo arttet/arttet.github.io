@@ -31,7 +31,9 @@ describe('knowledge graph', () => {
           slug: 'a',
           created: '2026-04-21',
           updated: '2026-04-22',
-          tags: ['Blog'],
+          tags: ['blog'],
+          hasMath: false,
+          hasMermaid: false,
         },
       },
       {
@@ -42,13 +44,15 @@ describe('knowledge graph', () => {
           slug: 'b',
           created: '2026-04-20',
           updated: undefined,
-          tags: ['Blog', 'Svelte'],
+          tags: ['blog', 'svelte'],
+          hasMath: false,
+          hasMermaid: false,
         },
       },
       {
         id: 'tag:blog',
         type: 'tag',
-        label: 'Blog',
+        label: 'blog',
         meta: {
           slug: 'blog',
         },
@@ -56,7 +60,7 @@ describe('knowledge graph', () => {
       {
         id: 'tag:svelte',
         type: 'tag',
-        label: 'Svelte',
+        label: 'svelte',
         meta: {
           slug: 'svelte',
         },
@@ -149,8 +153,8 @@ describe('knowledge graph', () => {
     expect(edgeTypes).toContain('references_heading');
     expect(edgeTypes).toContain('contains_code');
     expect(edgeTypes).toContain('contains_image');
-    expect(edgeTypes).toContain('contains_math');
-    expect(edgeTypes).toContain('contains_mermaid');
+    const postNode = graph.nodes.find((n) => n.id === 'post:post-a');
+    expect(postNode?.meta).toMatchObject({ hasMath: true, hasMermaid: true });
   });
 
   it('does not mutate input post tags', () => {
@@ -167,5 +171,50 @@ describe('knowledge graph', () => {
     createKnowledgeGraph(posts);
 
     expect(posts[0].tags).toEqual(['z', 'a']);
+  });
+
+  it('normalizes mixed-case tags into a single node', () => {
+    const graph = createKnowledgeGraph([
+      {
+        slug: 'a',
+        title: 'A',
+        created: '2026-04-20',
+        tags: ['Blog', 'blog'],
+        readingTime: 1,
+      },
+      {
+        slug: 'b',
+        title: 'B',
+        created: '2026-04-21',
+        tags: ['BLOG'],
+        readingTime: 1,
+      },
+    ]);
+
+    const tagNodes = graph.nodes.filter((n) => n.type === 'tag');
+    expect(tagNodes).toHaveLength(1);
+    expect(tagNodes[0].id).toBe('tag:blog');
+
+    const tagEdges = graph.edges.filter((e) => e.type === 'tagged_with');
+    expect(tagEdges).toHaveLength(2);
+  });
+
+  it('normalizes heading slugs by collapsing dashes', () => {
+    const graph = createKnowledgeGraph([
+      {
+        slug: 'a',
+        title: 'A',
+        created: '2026-04-20',
+        tags: ['t'],
+        readingTime: 1,
+        extracted: {
+          headings: ['  Hello--World  ', '---Intro---'],
+        },
+      },
+    ]);
+
+    const nodeIds = graph.nodes.map((n) => n.id);
+    expect(nodeIds).toContain('heading:a#hello-world');
+    expect(nodeIds).toContain('heading:a#intro');
   });
 });
