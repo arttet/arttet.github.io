@@ -77,8 +77,8 @@ export const ARTIFACTS = Object.freeze({
   DIAG_MD: 'diagnostics.md',
 });
 
-export const PIPELINE_VERSION = 'sprint-7-manifest-v1';
-export const KNOWLEDGE_GRAPH_VERSION = 'sprint-7-knowledge-graph-v1';
+export const PIPELINE_VERSION = 'v1';
+export const KNOWLEDGE_GRAPH_VERSION = 'v1';
 
 /**
  * Tags that may never appear as raw HTML in markdown output.

@@ -7,6 +7,7 @@ export const frontmatterSchema = Object.freeze({
 	type: 'object',
 	required: ['title', 'created', 'tags'],
 	properties: Object.freeze({
+			cover: Object.freeze({ type: 'string' }),
 		title: Object.freeze({ type: 'string', minLength: 1 }),
 		created: Object.freeze({
 			type: 'string',
@@ -27,6 +28,7 @@ export const frontmatterSchema = Object.freeze({
 		summary: Object.freeze({ type: 'string' }),
 		toc: Object.freeze({ type: 'boolean' }),
 	}),
+	additionalProperties: false,
 });
 
 /**
@@ -52,6 +54,12 @@ export function validateFrontmatterSchema(data, _filePath = '') {
 	for (const key of frontmatterSchema.required) {
 		if (!(key in obj)) {
 			errors.push(`Missing required frontmatter field: "${key}".`);
+		}
+	}
+
+	for (const key of Object.keys(obj)) {
+		if (!Object.hasOwn(frontmatterSchema.properties, key)) {
+			errors.push(`Unknown frontmatter field: "${key}".`);
 		}
 	}
 

@@ -1,9 +1,11 @@
 import { compile } from 'mdsvex';
 import { readdir, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, resolve, relative } from 'node:path';
 import { createMarkdownEngine } from '../engine/index.js';
 import { contentPasses, optimizationPasses, securityPasses } from '../engine/pass-groups.js';
 import { validateFrontmatterSchema } from './frontmatter-schema.js';
+
+import { DIAGNOSTIC_CODES, SEVERITY, VALIDATION_MODE } from '../constants.js';
 
 const contentDir = 'content/blog';
 
@@ -28,10 +30,10 @@ function normalizeFrontmatter(fm) {
  * (readingTime, extracted headings/links, detection flags). Drafts are
  * filtered out.
  *
- * @returns {Promise<{ posts: import('../../../src/entities/post/post').Post[]; fileMap: Map<string, string> }>}
+ * @returns {Promise<{ posts: import('../../../src/entities/post/post').Post[]; fileMap: Map<string, string>; diagnostics: import('../engine/diagnostics.js').Diagnostic[] }>}
  */
 export async function scanPosts() {
-	const { config } = await createMarkdownEngine({ mode: 'warn' })
+	const { config, ctx } = await createMarkdownEngine()
 		.use(contentPasses())
 		.use(securityPasses())
 		.use(optimizationPasses())
@@ -52,6 +54,12 @@ export async function scanPosts() {
 	const results = await Promise.all(
 		allFiles.map(async ({ yearDir, file }) => {
 			const filePath = join(yearDir, file);
+			const resolved = resolve(filePath);
+			const rel = relative(resolve(contentDir), resolved);
+			if (rel.startsWith('..') || rel.startsWith('.') || rel.includes('..')) {
+				// Path traversal defense: skip files outside content/blog
+				return null;
+			}
 			const content = await readFile(filePath, 'utf8');
 			const result = await compile(content, config);
 			const data = result?.data;
@@ -62,8 +70,15 @@ export async function scanPosts() {
 			const schemaErrors = validateFrontmatterSchema(fm, filePath);
 			if (schemaErrors.length > 0) {
 				// Schema violations are surfaced as build-time diagnostics.
-				 
-				console.error(`[frontmatter-schema] ${filePath}: ${schemaErrors.join('; ')}`);
+				for (const message of schemaErrors) {
+					ctx.diagnostics.add({
+						code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
+						severity: ctx.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
+						step: 'frontmatter-schema',
+						message,
+						file: filePath,
+					});
+				}
 			}
 
 			const slug = file.replace('.md', '');
@@ -80,13 +95,17 @@ export async function scanPosts() {
 		})
 	);
 
-	const posts = results.map((r) => r.post);
-	const fileMap = new Map(results.map((r) => [r.post.slug, r.filePath]));
+	const validResults = /** @type {{ post: import('../../../src/entities/post/post').Post; filePath: string }[]} */ (
+		results.filter((r) => r !== null)
+	);
+	const posts = validResults.map((r) => r.post);
+	const fileMap = new Map(validResults.map((r) => [r.post.slug, r.filePath]));
 
 	return {
 		posts: posts.filter((post) => !post.draft).toSorted(
 			(a, b) => new Date(String(b.created)).getTime() - new Date(String(a.created)).getTime()
 		),
 		fileMap,
+		diagnostics: ctx.diagnostics.list(),
 	};
 }

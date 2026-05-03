@@ -7,21 +7,7 @@ import {
   VALIDATION_MODE,
 } from '../../constants.js';
 import { walk } from '../_internal/walk.js';
-
-const RAW_HTML_PATTERNS = [
-  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*script\b/i, label: '<script>' },
-  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*style\b/i, label: '<style>' },
-  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /\{@html\b/i, label: '{@html}' },
-  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*iframe\b/i, label: '<iframe>' },
-  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*object\b/i, label: '<object>' },
-  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*embed\b/i, label: '<embed>' },
-  { code: DIAGNOSTIC_CODES.RAW_HTML, pattern: /<\s*img\b/i, label: '<img>' },
-  {
-    code: DIAGNOSTIC_CODES.UNSAFE_EVENT_HANDLER,
-    pattern: /[\s/](?:on:[\w|:-]+|on\w+)\s*=/i,
-    label: 'event handler',
-  },
-];
+import { RAW_HTML_PATTERNS } from './patterns.js';
 
 export function securityGuardsPass() {
   return {
@@ -207,7 +193,7 @@ function getRegisteredComponent(ctx, name) {
  */
 function readAttributeNames(attrs) {
   const regex =
-    /\s+(?:([A-Za-z_:][\w:.-]*)(?:\s*=\s*(?:"[^"]*"|'[^']*'|{[^}]*}|[^\s>]+))?|{([A-Za-z_:][\w:.-]*)}|{\.\.\.([A-Za-z_:][\w:.-]*)})/g;
+    /\s+(?:([A-Za-z_:][\w:.-]*)(?:\s*=\s*(?:"[^"]*"|'[^']*'|\{(?:[^{}]|\{[^{}]*\})*\}|[^\s>]+))?|\{([A-Za-z_:][\w:.-]*)\}|{\.\.\.([A-Za-z_:][\w:.-]*)\})/g;
   return Array.from(attrs.matchAll(regex), (match) => match[1] || match[2] || '...' + match[3]);
 }
 
@@ -220,7 +206,12 @@ function isSafeUrl(url) {
     return true;
   }
 
-  // Allow relative URLs
+  // Allow relative URLs (anything without a protocol colon)
+  if (!normalized.includes(':')) {
+    return true;
+  }
+
+  // Allow fragment-only and path-relative URLs
   if (
     normalized.startsWith('#') ||
     normalized.startsWith('/') ||
@@ -230,13 +221,8 @@ function isSafeUrl(url) {
     return true;
   }
 
-  // Allow specific safe protocols
-  if (SAFE_PROTOCOLS.some((p) => normalized.startsWith(p))) {
-    return true;
-  }
-
-  // Allow safe data images, but block SVG as it can contain scripts
-  return normalized.startsWith('data:image/') && !normalized.startsWith('data:image/svg+xml');
+  // Allow specific safe protocols (whitelist)
+  return SAFE_PROTOCOLS.some((p) => normalized.startsWith(p));
 }
 
 /**
@@ -246,7 +232,7 @@ function isSafeUrl(url) {
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
-    severity: SEVERITY.CRITICAL,
+    severity: ctx.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
     step: 'security-guards',
     message:
       ctx.mode === VALIDATION_MODE.WARN

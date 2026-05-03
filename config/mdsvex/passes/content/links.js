@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
@@ -46,6 +46,9 @@ function getSlugMetadata() {
     const blogDir = fileURLToPath(new URL('../../../../content/blog', import.meta.url));
     for (const year of readdirSync(blogDir)) {
       const yearDir = join(blogDir, year);
+      if (!statSync(yearDir).isDirectory()) {
+        continue;
+      }
       for (const file of readdirSync(yearDir)) {
         if (file.endsWith('.md')) {
           const slug = file.slice(0, -3);
@@ -108,7 +111,7 @@ function validateLinkUrl(node, ctx, file) {
   const filePath = file.path ?? file.history?.[0];
 
   if (url.startsWith(BLOG_PATH_PREFIX)) {
-    const slug = url.slice(BLOG_PATH_PREFIX.length).split('/')[0];
+    const slug = url.slice(BLOG_PATH_PREFIX.length).split(/[/?#]/)[0];
     const knownSlugs = /** @type {Set<string>} */ (ctx.state.knownSlugs);
     const draftSlugs = /** @type {Set<string>} */ (ctx.state.draftSlugs);
     if (slug && !knownSlugs.has(slug)) {
