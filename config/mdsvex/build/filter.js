@@ -42,13 +42,17 @@ export function validateDuplicateSlugs(posts, ctx, fileMap) {
  * @returns {import('../../../src/entities/post/post').Post[]}
  */
 export function filterValidPosts(posts, diagnostics, mode) {
-  if (mode !== VALIDATION_MODE.STRICT) return posts;
+  if (mode !== VALIDATION_MODE.STRICT) {
+return posts;
+}
 
   const invalidSlugs = new Set();
   for (const diagnostic of diagnostics) {
     if (diagnostic.severity === SEVERITY.CRITICAL && diagnostic.file) {
       const slug = extractSlugFromPath(diagnostic.file);
-      if (slug) invalidSlugs.add(slug);
+      if (slug) {
+invalidSlugs.add(slug);
+}
     }
   }
 

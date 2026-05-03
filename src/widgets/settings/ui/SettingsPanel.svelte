@@ -84,7 +84,7 @@ function onPanelKeyDown(e: KeyboardEvent) {
     const focusables = panelEl?.querySelectorAll(
       'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-    if (!focusables || focusables.length === 0) return;
+    if (!focusables || focusables.length === 0) {return;}
 
     const first = focusables[0] as HTMLElement;
     const last = focusables[focusables.length - 1] as HTMLElement;

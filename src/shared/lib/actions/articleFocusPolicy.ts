@@ -1,7 +1,11 @@
 function onKeyDown(event: KeyboardEvent) {
-  if (event.key !== 'Enter') return;
+  if (event.key !== 'Enter') {
+    return;
+  }
   const link = event.target instanceof HTMLAnchorElement ? event.target : null;
-  if (!link?.classList.contains('anchor')) return;
+  if (!link?.classList.contains('anchor')) {
+    return;
+  }
 
   const id = link.hash.slice(1);
   requestAnimationFrame(() => {

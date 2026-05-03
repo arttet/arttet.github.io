@@ -62,7 +62,7 @@ export async function scanPosts() {
 			const schemaErrors = validateFrontmatterSchema(fm, filePath);
 			if (schemaErrors.length > 0) {
 				// Schema violations are surfaced as build-time diagnostics.
-				// eslint-disable-next-line no-console
+				 
 				console.error(`[frontmatter-schema] ${filePath}: ${schemaErrors.join('; ')}`);
 			}
 

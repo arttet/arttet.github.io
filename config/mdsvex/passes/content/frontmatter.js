@@ -15,8 +15,12 @@ const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
  * @returns {boolean}
  */
 function isValidDateString(value) {
-  if (typeof value !== 'string') return false;
-  if (ISO_DATE_PATTERN.test(value)) return true;
+  if (typeof value !== 'string') {
+    return false;
+  }
+  if (ISO_DATE_PATTERN.test(value)) {
+    return true;
+  }
   const date = new Date(value);
   return !Number.isNaN(date.getTime());
 }

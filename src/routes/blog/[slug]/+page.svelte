@@ -13,6 +13,7 @@
   import PostHeader from '$widgets/post/ui/PostHeader.svelte';
   import TableOfContents from '$widgets/post/ui/TableOfContents.svelte';
   import CodeThemeManager from '$widgets/theme/ui/CodeThemeManager.svelte';
+  import KaTeXStyles from '$shared/ui/KaTeXStyles.svelte';
 
   const { data } = $props<{ data: PageData }>();
 </script>
@@ -28,6 +29,10 @@
 />
 
 <CodeThemeManager />
+
+{#if data.post.hasMath}
+  <KaTeXStyles />
+{/if}
 
 <svelte:head>
   <!-- postHead is trusted build-time Svelte head output from local content/blog files. -->
@@ -54,7 +59,7 @@
 
       <div class="min-w-0 lg:col-start-1 lg:row-start-1">
         {#key data.post.slug}
-          <div class="prose" use:articleFocusPolicy use:codeTabs use:mermaid={data.post.hasMermaid ? theme.current : null} use:copy>
+          <div class="prose" use:articleFocusPolicy use:codeTabs={data.post.hasCodeTabs} use:mermaid={data.post.hasMermaid ? theme.current : null} use:copy>
             <!-- postHtml is trusted build-time mdsvex output from local content/blog files, not user input. -->
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html data.postHtml}

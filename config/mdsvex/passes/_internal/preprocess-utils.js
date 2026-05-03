@@ -68,21 +68,6 @@ export function prependScriptAfterFrontmatter(content, script) {
 }
 
 /**
- * @param {string} content
- * @param {string} markup
- */
-export function prependMarkupAfterFrontmatter(content, markup) {
-  const frontmatterMatch = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n*/);
-  if (!frontmatterMatch) {
-    return `${markup}\n\n${content}`;
-  }
-
-  const frontmatter = frontmatterMatch[0];
-  const rest = content.slice(frontmatter.length);
-  return `${frontmatter}${markup}\n\n${rest}`;
-}
-
-/**
  * @param {string} input
  * @param {number} start
  * @param {number} end

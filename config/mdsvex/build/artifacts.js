@@ -50,9 +50,9 @@ export async function writeGeneratedArtifacts(artifacts, options = {}) {
   for (const artifact of artifacts) {
     const outputPath = join(outputDir, artifact.path);
     // Writes are intentionally sequential for deterministic filesystem traces.
-    // eslint-disable-next-line no-await-in-loop
+    // oxlint-disable-next-line no-await-in-loop
     await mkdir(dirname(outputPath), { recursive: true });
-    // eslint-disable-next-line no-await-in-loop
+    // oxlint-disable-next-line no-await-in-loop
     await writeFile(outputPath, artifact.content, 'utf8');
   }
 }

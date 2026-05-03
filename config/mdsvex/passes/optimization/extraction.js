@@ -61,7 +61,9 @@ function extractFromTree(tree) {
   walk(tree, (node) => {
     if (node.type === 'heading') {
       const text = extractText(node);
-      if (text) headings.push(text);
+      if (text) {
+        headings.push(text);
+      }
     }
     if (node.type === 'code' && node.lang) {
       codeLangs.push(node.lang);
@@ -86,12 +88,24 @@ function extractFromTree(tree) {
 
   /** @type {Record<string, unknown>} */
   const result = {};
-  if (headings.length > 0) result.headings = headings;
-  if (codeLangs.length > 0) result.codeLangs = codeLangs;
-  if (images.length > 0) result.images = images;
-  if (links.length > 0) result.links = links;
-  if (hasMath) result.hasMath = true;
-  if (hasMermaid) result.hasMermaid = true;
+  if (headings.length > 0) {
+    result.headings = headings;
+  }
+  if (codeLangs.length > 0) {
+    result.codeLangs = codeLangs;
+  }
+  if (images.length > 0) {
+    result.images = images;
+  }
+  if (links.length > 0) {
+    result.links = links;
+  }
+  if (hasMath) {
+    result.hasMath = true;
+  }
+  if (hasMermaid) {
+    result.hasMermaid = true;
+  }
   return result;
 }
 

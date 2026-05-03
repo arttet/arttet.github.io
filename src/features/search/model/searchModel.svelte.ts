@@ -28,6 +28,7 @@ class SearchModel {
         const data: SearchPayload = await response.json();
         await buildIndex(data);
 
+        // eslint-disable-next-line svelte/prefer-svelte-reactivity
         const tagCounts = new Map<string, number>();
         for (const post of data.posts) {
           for (const t of post.tags) {

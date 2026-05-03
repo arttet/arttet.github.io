@@ -145,7 +145,9 @@ describe('BackgroundScene', () => {
   });
 
   it('handles resize', () => {
-    if (!lastObserverInstance) throw new Error('Observer not created');
+    if (!lastObserverInstance) {
+      throw new Error('Observer not created');
+    }
 
     // Change dimensions
     Object.defineProperties(canvas, {

@@ -57,7 +57,9 @@ export function validateFrontmatterSchema(data, _filePath = '') {
 
 	for (const [key, spec] of Object.entries(frontmatterSchema.properties)) {
 		const value = obj[key];
-		if (value === undefined) continue;
+		if (value === undefined) {
+continue;
+}
 
 		if (spec.type === 'string' && typeof value !== 'string') {
 			errors.push(`Frontmatter "${key}" must be a string.`);

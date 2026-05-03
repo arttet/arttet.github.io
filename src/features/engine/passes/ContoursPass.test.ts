@@ -40,7 +40,9 @@ describe('ContoursPass', () => {
       createShaderModule: vi.fn().mockReturnValue({}),
       createRenderPipeline: vi.fn().mockResolvedValue(mockPipeline),
       createBuffer: vi.fn((desc: any) => {
-        if (desc.usage & 0x0020) return mockVertexBuffer; // VERTEX
+        if (desc.usage & 0x0020) {
+          return mockVertexBuffer;
+        } // VERTEX
         return mockUniformBuffer;
       }),
       createBindGroup: vi.fn().mockReturnValue({}),

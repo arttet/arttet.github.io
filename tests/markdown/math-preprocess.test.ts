@@ -51,9 +51,7 @@ fn main() {}
     const result = await markup({ content, filename: 'test.md' });
 
     expect(result?.code).not.toContain("import CodeTabs from '$shared/ui/CodeTabs.svelte';");
-    expect(result?.code).toContain("import StaticHtml from '$shared/ui/StaticHtml.svelte';");
     expect(result?.code).not.toContain('<CodeTabs tabs={[');
-    expect(result?.code).toContain('<StaticHtml html={`');
     expect(result?.code).toContain('role="tablist"');
     expect(result?.code).toContain('role="tab"');
     expect(result?.code).toContain('role="tabpanel"');
@@ -79,10 +77,7 @@ const home = '$HOME';
     const result = await markup({ content, filename: 'test.md' });
 
     expect(result?.code).not.toContain("import CodeTabs from '$shared/ui/CodeTabs.svelte';");
-    expect(result?.code).toContain("import StaticHtml from '$shared/ui/StaticHtml.svelte';");
     expect(result?.code).toContain("import MathCopy from '$shared/ui/MathCopy.svelte';");
-    expect(result?.code).toContain("import KaTeXStyles from '$shared/ui/KaTeXStyles.svelte';");
-    expect(result?.code).toContain('<KaTeXStyles />');
     expect(result?.code).toContain('Inline math: <MathCopy display={false}');
     expect(result?.code).toContain('const count = $state(0);');
     expect(result?.code).toContain("const home = '$HOME';");
@@ -115,7 +110,6 @@ $$`;
 
     expect(result?.code).toContain('const value = $derived(items.length);');
     expect(result?.code).toContain('<MathCopy display={true}');
-    expect(result?.code).toContain('<KaTeXStyles />');
     expect(result?.code).not.toContain('const value = <MathCopy');
   });
 
@@ -130,7 +124,6 @@ Inline math: $E = mc^2$`;
     expect(result?.code).toContain(
       '<SCRIPT lang="js" generics="T">\n  import MathCopy from \'$shared/ui/MathCopy.svelte\';'
     );
-    expect(result?.code).toContain('</SCRIPT  >\n\n<KaTeXStyles />');
     expect(result?.code).not.toContain('<script>');
   });
 
@@ -140,8 +133,8 @@ Inline math: $E = mc^2$`;
 Inline math: $E = mc^2$`;
     const result = await markup({ content, filename: 'test.md' });
 
-    expect(result?.code).toMatch(
-      /^<script>\n  import MathCopy from '\$shared\/ui\/MathCopy\.svelte';/
+    expect(result?.code).toContain(
+      "<script>\n  import MathCopy from '$shared/ui/MathCopy.svelte';"
     );
     expect(result?.code).toContain('<script src="https://example.com/x.js"></script>');
   });
@@ -154,8 +147,8 @@ Inline math: $E = mc^2$`;
 Inline math: $E = mc^2$`;
     const result = await markup({ content, filename: 'test.md' });
 
-    expect(result?.code).toMatch(
-      /^<script>\n  import MathCopy from '\$shared\/ui\/MathCopy\.svelte';/
+    expect(result?.code).toContain(
+      "<script>\n  import MathCopy from '$shared/ui/MathCopy.svelte';"
     );
     expect(result?.code).toContain('<script module>');
   });
@@ -192,6 +185,5 @@ Inline math: $E = mc^2$`;
     expect(result?.code).toContain(
       '<script title="> src is mentioned here">\n  import MathCopy from \'$shared/ui/MathCopy.svelte\';'
     );
-    expect(result?.code).toContain('</script>\n\n<KaTeXStyles />');
   });
 });

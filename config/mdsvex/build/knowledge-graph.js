@@ -131,7 +131,9 @@ function createRelatedPostEdges(posts) {
   for (let i = 0; i < sortedPosts.length; i += 1) {
     for (let j = i + 1; j < sortedPosts.length; j += 1) {
       const sharedTags = getSharedTags(sortedPosts[i], sortedPosts[j]);
-      if (sharedTags.length === 0) continue;
+      if (sharedTags.length === 0) {
+continue;
+}
 
       edges.push({
         from: toPostId(sortedPosts[i].slug),
@@ -312,7 +314,9 @@ function toImageId(url) {
  */
 function compareNodes(a, b) {
   const type = a.type.localeCompare(b.type);
-  if (type !== 0) return type;
+  if (type !== 0) {
+return type;
+}
   return a.id.localeCompare(b.id);
 }
 
@@ -322,10 +326,14 @@ function compareNodes(a, b) {
  */
 function compareEdges(a, b) {
   const from = a.from.localeCompare(b.from);
-  if (from !== 0) return from;
+  if (from !== 0) {
+return from;
+}
 
   const to = a.to.localeCompare(b.to);
-  if (to !== 0) return to;
+  if (to !== 0) {
+return to;
+}
 
   return a.type.localeCompare(b.type);
 }

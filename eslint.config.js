@@ -19,6 +19,16 @@ export default [
     },
   },
   {
+    files: ['**/*.{js,ts}'],
+    languageOptions: {
+      parser: tseslint.parser,
+    },
+    rules: {
+      'brace-style': ['error', '1tbs'],
+      'max-statements-per-line': ['error', { max: 1 }],
+    },
+  },
+  {
     ignores: [
       'target/',
       '.svelte-kit/',

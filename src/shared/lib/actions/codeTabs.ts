@@ -5,7 +5,10 @@ function clampIndex(index: number, length: number) {
 const activeClasses = ['text-[--color-accent]', 'border-b-2', 'border-[--color-accent]'];
 const inactiveClasses = ['text-[--code-accent]', 'opacity-70'];
 
-export function codeTabs(node: HTMLElement) {
+export function codeTabs(node: HTMLElement, enabled = true) {
+  if (!enabled) {
+    return { update() {}, destroy() {} };
+  }
   const cleanups: (() => void)[] = [];
 
   function initGroup(group: HTMLElement) {

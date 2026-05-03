@@ -68,7 +68,9 @@ describe('links pass', () => {
       linksPass({ knownSlugs: new Set(['existing-post']) }).mdsvex
     )(ctx).remarkPlugins;
     const plugin = /** @type {any} */ (plugins?.[0]);
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     const transformer = /** @type {any} */ (plugin.call(/** @type {any} */ (null)));
 
     transformer(root([linkNode('/blog/missing-post', 3, 5)]), { path: 'post.md' });
@@ -90,7 +92,9 @@ describe('links pass', () => {
       ctx
     ).remarkPlugins;
     const plugin = /** @type {any} */ (plugins?.[0]);
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     const transformer = /** @type {any} */ (plugin.call(/** @type {any} */ (null)));
 
     transformer(root([linkNode('#', 2, 1)]), { path: 'post.md' });
@@ -110,7 +114,9 @@ describe('links pass', () => {
       ctx
     ).remarkPlugins;
     const plugin = /** @type {any} */ (plugins?.[0]);
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     const transformer = /** @type {any} */ (plugin.call(/** @type {any} */ (null)));
 
     transformer(root([linkNode('https://example.com')]), { path: 'post.md' });
@@ -125,7 +131,9 @@ describe('links pass', () => {
       ctx
     ).remarkPlugins;
     const plugin = /** @type {any} */ (plugins?.[0]);
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     const transformer = /** @type {any} */ (plugin.call(/** @type {any} */ (null)));
 
     transformer(root([linkNode('/about'), linkNode('/rss.xml')]), { path: 'post.md' });
@@ -141,7 +149,9 @@ describe('links pass', () => {
       ctx
     ).remarkPlugins;
     const plugin = /** @type {any} */ (plugins?.[0]);
-    if (typeof plugin !== 'function') throw new Error('Expected remark plugin to be a function');
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
     const transformer = /** @type {any} */ (plugin.call(/** @type {any} */ (null)));
 
     transformer(root([linkNode('/blog/draft-post', 4, 2)]), { path: 'post.md' });

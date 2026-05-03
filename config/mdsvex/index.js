@@ -3,7 +3,7 @@ import { createMarkdownEngine } from './engine/index.js';
 import { contentPasses, optimizationPasses, securityPasses } from './engine/pass-groups.js';
 import { processCodeTabsContent } from './passes/content/code-tabs.js';
 import { processMathContent } from './passes/content/math.js';
-import { insertKatexStyles, insertSvelteImports } from './passes/content/svelte-script.js';
+import { insertSvelteImports } from './passes/content/svelte-script.js';
 
 export async function createMarkdownConfig() {
   const { config, ctx } = await createMarkdownEngine({
@@ -37,19 +37,10 @@ function createMarkdownPreprocess() {
 
       if (needsKaTeXStyles) {
         imports.push("  import MathCopy from '$shared/ui/MathCopy.svelte';");
-        imports.push("  import KaTeXStyles from '$shared/ui/KaTeXStyles.svelte';");
-      }
-
-      if (processed.includes('<StaticHtml')) {
-        imports.push("  import StaticHtml from '$shared/ui/StaticHtml.svelte';");
       }
 
       const insertion = insertSvelteImports(processed, imports);
       processed = insertion.code;
-
-      if (needsKaTeXStyles) {
-        processed = insertKatexStyles(processed, insertion.instanceScriptOpen);
-      }
 
       return { code: processed };
     },
