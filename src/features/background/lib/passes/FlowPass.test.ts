@@ -1,28 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ContoursPass } from './ContoursPass';
-import { GRID_W, GRID_H } from '../core/SimulationConstants';
-import type { SimulationState } from '../core/SimulationState';
+import { FlowPass } from './FlowPass';
+import { VF_W, VF_H } from '../../model/SimulationConstants';
+import type { SimulationState } from '../../model/SimulationState';
 
-// Mock marchingSquares to avoid complex computation in tests
-vi.mock('../core/MarchingSquares', () => ({
-  marchingSquares: vi.fn().mockImplementation((heightmap, w, h, threshold, out) => {
-    out[0] = 1;
-    out[1] = 2;
-    out[2] = 3;
-    out[3] = 4;
-    return 1; // return 1 segment
-  }),
-}));
-
-describe('ContoursPass', () => {
-  let pass: ContoursPass;
+describe('FlowPass', () => {
+  let pass: FlowPass;
   let mockDevice: any;
   let mockPassEncoder: any;
   let mockVertexBuffer: any;
   let mockUniformBuffer: any;
 
   beforeEach(() => {
-    pass = new ContoursPass();
+    pass = new FlowPass();
 
     mockVertexBuffer = {
       destroy: vi.fn(),
@@ -68,23 +57,23 @@ describe('ContoursPass', () => {
     expect(mockDevice.createBindGroup).toHaveBeenCalled();
   });
 
-  it('updates logic correctly', async () => {
+  it('updates logic correctly and covers bilinearSample', async () => {
     await pass.init(mockDevice, 'bgra8unorm');
     pass.setPalette([[1, 0, 0]]);
 
-    // create a dummy state with some height to trigger the loops
-    const dummyHeightmap = new Float32Array((GRID_W + 1) * (GRID_H + 1));
-    dummyHeightmap[0] = 2.0; // maxH = 2.0
-    const state = { heightmap: dummyHeightmap } as SimulationState;
+    const dummyVelField = new Float32Array((VF_W + 1) * (VF_H + 1) * 2);
+    // fill the field with positive velocity to trigger the flow logic
+    for (let i = 0; i < dummyVelField.length; i++) {
+      dummyVelField[i] = 1.0;
+    }
+    const state = { velField: dummyVelField } as SimulationState;
 
-    // First call frame=1 (skipped due to this.frame % 2 !== 0)
+    pass.update(state, 800, 600); // frame=1
+    pass.update(state, 800, 600); // frame=2
+
+    // frame=3 (triggers update logic)
     pass.update(state, 800, 600);
-    expect(mockDevice.queue.writeBuffer).not.toHaveBeenCalled();
 
-    // Second call frame=2
-    pass.update(state, 800, 600);
-
-    // Check if writeBuffer was called for vertexBuffer and uniformBuffer
     expect(mockDevice.queue.writeBuffer).toHaveBeenCalledWith(
       mockVertexBuffer,
       0,
@@ -99,21 +88,18 @@ describe('ContoursPass', () => {
     );
   });
 
-  it('skips update if maxH is too small', async () => {
+  it('handles low velocity in bilinearSample correctly', async () => {
     await pass.init(mockDevice, 'bgra8unorm');
 
-    const dummyHeightmap = new Float32Array((GRID_W + 1) * (GRID_H + 1));
-    dummyHeightmap[0] = 0.0; // maxH < 1e-6
-    const state = { heightmap: dummyHeightmap } as SimulationState;
+    const dummyVelField = new Float32Array((VF_W + 1) * (VF_H + 1) * 2);
+    // All 0s so length is < 0.01
+    const state = { velField: dummyVelField } as SimulationState;
 
-    // frame=1
-    pass.update(state, 800, 600);
-    // frame=2
-    pass.update(state, 800, 600);
+    pass.update(state, 800, 600); // frame=1
+    pass.update(state, 800, 600); // frame=2
+    pass.update(state, 800, 600); // frame=3
 
-    expect(mockDevice.queue.writeBuffer).not.toHaveBeenCalled();
-
-    // totalSegs should be 0, draw should not do anything
+    // totalSegs should be 0 since length < 0.01 breaks the loop
     pass.draw(mockPassEncoder);
     expect(mockPassEncoder.draw).not.toHaveBeenCalled();
   });
@@ -121,12 +107,13 @@ describe('ContoursPass', () => {
   it('clears segments', async () => {
     await pass.init(mockDevice, 'bgra8unorm');
 
-    const dummyHeightmap = new Float32Array((GRID_W + 1) * (GRID_H + 1));
-    dummyHeightmap[0] = 2.0;
-    const state = { heightmap: dummyHeightmap } as SimulationState;
+    const dummyVelField = new Float32Array((VF_W + 1) * (VF_H + 1) * 2);
+    dummyVelField.fill(1.0);
+    const state = { velField: dummyVelField } as SimulationState;
 
-    pass.update(state, 800, 600); // frame=1
-    pass.update(state, 800, 600); // frame=2 (writes buffer, totalSegs > 0)
+    pass.update(state, 800, 600); // f1
+    pass.update(state, 800, 600); // f2
+    pass.update(state, 800, 600); // f3 -> generates segments
 
     pass.clear();
 
@@ -137,12 +124,13 @@ describe('ContoursPass', () => {
   it('draws correctly', async () => {
     await pass.init(mockDevice, 'bgra8unorm');
 
-    const dummyHeightmap = new Float32Array((GRID_W + 1) * (GRID_H + 1));
-    dummyHeightmap[0] = 2.0;
-    const state = { heightmap: dummyHeightmap } as SimulationState;
+    const dummyVelField = new Float32Array((VF_W + 1) * (VF_H + 1) * 2);
+    dummyVelField.fill(1.0);
+    const state = { velField: dummyVelField } as SimulationState;
 
-    pass.update(state, 800, 600); // frame=1
-    pass.update(state, 800, 600); // frame=2
+    pass.update(state, 800, 600); // f1
+    pass.update(state, 800, 600); // f2
+    pass.update(state, 800, 600); // f3
 
     pass.draw(mockPassEncoder);
 
@@ -161,8 +149,7 @@ describe('ContoursPass', () => {
     expect(mockUniformBuffer.destroy).toHaveBeenCalled();
   });
 
-  it('does nothing on resize', () => {
-    // Just a coverage filler
-    pass.resize(100, 100);
+  it('handles resize', () => {
+    pass.resize(1024, 768);
   });
 });

@@ -1,4 +1,4 @@
-import compositeShader from '../shaders/composite.wgsl?raw';
+import compositeShader from '../../shaders/composite.wgsl?raw';
 
 export class CompositePass {
   private offscreenTexture: GPUTexture | null = null;

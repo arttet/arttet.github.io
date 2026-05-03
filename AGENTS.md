@@ -208,7 +208,7 @@ Math: inline `$x$`, block `$$x$$`. Diagrams: ` ```mermaid `.
 Entry: `src/features/background/ui/BackgroundCanvas.svelte`.
 
 - `BackgroundRenderer` + `Simulation` classes.
-- WGSL shaders: `particles.wgsl`, `edges.wgsl`, `triangles.wgsl`, `composite.wgsl` (at `src/features/engine/shaders/`).
+- WGSL shaders: `particles.wgsl`, `edges.wgsl`, `triangles.wgsl`, `composite.wgsl` (at `src/features/background/shaders/`).
 - Particle STRIDE=8 `[x, y, vx, vy, r, g, b, a]`.
 - Delaunay triangulation every 3 frames via `d3-delaunay`; edges filtered by `maxDist=150`.
 - Render order: edges → particles (additive blending).
