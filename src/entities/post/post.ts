@@ -25,4 +25,5 @@ export interface PostFrontmatter {
 export type Post = PostFrontmatter & {
   slug: string;
   readingTime: number; // minutes
+  contentHash?: string;
 };
