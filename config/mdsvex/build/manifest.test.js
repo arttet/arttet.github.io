@@ -19,7 +19,7 @@ describe('content manifest', () => {
         updated: '2026-04-22',
         tags: ['z', 'a'],
         readingTime: 1,
-        hasMath: true,
+        extracted: { hasMath: true },
         hasCode: true,
         hasImages: true,
       },

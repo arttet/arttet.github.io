@@ -32,7 +32,15 @@ function createExtractionRemarkPlugin() {
       if (Object.keys(extracted).length > 0) {
         file.data ??= {};
         file.data.fm ??= {};
-        /** @type {Record<string, unknown>} */ (file.data.fm).extracted = extracted;
+        const fm = /** @type {Record<string, unknown>} */ (file.data.fm);
+        fm.extracted = extracted;
+        // Preserve backward compatibility: runtime metadata export reads fm directly.
+        if (extracted.hasMath) {
+          fm.hasMath = true;
+        }
+        if (extracted.hasMermaid) {
+          fm.hasMermaid = true;
+        }
       }
     };
   };

@@ -83,6 +83,7 @@ export async function scanPosts() {
 			}
 
 			const slug = file.replace('.md', '');
+			const extracted = /** @type {Record<string, unknown> | undefined} */ (fm.extracted);
 			const post = Object.freeze(
 				/** @type {import('../../../src/entities/post/post').Post} */ (
 					/** @type {unknown} */ ({
@@ -90,6 +91,7 @@ export async function scanPosts() {
 						slug,
 						readingTime: typeof fm.readingTime === 'number' ? fm.readingTime : 1,
 						contentHash: createHash('sha256').update(content).digest('hex'),
+						hasMath: extracted?.hasMath ?? false,
 					})
 				)
 			);
