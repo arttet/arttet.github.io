@@ -61,5 +61,18 @@ export async function writeGeneratedArtifacts(artifacts, options = {}) {
  * @param {unknown} value
  */
 function stableJson(value) {
-  return `${JSON.stringify(value, null, 2)}\n`;
+  return `${JSON.stringify(value, sortReplacer, 2)}\n`;
+}
+
+/**
+ * @param {string} _key
+ * @param {unknown} value
+ */
+function sortReplacer(_key, value) {
+  if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+    return Object.fromEntries(
+      Object.entries(value).toSorted(([a], [b]) => a.localeCompare(b))
+    );
+  }
+  return value;
 }
