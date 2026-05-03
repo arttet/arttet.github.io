@@ -4,7 +4,6 @@ export type SearchResult = Pick<Post, 'slug' | 'title' | 'tags' | 'created'>;
 
 export interface SearchPayload {
   posts: SearchResult[];
-  // biome-ignore lint/suspicious/noExplicitAny: FlexSearch export format is dynamic
   index: Record<string, any>;
 }
 let index: import('flexsearch').Document<SearchResult> | null = null;

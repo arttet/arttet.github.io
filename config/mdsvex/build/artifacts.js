@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { ARTIFACTS } from '../constants.js';
 import { renderDiagnosticsMarkdown } from '../engine/diagnostics.js';
 
-export const generatedArtifactsDir = 'target/build/generated';
+export const generatedArtifactsDir = 'target/generated';
 
 /**
  * @typedef {Object} GeneratedArtifact

@@ -15,17 +15,17 @@ describe('generated markdown artifacts', () => {
   it('creates deterministic artifact payloads', () => {
     const artifacts = createGeneratedArtifacts(createInput());
 
-    expect(generatedArtifactsDir).toBe('target/build/generated');
+    expect(generatedArtifactsDir).toBe('target/generated');
     expect(artifacts.map((artifact) => artifact.path)).toEqual([
       'content-manifest.json',
       'diagnostics.json',
       'diagnostics.md',
       'knowledge-graph.json',
     ]);
-    expect(artifacts[0].content).toMatch(/"pipelineVersion": "sprint-7-manifest-v1"/);
+    expect(artifacts[0].content).toMatch(/"pipelineVersion": "v1"/);
     expect(artifacts[1].content).toMatch(/"summary": \{/);
     expect(artifacts[2].content).toContain('# Markdown Diagnostics');
-    expect(artifacts[3].content).toMatch(/"version": "sprint-7-knowledge-graph-v1"/);
+    expect(artifacts[3].content).toMatch(/"version": "v1"/);
     expect(artifacts.every((artifact) => artifact.content.endsWith('\n'))).toBe(true);
   });
 

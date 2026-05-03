@@ -37,8 +37,25 @@ function root(children) {
 }
 
 describe('security guards pass', () => {
-  it('reports unsafe raw HTML without changing warn-mode behavior', () => {
-    const ctx = createContext();
+  it('reports unsafe raw HTML as warning in warn mode', () => {
+    const ctx = createContext('warn');
+
+    validateMarkdownTree(root([htmlNode('<SCRIPT>alert(1)</SCRIPT>')]), ctx, 'post.md');
+
+    expect(ctx.diagnostics.list()).toEqual([
+      expect.objectContaining({
+        code: 'MDX003_RAW_HTML',
+        severity: 'warning',
+        file: 'post.md',
+        line: 1,
+        column: 1,
+        message: expect.stringContaining('would be skipped in strict mode'),
+      }),
+    ]);
+  });
+
+  it('reports unsafe raw HTML as critical in strict mode', () => {
+    const ctx = createContext('strict');
 
     validateMarkdownTree(root([htmlNode('<SCRIPT>alert(1)</SCRIPT>')]), ctx, 'post.md');
 
@@ -49,7 +66,7 @@ describe('security guards pass', () => {
         file: 'post.md',
         line: 1,
         column: 1,
-        message: expect.stringContaining('would be skipped in strict mode'),
+        message: expect.stringContaining('Unsafe raw HTML is not allowed'),
       }),
     ]);
   });

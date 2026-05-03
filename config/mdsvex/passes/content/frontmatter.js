@@ -191,7 +191,7 @@ function validateOptionalBoolean(ctx, data, key, file) {
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
-    severity: SEVERITY.CRITICAL,
+    severity: ctx.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
     step: 'frontmatter',
     message:
       ctx.mode === VALIDATION_MODE.WARN

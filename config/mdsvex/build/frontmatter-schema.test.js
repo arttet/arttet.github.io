@@ -36,4 +36,14 @@ describe('frontmatter schema', () => {
 		});
 		expect(errors).toEqual(['Frontmatter "draft" must be a boolean.']);
 	});
+
+	it('reports unknown fields', () => {
+		const errors = validateFrontmatterSchema({
+			title: 'Hello',
+			created: '2026-04-20',
+			tags: ['blog'],
+			unknownField: 'value',
+		});
+		expect(errors).toEqual(['Unknown frontmatter field: "unknownField".']);
+	});
 });

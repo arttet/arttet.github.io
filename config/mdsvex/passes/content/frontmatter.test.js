@@ -154,4 +154,16 @@ describe('frontmatter validation', () => {
     validateFrontmatter(ctx, {}, 'post.md');
     expect(ctx.diagnostics.list()).toHaveLength(3);
   });
+
+  it('uses warning severity in warn mode', () => {
+    const ctx = createContext('warn');
+    validateFrontmatter(ctx, {}, 'post.md');
+    expect(ctx.diagnostics.list()[0].severity).toBe('warning');
+  });
+
+  it('uses critical severity in strict mode', () => {
+    const ctx = createContext('strict');
+    validateFrontmatter(ctx, {}, 'post.md');
+    expect(ctx.diagnostics.list()[0].severity).toBe('critical');
+  });
 });

@@ -1,8 +1,7 @@
+import { walk } from '../_internal/walk.js';
+
 /**
- * @typedef {Object} MarkdownNode
- * @property {string=} type
- * @property {string=} value
- * @property {MarkdownNode[]=} children
+ * @typedef {import('../_internal/walk.js').MarkdownNode} MarkdownNode
  */
 
 export function readingTimePass() {
@@ -27,18 +26,11 @@ function remarkReadingTime() {
   return (tree, file) => {
     let text = '';
 
-    /**
-     * @param {MarkdownNode} node
-     */
-    function walk(node) {
+    walk(tree, (node) => {
       if (node.type === 'text' || node.type === 'inlineCode') {
         text += `${node.value} `;
       }
-
-      node.children?.forEach(walk);
-    }
-
-    walk(tree);
+    });
 
     const words = text
       .trim()

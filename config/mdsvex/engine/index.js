@@ -40,7 +40,7 @@ export function createMarkdownEngine(options = {}) {
     async toMdsvexConfig() {
       const orderedPasses = orderPasses([...passes]);
       Object.freeze(passes);
-      const ctx = createContext(options.mode ?? VALIDATION_MODE.WARN);
+      const ctx = createContext(options.mode ?? VALIDATION_MODE.STRICT);
 
       for (const pass of orderedPasses) {
         // Pass setup follows dependency order; later passes may rely on earlier setup state.

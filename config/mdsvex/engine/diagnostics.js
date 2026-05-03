@@ -1,4 +1,5 @@
 import { SEVERITY } from '../constants.js';
+import { cwd } from 'node:process';
 
 const severityRank = {
   [SEVERITY.INFO]: 0,
@@ -169,10 +170,28 @@ function summarizeDiagnostics(diagnostics) {
  * @param {Diagnostic} diagnostic
  * @returns {string}
  */
+const CWD = cwd();
+
+/**
+ * @param {string | undefined} file
+ */
+function scrubPath(file) {
+  if (!file) {
+    return '<unknown>';
+  }
+  if (file.startsWith(CWD)) {
+    return file.slice(CWD.length + 1);
+  }
+  return file;
+}
+
+/**
+ * @param {Diagnostic} diagnostic
+ */
 function formatDiagnosticLocation(diagnostic) {
-  const file = diagnostic.file ?? '<unknown>';
-  const line = diagnostic.line ?? 0;
-  const column = diagnostic.column ?? 0;
+  const file = scrubPath(diagnostic.file);
+  const line = diagnostic.line ?? 1;
+  const column = diagnostic.column ?? 1;
 
   return `${file}:${line}:${column}`;
 }
