@@ -31,10 +31,18 @@ To simplify the main pipeline, Passes can be aggregated into logical groups (e.g
 ```txt
 config/
   mdsvex/
-    index.js            # SvelteKit/MDsveX entry point
-    engine.js           # Orchestration logic
-    registry.js         # Whitelist of allowed components & features
-    diagnostics.js      # Reporting system
+    index.js            # Pipeline exports
+    engine/             # Core engine
+      index.js          # Orchestration logic
+      registry.js       # Whitelist of allowed components & features
+      diagnostics.js    # Reporting system
+    build/              # Build-time artifact generation
+      index.js          # Build orchestration (formerly build.js)
+      scan.js           # Post discovery & compilation
+      manifest.js       # Content manifest generation
+      knowledge-graph.js # Knowledge graph generation
+      artifacts.js      # Artifact serialization (formerly generated-artifacts.js)
+      filter.js         # Post validation & duplicate detection
     passes/             # Transformation modules
       content/          # Content enrichment passes
         frontmatter.js    # YAML metadata extraction & Schema validation
@@ -48,12 +56,14 @@ config/
         toc.js            # Headings & Table of Contents
         reading-time.js   # Word count & time estimation
       security/         # Security validation passes
-        security-guard.js # Whitelist enforcement (URLs, HTML, Props)
+        security-guards.js # Whitelist enforcement (URLs, HTML, Props)
       optimization/     # Build optimization passes
         images.js         # WebP pipeline & lazy loading injection
-        extraction.js     # Final manifest & graph generation
+        extraction.js     # AST metadata extraction
+      _internal/        # Shared utilities
+        walk.js           # AST walker
 
-target/build/generated/ # Build artifacts
+target/generated/       # Build artifacts
   content-manifest.json # Post metadata & feature flags
   knowledge-graph.json  # Inter-post relationships
   diagnostics.json      # Build-time diagnostic report
