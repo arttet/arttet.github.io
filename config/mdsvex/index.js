@@ -1,6 +1,7 @@
 import { codeThemes } from '../../src/shared/config/codeThemes.js';
 import { createMarkdownEngine } from './engine/index.js';
 import { contentPasses, optimizationPasses, securityPasses } from './engine/pass-groups.js';
+import { collectRuntimeImports } from './engine/registry.js';
 import { processCodeTabsContent } from './passes/content/code-tabs.js';
 import { processMathContent } from './passes/content/math.js';
 import { insertSvelteImports } from './passes/content/svelte-script.js';
@@ -31,14 +32,7 @@ function createMarkdownPreprocess() {
       const themes = Object.fromEntries(codeThemes.map((theme) => [theme.id, theme.id]));
       processed = await processCodeTabsContent(processed, themes);
 
-      /** @type {string[]} */
-      const imports = [];
-      const needsKaTeXStyles = processed.includes('<MathCopy');
-
-      if (needsKaTeXStyles) {
-        imports.push("  import MathCopy from '$shared/ui/MathCopy.svelte';");
-      }
-
+      const imports = collectRuntimeImports(processed);
       const insertion = insertSvelteImports(processed, imports);
       processed = insertion.code;
 

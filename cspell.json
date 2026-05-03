@@ -84,6 +84,8 @@
     "vitest",
     "jsdom",
     "codecov",
-    "marching"
+    "marching",
+    "precaching",
+    "prerendering"
   ]
 }

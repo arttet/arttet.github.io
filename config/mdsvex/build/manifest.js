@@ -73,8 +73,8 @@ function hashMetadata(entry) {
  */
 function createFeatures(post) {
   return {
-    [FEATURE_FLAGS.HAS_MATH]: post.hasMath ?? false,
-    [FEATURE_FLAGS.HAS_MERMAID]: post.hasMermaid ?? false,
+    [FEATURE_FLAGS.HAS_MATH]: post.extracted?.hasMath ?? false,
+    [FEATURE_FLAGS.HAS_MERMAID]: post.extracted?.hasMermaid ?? false,
     [FEATURE_FLAGS.HAS_CODE]: post.hasCode ?? false,
     [FEATURE_FLAGS.HAS_CODE_TABS]: post.hasCodeTabs ?? false,
     [FEATURE_FLAGS.HAS_IMAGES]: post.hasImages ?? false,

@@ -6,7 +6,7 @@ import { imagesGuardPass } from '../passes/content/images.js';
 import { headingsPass } from '../passes/content/headings.js';
 import { imagesDetectPass } from '../passes/content/images-detect.js';
 import { linksPass } from '../passes/content/links.js';
-import { mathDetectPass } from '../passes/content/math-detect.js';
+
 import { mermaidPass } from '../passes/content/mermaid.js';
 import { readingTimePass } from '../passes/content/reading-time.js';
 import { rehypeHeadingsPass } from '../passes/content/rehype-headings.js';
@@ -30,7 +30,7 @@ export function contentPasses() {
     frontmatterPass(),
     readingTimePass(),
     imagesGuardPass(),
-    mathDetectPass(),
+
     mermaidPass(),
     codeDetectPass(),
     codeTabsDetectPass(),

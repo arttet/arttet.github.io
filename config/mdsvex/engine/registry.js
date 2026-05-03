@@ -1,6 +1,17 @@
 import { COMPONENT_KIND, deepFreeze } from '../constants.js';
 
-export const markdownComponentRegistry = deepFreeze({
+/**
+ * @typedef {object} RegistryEntry
+ * @property {string} kind
+ * @property {string[]} allowedProps
+ * @property {{ detect: string; import: string }} [runtime]
+ */
+
+/**
+ * Runtime-injected components declare a `runtime` field so the preprocessor
+ * can emit the corresponding import when the component is used in markdown.
+ */
+const rawRegistry = /** @type {Record<string, RegistryEntry>} */ ({
   CodeBlock: {
     kind: COMPONENT_KIND.BLOCK,
     allowedProps: ['lang', 'code', 'title', 'highlights', 'showLineNumbers'],
@@ -16,6 +27,10 @@ export const markdownComponentRegistry = deepFreeze({
   MathCopy: {
     kind: COMPONENT_KIND.BLOCK,
     allowedProps: ['display', 'b64Latex', 'b64Html'],
+    runtime: {
+      detect: 'MathCopy',
+      import: '$shared/ui/MathCopy.svelte',
+    },
   },
   KaTeXStyles: {
     kind: COMPONENT_KIND.BLOCK,
@@ -26,3 +41,28 @@ export const markdownComponentRegistry = deepFreeze({
     allowedProps: ['html'],
   },
 });
+
+export const markdownComponentRegistry = /** @type {Record<string, RegistryEntry>} */ (
+  deepFreeze(rawRegistry)
+);
+
+/**
+ * @param {string} content
+ * @returns {string[]}
+ */
+export function collectRuntimeImports(content) {
+  /** @type {string[]} */
+  const imports = [];
+
+  for (const [name, entry] of Object.entries(markdownComponentRegistry)) {
+    if (!entry.runtime) {
+      continue;
+    }
+    const { detect, import: importPath } = entry.runtime;
+    if (content.includes(`<${detect}`)) {
+      imports.push(`  import ${name} from '${importPath}';`);
+    }
+  }
+
+  return imports;
+}
