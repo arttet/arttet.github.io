@@ -1,11 +1,7 @@
+import { walk } from '../_internal/walk.js';
+
 /**
- * @typedef {Object} MarkdownNode
- * @property {string=} type
- * @property {number=} depth
- * @property {string=} lang
- * @property {string=} url
- * @property {string=} value
- * @property {MarkdownNode[]=} children
+ * @typedef {import('../_internal/walk.js').MarkdownNode} MarkdownNode
  */
 
 export function extractionPass() {
@@ -47,14 +43,14 @@ function createExtractionRemarkPlugin() {
  * @returns {Record<string, unknown>}
  */
 function extractFromTree(tree) {
-  /** @type {string[]} */
-  const headings = [];
-  /** @type {string[]} */
-  const codeLangs = [];
-  /** @type {string[]} */
-  const images = [];
-  /** @type {string[]} */
-  const links = [];
+  /** @type {Set<string>} */
+  const headings = new Set();
+  /** @type {Set<string>} */
+  const codeLangs = new Set();
+  /** @type {Set<string>} */
+  const images = new Set();
+  /** @type {Set<string>} */
+  const links = new Set();
   let hasMath = false;
   let hasMermaid = false;
 
@@ -62,20 +58,20 @@ function extractFromTree(tree) {
     if (node.type === 'heading') {
       const text = extractText(node);
       if (text) {
-        headings.push(text);
+        headings.add(text);
       }
     }
     if (node.type === 'code' && node.lang) {
-      codeLangs.push(node.lang);
+      codeLangs.add(node.lang);
       if (node.lang === 'mermaid') {
         hasMermaid = true;
       }
     }
     if (node.type === 'image' && node.url) {
-      images.push(node.url);
+      images.add(node.url);
     }
     if (node.type === 'link' && node.url) {
-      links.push(node.url);
+      links.add(node.url);
     }
     if (
       node.type === 'html' &&
@@ -88,17 +84,17 @@ function extractFromTree(tree) {
 
   /** @type {Record<string, unknown>} */
   const result = {};
-  if (headings.length > 0) {
-    result.headings = headings;
+  if (headings.size > 0) {
+    result.headings = [...headings];
   }
-  if (codeLangs.length > 0) {
-    result.codeLangs = codeLangs;
+  if (codeLangs.size > 0) {
+    result.codeLangs = [...codeLangs];
   }
-  if (images.length > 0) {
-    result.images = images;
+  if (images.size > 0) {
+    result.images = [...images];
   }
-  if (links.length > 0) {
-    result.links = links;
+  if (links.size > 0) {
+    result.links = [...links];
   }
   if (hasMath) {
     result.hasMath = true;
@@ -118,15 +114,4 @@ function extractText(node) {
     return node.value;
   }
   return node.children?.map(extractText).join('') ?? '';
-}
-
-/**
- * @param {MarkdownNode} node
- * @param {(node: MarkdownNode) => void} visit
- */
-function walk(node, visit) {
-  visit(node);
-  for (const child of node.children ?? []) {
-    walk(child, visit);
-  }
 }

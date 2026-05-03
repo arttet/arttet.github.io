@@ -5,6 +5,7 @@
  * @property {string=} url
  * @property {string=} alt
  * @property {number=} depth
+ * @property {string=} lang
  * @property {MarkdownNode[]=} children
  * @property {{ start: { line: number; column: number } }=} position
  */

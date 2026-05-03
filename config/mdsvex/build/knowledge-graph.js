@@ -48,6 +48,7 @@ export function createKnowledgeGraph(posts) {
   const headingEdges = createHeadingEdges(posts);
   const codeEdges = createCodeEdges(posts);
   const imageEdges = createImageEdges(posts);
+  const linkEdges = createLinkEdges(posts);
   return {
     version: knowledgeGraphVersion,
     nodes: [...postNodes, ...tagNodes, ...headingNodes, ...codeNodes, ...imageNodes].toSorted(
@@ -59,6 +60,7 @@ export function createKnowledgeGraph(posts) {
       ...headingEdges,
       ...codeEdges,
       ...imageEdges,
+      ...linkEdges,
     ].toSorted(compareEdges),
   };
 }
@@ -257,6 +259,20 @@ function createImageEdges(posts) {
   );
 }
 
+/**
+ * @param {import('../../../src/entities/post/post').Post[]} posts
+ * @returns {KnowledgeGraphEdge[]}
+ */
+function createLinkEdges(posts) {
+  return posts.flatMap((post) =>
+    (post.extracted?.links ?? []).map((url) => ({
+      from: toPostId(post.slug),
+      to: toLinkId(url),
+      type: /** @type {const} */ ('links_to'),
+    }))
+  );
+}
+
 
 
 /**
@@ -285,6 +301,13 @@ function toCodeId(lang) {
  */
 function toImageId(url) {
   return `image:${url}`;
+}
+
+/**
+ * @param {string} url
+ */
+function toLinkId(url) {
+  return `link:${url}`;
 }
 
 /**

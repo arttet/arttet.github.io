@@ -217,4 +217,24 @@ describe('knowledge graph', () => {
     expect(nodeIds).toContain('heading:a#hello-world');
     expect(nodeIds).toContain('heading:a#intro');
   });
+
+  it('creates links_to edges from extracted links', () => {
+    const graph = createKnowledgeGraph([
+      {
+        slug: 'a',
+        title: 'A',
+        created: '2026-04-20',
+        tags: ['t'],
+        readingTime: 1,
+        extracted: {
+          links: ['/blog/b', 'https://example.com'],
+        },
+      },
+    ]);
+
+    const linkEdges = graph.edges.filter((e) => e.type === 'links_to');
+    expect(linkEdges).toHaveLength(2);
+    expect(linkEdges.map((e) => e.to)).toContain('link:/blog/b');
+    expect(linkEdges.map((e) => e.to)).toContain('link:https://example.com');
+  });
 });
