@@ -105,4 +105,29 @@ describe('content manifest', () => {
 
     expect(first.metadataHash).not.toBe(second.metadataHash);
   });
+
+  it('changes metadata hash when contentHash changes', () => {
+    const [first] = createContentManifest([
+      {
+        slug: 'a',
+        title: 'A',
+        created: '2026-04-20',
+        tags: ['x'],
+        readingTime: 1,
+        contentHash: 'hash-a',
+      },
+    ]).posts;
+    const [second] = createContentManifest([
+      {
+        slug: 'a',
+        title: 'A',
+        created: '2026-04-20',
+        tags: ['x'],
+        readingTime: 1,
+        contentHash: 'hash-b',
+      },
+    ]).posts;
+
+    expect(first.metadataHash).not.toBe(second.metadataHash);
+  });
 });

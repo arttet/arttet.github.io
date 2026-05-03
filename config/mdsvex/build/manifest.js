@@ -12,6 +12,7 @@ export const pipelineVersion = PIPELINE_VERSION;
  * @property {string=} updated
  * @property {string[]} tags
  * @property {number} readingTime
+ * @property {string=} contentHash
  * @property {string} metadataHash
  * @property {Record<string, boolean>} features
  * @property {string[]} assets
@@ -40,6 +41,7 @@ export function createContentManifest(posts) {
           updated: post.updated,
           tags: [...post.tags].toSorted((a, b) => a.localeCompare(b)),
           readingTime: post.readingTime,
+          contentHash: post.contentHash,
         };
 
         return {
@@ -60,7 +62,7 @@ return date;
 }
 
 /**
- * @param {Pick<ContentManifestPost, 'slug' | 'title' | 'summary' | 'created' | 'updated' | 'tags' | 'readingTime'>} entry
+ * @param {Pick<ContentManifestPost, 'slug' | 'title' | 'summary' | 'created' | 'updated' | 'tags' | 'readingTime' | 'contentHash'>} entry
  */
 function hashMetadata(entry) {
   return createHash('sha256').update(JSON.stringify(entry)).digest('hex');

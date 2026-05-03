@@ -1,4 +1,5 @@
 import { compile } from 'mdsvex';
+import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve, relative } from 'node:path';
 import { createMarkdownEngine } from '../engine/index.js';
@@ -88,6 +89,7 @@ export async function scanPosts() {
 						...fm,
 						slug,
 						readingTime: typeof fm.readingTime === 'number' ? fm.readingTime : 1,
+						contentHash: createHash('sha256').update(content).digest('hex'),
 					})
 				)
 			);
