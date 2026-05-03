@@ -125,43 +125,57 @@ function createPostTagEdges(posts) {
  * @returns {KnowledgeGraphEdge[]}
  */
 function createRelatedPostEdges(posts) {
-  const sortedPosts = posts.toSorted((a, b) => a.slug.localeCompare(b.slug));
-  /** @type {KnowledgeGraphEdge[]} */
-  const edges = [];
+  /** @type {Map<string, string[]>} */
+  const tagToSlugs = new Map();
 
-  for (let i = 0; i < sortedPosts.length; i += 1) {
-    for (let j = i + 1; j < sortedPosts.length; j += 1) {
-      const sharedTags = getSharedTags(sortedPosts[i], sortedPosts[j]);
-      if (sharedTags.length === 0) {
-continue;
-}
-
-      edges.push({
-        from: toPostId(sortedPosts[i].slug),
-        to: toPostId(sortedPosts[j].slug),
-        type: 'related_by_tag',
-        meta: {
-          weight: sharedTags.length,
-          tags: sharedTags,
-        },
-      });
+  for (const post of posts) {
+    for (const tag of new Set(post.tags.map(normalizeTagSlug))) {
+      const list = tagToSlugs.get(tag) ?? [];
+      list.push(post.slug);
+      tagToSlugs.set(tag, list);
     }
   }
 
-  return edges;
+  /** @type {Map<string, { from: string; to: string; tags: string[] }>} */
+  const pairs = new Map();
+
+  for (const [tag, slugs] of tagToSlugs) {
+    for (let i = 0; i < slugs.length; i += 1) {
+      for (let j = i + 1; j < slugs.length; j += 1) {
+        const a = slugs[i];
+        const b = slugs[j];
+        const fromSlug = a < b ? a : b;
+        const toSlug = a < b ? b : a;
+        const key = `${fromSlug}|${toSlug}`;
+        const pair = pairs.get(key);
+        if (pair) {
+          pair.tags.push(tag);
+        } else {
+          pairs.set(key, { from: toPostId(fromSlug), to: toPostId(toSlug), tags: [tag] });
+        }
+      }
+    }
+  }
+
+  return [...pairs.values()]
+    .map((p) => ({
+      from: p.from,
+      to: p.to,
+      type: /** @type {const} */ ('related_by_tag'),
+      meta: {
+        weight: p.tags.length,
+        tags: p.tags.toSorted((a, b) => a.localeCompare(b)),
+      },
+    }))
+    .toSorted((a, b) => {
+      const from = a.from.localeCompare(b.from);
+      if (from !== 0) {
+        return from;
+      }
+      return a.to.localeCompare(b.to);
+    });
 }
 
-/**
- * @param {import('../../../src/entities/post/post').Post} first
- * @param {import('../../../src/entities/post/post').Post} second
- * @returns {string[]}
- */
-function getSharedTags(first, second) {
-  const secondTags = new Set(second.tags.map(normalizeTagSlug));
-  return [...new Set(first.tags.map(normalizeTagSlug))]
-    .filter((tag) => secondTags.has(tag))
-    .toSorted((a, b) => a.localeCompare(b));
-}
 
 /**
  * @param {import('../../../src/entities/post/post').Post[]} posts
