@@ -12,6 +12,15 @@ import { PIPELINE_VERSION } from '../constants.js';
  */
 
 /**
+ * Typed pipeline state shared across passes.
+ * Every key must be explicitly declared so reads/writes are statically traceable.
+ *
+ * @typedef {Object} PipelineState
+ * @property {Set<string>} [knownSlugs]  populated by linksPass setup
+ * @property {Set<string>} [draftSlugs]  populated by linksPass setup
+ */
+
+/**
  * @typedef {Object} BuildContext
  * @property {MarkdownMode} mode
  * @property {string} pipelineVersion
@@ -19,14 +28,14 @@ import { PIPELINE_VERSION } from '../constants.js';
  * @property {Record<string, string>} dependencyVersions
  * @property {Map<string, PostContext>} postContexts
  * @property {ReturnType<typeof createDiagnostics>} diagnostics
- * @property {Record<string, unknown>} state
+ * @property {PipelineState} state
  */
 
 /**
  * @typedef {Object} PostContext
  * @property {string} file
  * @property {ReturnType<typeof createDiagnostics>} diagnostics
- * @property {Record<string, unknown>} state
+ * @property {PipelineState} state
  */
 
 /**
@@ -52,7 +61,7 @@ export function createBuildContext(mode) {
     dependencyVersions: {},
     postContexts: new Map(),
     diagnostics: createDiagnostics(),
-    state: {},
+    state: createPipelineState(),
   };
 }
 
@@ -66,8 +75,40 @@ export function createPostContext(file) {
   return {
     file,
     diagnostics: createDiagnostics(),
-    state: {},
+    state: createPipelineState(),
   };
+}
+
+/**
+ * Create an empty typed pipeline state.
+ * @returns {PipelineState}
+ */
+function createPipelineState() {
+  return {};
+}
+
+/**
+ * Read a value from typed pipeline state.
+ *
+ * @template {keyof PipelineState} K
+ * @param {PipelineState} state
+ * @param {K} key
+ * @returns {PipelineState[K]}
+ */
+export function stateRead(state, key) {
+  return state[key];
+}
+
+/**
+ * Write a value into typed pipeline state.
+ *
+ * @template {keyof PipelineState} K
+ * @param {PipelineState} state
+ * @param {K} key
+ * @param {PipelineState[K]} value
+ */
+export function stateWrite(state, key, value) {
+  state[key] = value;
 }
 
 /**
@@ -77,7 +118,7 @@ export function createPostContext(file) {
  *
  * @param {BuildContext} build
  * @param {string} [filePath]
- * @returns {{ mode: MarkdownMode; diagnostics: ReturnType<typeof createDiagnostics>; state: Record<string, unknown>; registry: typeof markdownComponentRegistry }}
+ * @returns {{ mode: MarkdownMode; diagnostics: ReturnType<typeof createDiagnostics>; state: PipelineState; registry: typeof markdownComponentRegistry }}
  */
 export function resolvePassContext(build, filePath) {
   const postCtx = filePath ? build.postContexts.get(filePath) : undefined;
