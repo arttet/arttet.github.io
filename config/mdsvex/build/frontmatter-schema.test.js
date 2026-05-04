@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { frontmatterSchema, validateFrontmatterSchema } from './frontmatter-schema.js';
+import { frontmatterSchema, validateFrontmatterSchema, getFrontmatterJSONSchema } from './frontmatter-schema.js';
 
 describe('frontmatter schema', () => {
-	it('exports a valid schema object', () => {
-		expect(frontmatterSchema.type).toBe('object');
-		expect(frontmatterSchema.required).toContain('title');
-		expect(frontmatterSchema.required).toContain('created');
-		expect(frontmatterSchema.required).not.toContain('tags');
+	it('exports a valid zod schema and JSON schema representation', () => {
+		const jsonSchema = getFrontmatterJSONSchema();
+		expect(jsonSchema.type).toBe('object');
+		expect(jsonSchema.required).toContain('title');
+		expect(jsonSchema.required).toContain('created');
+		expect(jsonSchema.required).not.toContain('tags');
+		expect(typeof frontmatterSchema.parse).toBe('function');
 	});
 
 	it('passes valid frontmatter', () => {
@@ -20,10 +22,8 @@ describe('frontmatter schema', () => {
 
 	it('reports missing required fields', () => {
 		const errors = validateFrontmatterSchema({});
-		expect(errors).toEqual([
-			'Missing required frontmatter field: "title".',
-			'Missing required frontmatter field: "created".',
-		]);
+		expect(errors).toContainEqual(expect.stringContaining('title'));
+		expect(errors).toContainEqual(expect.stringContaining('created'));
 	});
 
 	it('reports type mismatches', () => {
@@ -33,7 +33,9 @@ describe('frontmatter schema', () => {
 			tags: ['blog'],
 			draft: 'yes',
 		});
-		expect(errors).toEqual(['Frontmatter "draft" must be a boolean.']);
+		expect(errors).toHaveLength(1);
+		expect(errors[0]).toContain('draft');
+		expect(errors[0].toLowerCase()).toContain('boolean');
 	});
 
 	it('accepts description and canonical fields', () => {
@@ -53,6 +55,8 @@ describe('frontmatter schema', () => {
 			tags: ['blog'],
 			unknownField: 'value',
 		});
-		expect(errors).toEqual(['Unknown frontmatter field: "unknownField".']);
+		expect(errors).toHaveLength(1);
+		expect(errors[0].toLowerCase()).toContain('unrecognized');
+		expect(errors[0]).toContain('unknownField');
 	});
 });
