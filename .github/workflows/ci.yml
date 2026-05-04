@@ -267,7 +267,7 @@ jobs:
       matrix:
         target:
           - chrome-desktop
-          # TODO: FIXME - chrome-mobile
+          - chrome-mobile
 
     steps:
       - name: Checkout
@@ -421,7 +421,6 @@ jobs:
           path: target/bundle/
 
       - name: Enforce bundle budget
-        if: false # TODO(sprint-7): re-enable after markdown feature flags split lazy chunks.
         run: >
           bun --eval " const fs = require('node:fs'); const report =
           JSON.parse(fs.readFileSync('target/bundle/summary.json', 'utf8')); if (report.comparison.failures.length > 0)
