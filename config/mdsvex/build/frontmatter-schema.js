@@ -5,9 +5,8 @@
 export const frontmatterSchema = Object.freeze({
 	$schema: 'http://json-schema.org/draft-07/schema#',
 	type: 'object',
-	required: ['title', 'created', 'tags'],
+	required: ['title', 'created'],
 	properties: Object.freeze({
-			cover: Object.freeze({ type: 'string' }),
 		title: Object.freeze({ type: 'string', minLength: 1 }),
 		created: Object.freeze({
 			type: 'string',
@@ -19,14 +18,16 @@ export const frontmatterSchema = Object.freeze({
 			pattern: '^\\d{4}-\\d{2}-\\d{2}',
 			description: 'ISO 8601 date (YYYY-MM-DD)',
 		}),
+		description: Object.freeze({ type: 'string' }),
+		draft: Object.freeze({ type: 'boolean' }),
 		tags: Object.freeze({
 			type: 'array',
 			minItems: 1,
 			items: Object.freeze({ type: 'string', minLength: 1 }),
 		}),
-		draft: Object.freeze({ type: 'boolean' }),
+		canonical: Object.freeze({ type: 'string', minLength: 1 }),
+		// Alias for description — kept during a one-release transition.
 		summary: Object.freeze({ type: 'string' }),
-		toc: Object.freeze({ type: 'boolean' }),
 	}),
 	additionalProperties: false,
 });
@@ -66,8 +67,8 @@ export function validateFrontmatterSchema(data, _filePath = '') {
 	for (const [key, spec] of Object.entries(frontmatterSchema.properties)) {
 		const value = obj[key];
 		if (value === undefined) {
-continue;
-}
+			continue;
+		}
 
 		if (spec.type === 'string' && typeof value !== 'string') {
 			errors.push(`Frontmatter "${key}" must be a string.`);

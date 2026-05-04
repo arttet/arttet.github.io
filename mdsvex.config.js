@@ -1,7 +1,7 @@
 import { createMarkdownConfig } from './config/mdsvex/index.js';
 
-const { config, ctx, preprocess } = await createMarkdownConfig();
+const { config, build, preprocess } = await createMarkdownConfig();
 
-export const markdownCtx = ctx;
+export const markdownBuild = build;
 export const markdownPreprocess = preprocess;
 export default config;

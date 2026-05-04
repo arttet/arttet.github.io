@@ -9,28 +9,34 @@ related:
   - ../writer/frontmatter.md
 ---
 
-# Markdown Pipeline <Badge type="warning">beta</Badge>
+# Markdown Pipeline <Badge type="danger">beta</Badge>
 
-The markdown pipeline is a deterministic, AST-first build-time compiler that converts markdown to SvelteKit pages with strict security, SEO, and resource constraints. It treats markdown as untrusted input, runs as a Directed Acyclic Graph (DAG) of Passes, and isolates global build state from per-post mutable state to guarantee cross-OS determinism and zero client-side overhead. Read this before writing a custom Pass or debugging a `MDX***` diagnostic.
+The Markdown pipeline is a secure, extensible, AST-first build-time system designed for SvelteKit and MDsveX. It operates as a deterministic compiler, transforming raw Markdown content into rich, interactive posts while enforcing strict security boundaries, SEO constraints, and resource limits.
 
 ## 1. Core Philosophy & Determinism
 
-1. **Security by Whitelist**: Only specifically registered components, properties, and URL protocols are allowed. Everything else is blocked.
-2. **Zero-Impact Runtime**: Complex processing (math, highlighting, diagrams) happens at build time. Runtime scripts and styles are loaded only if the post actually uses them.
-3. **Total Determinism**: Build outputs are identical regardless of environment, file system order, or partial rebuilds.
-   - **Same input → identical output** (byte-level parity).
-   - **No dependency on**: File traversal order, asynchronous timing, or Map/Set iteration order.
-   - **Timestamps**: The pipeline must respect the `SOURCE_DATE_EPOCH` environment variable. If absent, generated timestamp fields (like `generatedAt`) must be omitted from build artifacts to guarantee determinism.
-   - **Mandatory Sorting**: All collections must be sorted by canonical keys before serialization (posts, diagnostics, graph nodes, graph edges).
-4. **Cross-OS Determinism (Environment Parity)**: To prevent caching and graph issues across different operating systems:
-   - **Line Endings**: Mandatory LF (`\n`) normalization before processing.
-   - **Paths**: POSIX path (`/`) normalization for all internal URLs and graph edges.
-   - **Timezones**: Dates must be ISO-8601. If no timezone is provided, the date is interpreted as UTC. All internal dates are normalized to UTC.
-5. **Supply-Chain Pinning**: The build relies entirely on pinned, local dependencies.
-   - A strict lockfile is required.
-   - Versions for Shiki, Mermaid, and KaTeX must be explicitly pinned.
-   - Only an explicitly allowlisted set of Shiki grammars and themes may be loaded.
-   - Dynamic remote loading (e.g., fetching scripts or grammars over HTTP) during the build is strictly forbidden.
+1.  **Security by Whitelist**: Only specifically registered components, properties, and URL protocols are allowed. Everything else is blocked.
+
+2.  **Zero-Impact Runtime**: Complex processing (math, highlighting, diagrams) happens at build time. Runtime scripts and styles are loaded only if the post actually uses them.
+
+3.  **Total Determinism**: Build outputs are identical regardless of environment, file system order, or partial rebuilds.
+    - **Same input → identical output** (byte-level parity).
+    - **No dependency on**: File traversal order, asynchronous timing, or Map/Set iteration order.
+    - **Timestamps**:
+      - If `SOURCE_DATE_EPOCH` is present, all generated timestamp fields MUST use its value.
+      - If `SOURCE_DATE_EPOCH` is absent, all generated timestamp fields MUST be omitted from build artifacts to guarantee determinism.
+    - **Mandatory Sorting**: All collections must be sorted by canonical keys before serialization (posts, diagnostics, graph nodes, graph edges).
+
+4.  **Cross-OS Determinism (Environment Parity)**: To prevent caching and graph issues across different operating systems:
+    - **Line Endings**: Mandatory LF (`\n`) normalization before processing.
+    - **Paths**: POSIX path (`/`) normalization for all internal URLs and graph edges.
+    - **Timezones**: Dates must be ISO-8601. If no timezone is provided, the date is interpreted as UTC. All internal dates are normalized to UTC.
+
+5.  **Supply-Chain Pinning**: The build relies entirely on pinned, local dependencies.
+    - A strict lockfile is required.
+    - Versions for Shiki, Mermaid, and KaTeX must be explicitly pinned.
+    - Only an explicitly allowlisted set of Shiki grammars and themes may be loaded.
+    - Dynamic remote loading (e.g., fetching scripts or grammars over HTTP) during the build is strictly forbidden.
 
 ## 2. Architecture & Execution Model
 
@@ -42,26 +48,26 @@ The pipeline operates as a **Directed Acyclic Graph (DAG)** of Passes, resolved 
 
 - **Pass Definition**:
 
-  ```typescript
-  type StateKey = keyof PipelineState;
+```typescript
+type StateKey = keyof PipelineState;
 
-  type Pass = {
-    name: string;
-    phase: 'pre' | 'remark' | 'rehype' | 'validate' | 'post' | 'extract';
-    requires?: string[]; // DAG dependencies
-    reads?: StateKey[]; // Explicit Input Contract
-    writes?: StateKey[]; // Explicit Output Contract
+type Pass = {
+  name: string;
+  phase: 'pre' | 'remark' | 'rehype' | 'validate' | 'post' | 'extract';
+  requires?: string[]; // DAG dependencies
+  reads?: StateKey[]; // Explicit Input Contract
+  writes?: StateKey[]; // Explicit Output Contract
 
-    // Global setup executed once per engine instantiation
-    setup?: (ctx: BuildContext) => void | Promise<void>;
+  // Global setup executed once per engine instantiation
+  setup?: (ctx: BuildContext) => void | Promise<void>;
 
-    // Core compiler transformation logic
-    run: (ctx: PostContext, build: BuildContext) => void | Promise<void>;
+  // Core compiler transformation logic
+  run: (ctx: PostContext, build: BuildContext) => void | Promise<void>;
 
-    // Integration adapter for SvelteKit/MDsveX preprocessing
-    mdsvex?: (ctx: BuildContext) => Partial<MdsvexOptions>;
-  };
-  ```
+  // Integration adapter for SvelteKit/MDsveX preprocessing
+  mdsvex?: (ctx: BuildContext) => Partial<MdsvexOptions>;
+};
+```
 
 **Phase Semantics**:
 
@@ -72,7 +78,9 @@ The pipeline operates as a **Directed Acyclic Graph (DAG)** of Passes, resolved 
 - `post`: Final AST transformations before serialization.
 - `extract`: Produces non-AST artifacts (manifests, graph edges, search indexes).
 
-- **Cycle Detection**: The engine performs fail-fast cycle detection during topological sorting. If a cycle is detected, the build aborts immediately.
+**Cycle Detection**:
+
+- The engine performs fail-fast cycle detection during topological sorting. If a cycle is detected, the build aborts immediately.
 
 ### Concurrency & Isolation Model
 
@@ -83,35 +91,35 @@ The pipeline operates as a **Directed Acyclic Graph (DAG)** of Passes, resolved 
 
 To ensure parallel safety, the pipeline separates immutable global build state from isolated per-post state:
 
-- **`BuildContext`**: Shared, read-only data populated during the engine setup phase.
+- **BuildContext**: Shared, read-only data populated during the engine setup phase.
 
-  ```typescript
-  type BuildContext = {
-    mode: 'warn' | 'strict';
-    pipelineVersion: string;
-    dependencyVersions: Record<string, string>;
-    allPosts: PostIndex; // Known slugs, paths
-    registry: ComponentRegistry;
-    cache: CacheHandler;
-  };
-  ```
+```typescript
+type BuildContext = {
+  mode: 'warn' | 'strict';
+  pipelineVersion: string;
+  dependencyVersions: Record<string, string>;
+  allPosts: PostIndex; // Known slugs, paths
+  registry: ComponentRegistry;
+  cache: CacheHandler;
+};
+```
 
-- **`PostContext`**: Isolated mutable state for a single post processing run.
+- **PostContext**: Isolated mutable state for a single post processing run.
 
-  ```typescript
-  type PostContext = {
-    file: string;
-    ast: Mdast | Hast;
-    diagnostics: DiagnosticsRegistry;
-    state: PipelineState;
-  };
-  ```
+```typescript
+type PostContext = {
+  file: string;
+  ast: Mdast | Hast;
+  diagnostics: DiagnosticsRegistry;
+  state: PipelineState;
+};
+```
 
 ## 3. Data & State Contracts
 
 ### Typed Pipeline State (Pass I/O Contract)
 
-The per-post `state` is strictly typed. A Pass may only read keys listed in its `reads` array and may only write keys listed in its `writes` array. This prevents hidden coupling and ensures reproducibility.
+The per-post state is strictly typed. A Pass may only read keys listed in its `reads` array and may only write keys listed in its `writes` array. This prevents hidden coupling and ensures reproducibility.
 
 ```typescript
 type PipelineState = {
@@ -191,22 +199,22 @@ The pipeline uses a structured diagnostics system. Passes report diagnostics rat
 
 - **Formal Diagnostic Schema**:
 
-  ```typescript
-  type Diagnostic = {
-    code: string;
-    severity: 'info' | 'warning' | 'error' | 'critical';
-    message: string;
-    file: string;
-    line: number;
-    column: number;
-    pass: string;
-  };
-  ```
+```typescript
+type Diagnostic = {
+  code: string;
+  severity: 'info' | 'warning' | 'error' | 'critical';
+  message: string;
+  file: string;
+  line: number;
+  column: number;
+  pass: string;
+};
+```
 
-  _Rule_: Diagnostics must be deterministically sorted by `file`, `line`, `column`, then `code`.
+_Rule_: Diagnostics must be deterministically sorted by `file`, `line`, `column`, then `code`.
 
 - **Fail Modes**:
-  - **Strict Mode (Production / CI)**: Any `critical` diagnostic acts as a **Hard Fail**. The specific post is excluded from all build artifacts, **and the overall CI build must fail**.
+  - **Strict Mode (Production / CI)**: Any critical diagnostic acts as a **Hard Fail**. The specific post is excluded from all build artifacts, **and the overall CI build must fail**.
   - **Warn Mode (Development)**: `critical` diagnostics are downgraded to `warning` (marked as "would skip"). The post is included (Soft Fail) to aid debugging, and the build succeeds.
 - **Panic Isolation**: A failure in one post is isolated (it does not panic the worker pool), but the collected diagnostics will ultimately halt the build in Strict Mode.
 
@@ -218,13 +226,13 @@ Markdown is treated as untrusted input. The boundary is enforced at build-time.
 
 To prevent DoS attacks, Prototype Pollution, and SSRF, the pipeline enforces strict rules and mandatory **Hard Limits**:
 
-| Threat Category           | Example Attack                 | Pipeline Mitigation                                                                                                                                                                                                       |
-| :------------------------ | :----------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **XSS via Markdown**      | `<script>alert(1)</script>`    | Raw HTML nodes blocked. Strict URL protocol allowlist. Event handlers (`on*`) rejected.                                                                                                                                   |
-| **Resource Exhaustion**   | 100,000 deep nested blocks     | **Hard Limits**: Max file size (1MB), Max AST nodes (10,000), Max heading depth (h6), Max image count (50), Max pass duration (2s). Violations emit `MDX003_RAW_HTML` or `MDX006_IMAGE_MISSING_ALT` critical diagnostics. |
-| **Supply Chain**          | Malicious Shiki grammar        | Shiki grammars run strictly at build-time within resource limits.                                                                                                                                                         |
-| **Prototype Pollution**   | Exploiting AST transformer     | `PostContext` is isolated. AST nodes checked against explicit schema whitelist.                                                                                                                                           |
-| **SSRF / Path Traversal** | Image URL `file:///etc/passwd` | Enforced safe protocols. Local paths validated to ensure they do not escape the workspace root.                                                                                                                           |
+| Threat Category           | Example Attack                 | Pipeline Mitigation                                                                                                                                                                           |
+| :------------------------ | :----------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **XSS via Markdown**      | `<script>alert(1)</script>`    | Raw HTML nodes blocked. Strict URL protocol allowlist. Event handlers (`on*`) rejected.                                                                                                       |
+| **Resource Exhaustion**   | 100,000 deep nested blocks     | **Hard Limits**: Max file size (1MB), Max AST nodes (10,000), Max heading depth (h6), Max image count (50), Max pass duration (2s). Violations emit `MDX2xx_RESOURCE_*` critical diagnostics. |
+| **Supply Chain**          | Malicious Shiki grammar        | Shiki grammars run strictly at build-time within resource limits.                                                                                                                             |
+| **Prototype Pollution**   | Exploiting AST transformer     | `PostContext` is isolated. AST nodes checked against explicit schema whitelist.                                                                                                               |
+| **SSRF / Path Traversal** | Image URL `file:///etc/passwd` | Enforced safe protocols. Local paths validated to ensure they do not escape the workspace root.                                                                                               |
 
 ### Mermaid Rendering Policy
 
@@ -309,3 +317,11 @@ type ManifestPost = {
 Each post produces a deterministic set of flags (`hasMath`, `hasMermaid`, `hasCode`, `hasCodeTabs`, `hasImages`, `hasInteractiveBlocks`).
 
 - **Chunking Contract**: One feature = one lazy-loaded chunk. No feature code/style is loaded globally unless required by the associated feature flags.
+
+## 8. Final Invariants
+
+- No unknown component reaches output.
+- No raw HTML reaches output unless explicitly allowlisted.
+- No invalid or draft post enters public artifacts.
+- No feature runtime is loaded unless its feature flag is present.
+- No generated artifact depends on current time, OS path format, or worker execution order.

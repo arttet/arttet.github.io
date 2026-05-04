@@ -1,24 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { createDiagnostics } from '../../engine/diagnostics.js';
-import { markdownComponentRegistry } from '../../engine/registry.js';
+import { createBuildContext } from '../../engine/context.js';
 import { validateFrontmatter } from './frontmatter.js';
 
 /**
- * @param {import('../../engine/index.js').MarkdownMode} [mode]
- * @returns {import('../../engine/index.js').MarkdownPipelineContext}
+ * @param {import('../../engine/context.js').MarkdownMode} [mode]
+ * @returns {import('../../engine/context.js').BuildContext}
  */
-function createContext(mode = 'warn') {
-  return {
-    mode,
-    diagnostics: createDiagnostics(),
-    registry: markdownComponentRegistry,
-    state: {},
-  };
+function createTestContext(mode = 'warn') {
+  return createBuildContext(mode);
 }
 
 describe('frontmatter validation', () => {
   it('passes with valid frontmatter', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(ctx, {
       title: 'Hello',
       tags: ['blog'],
@@ -28,7 +22,7 @@ describe('frontmatter validation', () => {
   });
 
   it('accepts ISO datetime strings from YAML date parsing', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(ctx, {
       title: 'Hello',
       tags: ['blog'],
@@ -39,7 +33,7 @@ describe('frontmatter validation', () => {
   });
 
   it('reports missing title', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(ctx, { tags: ['blog'], created: '2026-04-20' }, 'post.md');
     expect(ctx.diagnostics.list()).toEqual([
       expect.objectContaining({
@@ -50,7 +44,7 @@ describe('frontmatter validation', () => {
   });
 
   it('reports empty title', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(ctx, { title: '  ', tags: ['blog'], created: '2026-04-20' }, 'post.md');
     expect(ctx.diagnostics.list()).toEqual([
       expect.objectContaining({
@@ -60,19 +54,8 @@ describe('frontmatter validation', () => {
     ]);
   });
 
-  it('reports missing tags', () => {
-    const ctx = createContext();
-    validateFrontmatter(ctx, { title: 'Hello', created: '2026-04-20' }, 'post.md');
-    expect(ctx.diagnostics.list()).toEqual([
-      expect.objectContaining({
-        code: 'MDX010_INVALID_FRONTMATTER',
-        message: expect.stringContaining('tags'),
-      }),
-    ]);
-  });
-
   it('reports empty tags array', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(ctx, { title: 'Hello', tags: [], created: '2026-04-20' }, 'post.md');
     expect(ctx.diagnostics.list()).toEqual([
       expect.objectContaining({
@@ -83,7 +66,7 @@ describe('frontmatter validation', () => {
   });
 
   it('reports invalid created date', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(ctx, { title: 'Hello', tags: ['blog'], created: '20-04-2026' }, 'post.md');
     expect(ctx.diagnostics.list()).toEqual([
       expect.objectContaining({
@@ -94,7 +77,7 @@ describe('frontmatter validation', () => {
   });
 
   it('reports invalid updated date', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(
       ctx,
       { title: 'Hello', tags: ['blog'], created: '2026-04-20', updated: 'tomorrow' },
@@ -109,7 +92,7 @@ describe('frontmatter validation', () => {
   });
 
   it('reports invalid draft type', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(
       ctx,
       { title: 'Hello', tags: ['blog'], created: '2026-04-20', draft: 'yes' },
@@ -123,8 +106,38 @@ describe('frontmatter validation', () => {
     ]);
   });
 
+  it('reports invalid description type', () => {
+    const ctx = createTestContext();
+    validateFrontmatter(
+      ctx,
+      { title: 'Hello', tags: ['blog'], created: '2026-04-20', description: 42 },
+      'post.md'
+    );
+    expect(ctx.diagnostics.list()).toEqual([
+      expect.objectContaining({
+        code: 'MDX010_INVALID_FRONTMATTER',
+        message: expect.stringContaining('description'),
+      }),
+    ]);
+  });
+
+  it('reports invalid canonical type', () => {
+    const ctx = createTestContext();
+    validateFrontmatter(
+      ctx,
+      { title: 'Hello', tags: ['blog'], created: '2026-04-20', canonical: 42 },
+      'post.md'
+    );
+    expect(ctx.diagnostics.list()).toEqual([
+      expect.objectContaining({
+        code: 'MDX010_INVALID_FRONTMATTER',
+        message: expect.stringContaining('canonical'),
+      }),
+    ]);
+  });
+
   it('reports invalid summary type', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(
       ctx,
       { title: 'Hello', tags: ['blog'], created: '2026-04-20', summary: 42 },
@@ -139,7 +152,7 @@ describe('frontmatter validation', () => {
   });
 
   it('reports missing frontmatter object', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(ctx, undefined, 'post.md');
     expect(ctx.diagnostics.list()).toEqual([
       expect.objectContaining({
@@ -150,19 +163,19 @@ describe('frontmatter validation', () => {
   });
 
   it('aggregates multiple errors', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     validateFrontmatter(ctx, {}, 'post.md');
-    expect(ctx.diagnostics.list()).toHaveLength(3);
+    expect(ctx.diagnostics.list()).toHaveLength(2);
   });
 
   it('uses warning severity in warn mode', () => {
-    const ctx = createContext('warn');
+    const ctx = createTestContext('warn');
     validateFrontmatter(ctx, {}, 'post.md');
     expect(ctx.diagnostics.list()[0].severity).toBe('warning');
   });
 
   it('uses critical severity in strict mode', () => {
-    const ctx = createContext('strict');
+    const ctx = createTestContext('strict');
     validateFrontmatter(ctx, {}, 'post.md');
     expect(ctx.diagnostics.list()[0].severity).toBe('critical');
   });

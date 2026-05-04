@@ -6,6 +6,7 @@ import {
   SEVERITY,
   VALIDATION_MODE,
 } from '../../constants.js';
+import { resolvePassContext } from '../../engine/context.js';
 import { walk } from '../_internal/walk.js';
 import { RAW_HTML_PATTERNS } from './patterns.js';
 
@@ -14,12 +15,12 @@ export function securityGuardsPass() {
     name: 'security-guards',
     phase: PASS_PHASES.VALIDATE,
     /**
-     * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+     * @param {import('../../engine/context.js').BuildContext} build
      */
-    mdsvex(ctx) {
+    mdsvex(build) {
       return {
         remarkPlugins: /** @type {import('mdsvex').MdsvexOptions['remarkPlugins']} */ ([
-          createSecurityGuardRemarkPlugin(ctx),
+          createSecurityGuardRemarkPlugin(build),
         ]),
       };
     },
@@ -27,22 +28,24 @@ export function securityGuardsPass() {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/context.js').BuildContext} build
  */
-function createSecurityGuardRemarkPlugin(ctx) {
+function createSecurityGuardRemarkPlugin(build) {
   /**
    * @returns {(tree: MarkdownNode, file?: { path?: string; history?: string[] }) => void}
    */
   return function securityGuardAttacher() {
     return function securityGuardTransformer(tree, file) {
-      validateMarkdownTree(tree, ctx, file?.path ?? file?.history?.[0]);
+      const filePath = file?.path ?? file?.history?.[0];
+      const ctx = resolvePassContext(build, filePath);
+      validateMarkdownTree(tree, ctx, filePath);
     };
   };
 }
 
 /**
  * @param {MarkdownNode} tree
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics>; state: Record<string, unknown>; registry: typeof import('../../engine/registry.js').markdownComponentRegistry }} ctx
  * @param {string=} file
  */
 export function validateMarkdownTree(tree, ctx, file) {
@@ -59,7 +62,7 @@ export function validateMarkdownTree(tree, ctx, file) {
 
 /**
  * @param {MarkdownNode} node
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics>; state: Record<string, unknown>; registry: typeof import('../../engine/registry.js').markdownComponentRegistry }} ctx
  * @param {string=} file
  */
 function validateHtmlNode(node, ctx, file) {
@@ -83,7 +86,7 @@ function validateHtmlNode(node, ctx, file) {
 /**
  * @param {string} value
  * @param {MarkdownNode} node
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {string=} file
  */
 function validateHtmlUrls(value, node, ctx, file) {
@@ -119,7 +122,7 @@ function validateHtmlUrls(value, node, ctx, file) {
 
 /**
  * @param {MarkdownNode} node
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {string=} file
  */
 function validateUrlNode(node, ctx, file) {
@@ -137,7 +140,7 @@ function validateUrlNode(node, ctx, file) {
 /**
  * @param {string} value
  * @param {MarkdownNode} node
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics>; state: Record<string, unknown>; registry: typeof import('../../engine/registry.js').markdownComponentRegistry }} ctx
  * @param {string=} file
  */
 function validateComponents(value, node, ctx, file) {
@@ -174,7 +177,7 @@ function validateComponents(value, node, ctx, file) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ registry: typeof import('../../engine/registry.js').markdownComponentRegistry }} ctx
  * @param {string} name
  */
 function getRegisteredComponent(ctx, name) {
@@ -226,14 +229,14 @@ function isSafeUrl(url) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {{ code: string; message: string; file?: string; node: MarkdownNode }} diagnostic
  */
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
     severity: ctx.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
-    step: 'security-guards',
+    pass: 'security-guards',
     message:
       ctx.mode === VALIDATION_MODE.WARN
         ? `${diagnostic.message} This post would be skipped in strict mode.`

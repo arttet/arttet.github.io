@@ -1,36 +1,40 @@
-import { getPosts } from '$entities/post/api.server';
+import { getManifestPosts } from '$lib/manifest';
 import { site } from '$shared/config/site';
 import { escXml } from '$shared/lib/escXml';
 
 export const prerender = true;
 
 export function GET() {
-  const posts = getPosts();
+  const posts = getManifestPosts();
 
   // Use the most recent post's date as the feed updated date, or current date if no posts
   const feedUpdated =
     posts.length > 0
       ? new Date(
-          Math.max(...posts.map((p) => new Date(p.updated || p.created).getTime()))
+          Math.max(
+            ...posts.map((p) => new Date(p.frontmatter.updated || p.frontmatter.created).getTime())
+          )
         ).toISOString()
       : new Date().toISOString();
 
   const entries = posts
     .map((post) => {
       const postUrl = `${site.url}/blog/${post.slug}`;
-      const updatedDate = new Date(post.updated || post.created).toISOString();
-      const publishedDate = new Date(post.created).toISOString();
+      const updatedDate = new Date(
+        post.frontmatter.updated || post.frontmatter.created
+      ).toISOString();
+      const publishedDate = new Date(post.frontmatter.created).toISOString();
 
       return `
-	<entry>
-		<title>${escXml(post.title)}</title>
-		<link href="${postUrl}" />
-		<id>${postUrl}</id>
-		<published>${publishedDate}</published>
-		<updated>${updatedDate}</updated>
-		${post.summary ? `<summary type="text">${escXml(post.summary)}</summary>` : ''}
-		${post.tags.map((t) => `<category term="${escXml(t)}" />`).join('\n\t\t')}
-	</entry>`;
+		<entry>
+			<title>${escXml(post.frontmatter.title)}</title>
+			<link href="${postUrl}" />
+			<id>${postUrl}</id>
+			<published>${publishedDate}</published>
+			<updated>${updatedDate}</updated>
+			${post.frontmatter.description ? `<summary type="text">${escXml(post.frontmatter.description)}</summary>` : ''}
+			${(post.frontmatter.tags ?? []).map((t) => `<category term="${escXml(t)}" />`).join('\n\t\t')}
+		</entry>`;
     })
     .join('');
 

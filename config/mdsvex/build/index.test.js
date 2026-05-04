@@ -1,53 +1,54 @@
 import { describe, it } from 'vitest';
 import { generateMarkdownArtifacts } from './index.js';
-import { createDiagnostics } from '../engine/diagnostics.js';
-import { markdownComponentRegistry } from '../engine/registry.js';
+import { createBuildContext } from '../engine/context.js';
+import { contentPasses, optimizationPasses, securityPasses } from '../engine/pass-groups.js';
+import { createMarkdownEngine } from '../engine/index.js';
 
 describe('markdown build artifacts', () => {
   it('generates artifacts without errors', async () => {
-    const ctx = {
-      mode: /** @type {const} */ ('warn'),
-      diagnostics: createDiagnostics(),
-      registry: markdownComponentRegistry,
-      state: {},
-    };
+    const build = createBuildContext('warn');
+    const { config } = await createMarkdownEngine({ mode: 'warn' })
+      .use(contentPasses())
+      .use(securityPasses())
+      .use(optimizationPasses())
+      .toMdsvexConfig();
 
-    await generateMarkdownArtifacts(ctx);
+    await generateMarkdownArtifacts(build, config);
   });
 
   it('includes all posts in warn mode even with critical diagnostics', async () => {
-    const ctx = {
-      mode: /** @type {const} */ ('warn'),
-      diagnostics: createDiagnostics(),
-      registry: markdownComponentRegistry,
-      state: {},
-    };
-    ctx.diagnostics.add({
+    const build = createBuildContext('warn');
+    const { config } = await createMarkdownEngine({ mode: 'warn' })
+      .use(contentPasses())
+      .use(securityPasses())
+      .use(optimizationPasses())
+      .toMdsvexConfig();
+    build.diagnostics.add({
       code: 'MDX010_INVALID_FRONTMATTER',
       severity: 'critical',
-      step: 'frontmatter',
+      pass: 'frontmatter',
       message: 'Missing title.',
       file: 'content/blog/2026/2026-04-20-architecture-and-stack.md',
     });
 
-    await generateMarkdownArtifacts(ctx);
+    await generateMarkdownArtifacts(build, config);
   });
 
   it('filters invalid posts in strict mode', async () => {
-    const ctx = {
-      mode: /** @type {const} */ ('strict'),
-      diagnostics: createDiagnostics(),
-      registry: markdownComponentRegistry,
-      state: {},
-    };
-    ctx.diagnostics.add({
+    const build = createBuildContext('strict');
+    const { config } = await createMarkdownEngine({ mode: 'strict' })
+      .use(contentPasses())
+      .use(securityPasses())
+      .use(optimizationPasses())
+      .toMdsvexConfig();
+    build.diagnostics.add({
       code: 'MDX010_INVALID_FRONTMATTER',
       severity: 'critical',
-      step: 'frontmatter',
+      pass: 'frontmatter',
       message: 'Missing title.',
       file: 'content/blog/2026/2026-04-20-architecture-and-stack.md',
     });
 
-    await generateMarkdownArtifacts(ctx);
+    await generateMarkdownArtifacts(build, config);
   });
 });

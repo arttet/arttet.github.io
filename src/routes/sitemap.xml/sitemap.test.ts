@@ -2,8 +2,18 @@
 import { describe, expect, it, vi } from 'vitest';
 
 // Mock the api.server getPosts at the top level
-vi.mock('$entities/post/api.server', () => ({
-  getPosts: () => [{ slug: 'post-1', updated: '2026-04-21', created: '2026-04-21' }],
+vi.mock('$lib/manifest', () => ({
+  getManifestPosts: () => [
+    {
+      slug: 'post-1',
+      frontmatter: {
+        updated: '2026-04-21',
+        created: '2026-04-21',
+      },
+      flags: {},
+      extracted: {},
+    },
+  ],
 }));
 
 describe('sitemap.xml generator', () => {

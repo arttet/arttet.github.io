@@ -1,10 +1,10 @@
-import { getPosts } from '$entities/post/api.server';
+import { getManifestPosts } from '$lib/manifest';
 import { site } from '$shared/config/site';
 
 export const prerender = true;
 
 export async function GET() {
-  const posts = getPosts();
+  const posts = getManifestPosts();
   const pages = ['', '/blog', '/about'];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -24,7 +24,7 @@ export async function GET() {
       (post) => `
     <url>
       <loc>${site.url}/blog/${post.slug}</loc>
-      <lastmod>${new Date(post.updated || post.created).toISOString().split('T')[0]}</lastmod>
+      <lastmod>${new Date(post.frontmatter.updated || post.frontmatter.created).toISOString().split('T')[0]}</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.7</priority>
     </url>`

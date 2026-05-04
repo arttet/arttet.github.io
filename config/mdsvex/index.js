@@ -7,7 +7,7 @@ import { processMathContent } from './passes/content/math.js';
 import { insertSvelteImports } from './passes/content/svelte-script.js';
 
 export async function createMarkdownConfig() {
-  const { config, ctx } = await createMarkdownEngine({
+  const { config, build } = await createMarkdownEngine({
     mode: 'warn',
   })
     .use(contentPasses())
@@ -15,7 +15,7 @@ export async function createMarkdownConfig() {
     .use(optimizationPasses())
     .toMdsvexConfig();
 
-  return { config, ctx, preprocess: createMarkdownPreprocess() };
+  return { config, build, preprocess: createMarkdownPreprocess() };
 }
 
 /**
@@ -42,9 +42,9 @@ function createMarkdownPreprocess() {
 }
 
 /**
- * @returns {Promise<import('./engine/index.js').MarkdownPipelineContext>}
+ * @returns {Promise<import('./engine/context.js').BuildContext>}
  */
 export async function createMarkdownContext() {
-  const { ctx } = await createMarkdownConfig();
-  return ctx;
+  const { build } = await createMarkdownConfig();
+  return build;
 }

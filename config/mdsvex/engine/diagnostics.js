@@ -16,7 +16,7 @@ const severityRank = {
  * @typedef {Object} Diagnostic
  * @property {string} code
  * @property {DiagnosticSeverity} severity
- * @property {string} step
+ * @property {string} pass
  * @property {string} message
  * @property {string=} file
  * @property {number=} line
@@ -140,7 +140,7 @@ export function renderDiagnosticsMarkdown(report) {
 
   for (const diagnostic of report.diagnostics) {
     lines.push(
-      `- ${formatDiagnosticLocation(diagnostic)} ${diagnostic.severity.toUpperCase()} ${diagnostic.code} [${diagnostic.step}]: ${diagnostic.message}`
+      `- ${formatDiagnosticLocation(diagnostic)} ${diagnostic.severity.toUpperCase()} ${diagnostic.code} [${diagnostic.pass}]: ${diagnostic.message}`
     );
   }
 

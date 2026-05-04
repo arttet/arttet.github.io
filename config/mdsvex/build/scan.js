@@ -2,11 +2,11 @@ import { compile } from 'mdsvex';
 import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve, relative } from 'node:path';
-import { createMarkdownEngine } from '../engine/index.js';
-import { contentPasses, optimizationPasses, securityPasses } from '../engine/pass-groups.js';
+import { createPostContext } from '../engine/context.js';
+import { createDiagnostics } from '../engine/diagnostics.js';
 import { validateFrontmatterSchema } from './frontmatter-schema.js';
 
-import { DIAGNOSTIC_CODES, SEVERITY, VALIDATION_MODE } from '../constants.js';
+import { DIAGNOSTIC_CODES, RESOURCE_LIMITS, SEVERITY, VALIDATION_MODE } from '../constants.js';
 
 const contentDir = 'content/blog';
 
@@ -31,15 +31,11 @@ function normalizeFrontmatter(fm) {
  * (readingTime, extracted headings/links, detection flags). Drafts are
  * filtered out.
  *
+ * @param {import('../engine/context.js').BuildContext} build
+ * @param {import('mdsvex').MdsvexOptions} config
  * @returns {Promise<{ posts: import('../../../src/entities/post/post').Post[]; fileMap: Map<string, string>; diagnostics: import('../engine/diagnostics.js').Diagnostic[] }>}
  */
-export async function scanPosts() {
-	const { config, ctx } = await createMarkdownEngine()
-		.use(contentPasses())
-		.use(securityPasses())
-		.use(optimizationPasses())
-		.toMdsvexConfig();
-
+export async function scanPosts(build, config) {
 	const years = await readdir(contentDir).catch(() => []);
 
 	const yearFiles = await Promise.all(
@@ -61,7 +57,21 @@ export async function scanPosts() {
 				// Path traversal defense: skip files outside content/blog
 				return null;
 			}
-			const content = await readFile(filePath, 'utf8');
+			const postCtx = createPostContext(resolved);
+			build.postContexts.set(resolved, postCtx);
+
+			const content = (await readFile(filePath, 'utf8')).replace(/\r\n/g, '\n');
+
+			if (Buffer.byteLength(content, 'utf8') > RESOURCE_LIMITS.MAX_FILE_BYTES) {
+				postCtx.diagnostics.add({
+					code: DIAGNOSTIC_CODES.RESOURCE_FILE_SIZE,
+					severity: build.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
+					pass: 'resource-limits',
+					message: `File size exceeds limit of ${RESOURCE_LIMITS.MAX_FILE_BYTES} bytes.`,
+					file: filePath,
+				});
+			}
+
 			const result = await compile(content, config);
 			const data = result?.data;
 			const fm = normalizeFrontmatter(
@@ -72,10 +82,10 @@ export async function scanPosts() {
 			if (schemaErrors.length > 0) {
 				// Schema violations are surfaced as build-time diagnostics.
 				for (const message of schemaErrors) {
-					ctx.diagnostics.add({
+					postCtx.diagnostics.add({
 						code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
-						severity: ctx.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
-						step: 'frontmatter-schema',
+						severity: build.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
+						pass: 'frontmatter-schema',
 						message,
 						file: filePath,
 					});
@@ -105,11 +115,18 @@ export async function scanPosts() {
 	const posts = validResults.map((r) => r.post);
 	const fileMap = new Map(validResults.map((r) => [r.post.slug, r.filePath]));
 
+	// Aggregate per-post diagnostics into a single sorted list.
+	/** @type {import('../engine/diagnostics.js').Diagnostic[]} */
+	const allDiagnostics = [];
+	for (const postCtx of build.postContexts.values()) {
+		allDiagnostics.push(...postCtx.diagnostics.list());
+	}
+
 	return {
 		posts: posts.filter((post) => !post.draft).toSorted(
-			(a, b) => new Date(String(b.created)).getTime() - new Date(String(a.created)).getTime()
+			(a, b) => b.created.localeCompare(a.created)
 		),
 		fileMap,
-		diagnostics: ctx.diagnostics.list(),
+		diagnostics: createDiagnostics(allDiagnostics).list(),
 	};
 }

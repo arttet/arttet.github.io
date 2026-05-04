@@ -2,6 +2,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+import { resolvePassContext } from '../../engine/context.js';
 
 import { walk } from '../_internal/walk.js';
 
@@ -19,17 +20,17 @@ export function linksPass(options = {}) {
   return {
     name: 'links',
     phase: PASS_PHASES.REMARK,
-    setup(ctx) {
+    setup(build) {
       const metadata = options.knownSlugs
         ? { knownSlugs: options.knownSlugs, draftSlugs: new Set() }
         : getSlugMetadata();
-      ctx.state.knownSlugs = metadata.knownSlugs;
-      ctx.state.draftSlugs = metadata.draftSlugs;
+      build.state.knownSlugs = metadata.knownSlugs;
+      build.state.draftSlugs = metadata.draftSlugs;
     },
-    mdsvex(ctx) {
+    mdsvex(build) {
       return {
         remarkPlugins: /** @type {import('mdsvex').MdsvexOptions['remarkPlugins']} */ ([
-          createLinksRemarkPlugin(ctx),
+          createLinksRemarkPlugin(build),
         ]),
       };
     },
@@ -83,15 +84,17 @@ function isDraft(filePath) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/context.js').BuildContext} build
  */
-function createLinksRemarkPlugin(ctx) {
+function createLinksRemarkPlugin(build) {
   return function linksAttacher() {
     /**
      * @param {MarkdownNode} tree
      * @param {{ path?: string; history?: string[]; data?: Record<string, unknown> }} file
      */
     return function linksTransformer(tree, file) {
+      const filePath = file.path ?? file.history?.[0];
+      const ctx = resolvePassContext(build, filePath);
       walk(tree, (node) => {
         if (node.type === 'link' && typeof node.url === 'string') {
           validateLinkUrl(node, ctx, file);
@@ -103,7 +106,7 @@ function createLinksRemarkPlugin(ctx) {
 
 /**
  * @param {MarkdownNode} node
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics>; state: Record<string, unknown> }} ctx
  * @param {{ path?: string; history?: string[] }} file
  */
 function validateLinkUrl(node, ctx, file) {
@@ -146,14 +149,14 @@ function validateLinkUrl(node, ctx, file) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {{ code: string; message: string; file?: string; node: MarkdownNode }} diagnostic
  */
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
     severity: SEVERITY.CRITICAL,
-    step: 'links',
+    pass: 'links',
     message:
       ctx.mode === VALIDATION_MODE.WARN
         ? `${diagnostic.message} This post would be skipped in strict mode.`

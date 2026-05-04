@@ -3,7 +3,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vitest/config';
-import { markdownCtx } from './mdsvex.config.js';
+import markdownConfig, { markdownBuild } from './mdsvex.config.js';
 import { generateMarkdownArtifacts } from './config/mdsvex/build/index.js';
 
 const analyze = process.env.ANALYZE === 'true';
@@ -24,12 +24,12 @@ export default defineConfig(({ mode }) => ({
     sveltekit(),
     {
       name: 'markdown-artifacts',
-      async closeBundle() {
+      async buildStart() {
         if (process.env.MARKDOWN_DEBUG === 'true') {
           // oxlint-disable-next-line no-console
           console.log('[markdown-artifacts] Generating artifacts...');
         }
-        await generateMarkdownArtifacts(markdownCtx);
+        await generateMarkdownArtifacts(markdownBuild, markdownConfig);
       },
     },
     ...(analyze

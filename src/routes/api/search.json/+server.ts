@@ -1,17 +1,17 @@
 import { json } from '@sveltejs/kit';
-import { getPosts } from '$entities/post/api.server';
+import { getManifestPosts } from '$lib/manifest';
 
 export const prerender = true;
 
 export async function GET() {
-  const posts = getPosts();
+  const posts = getManifestPosts();
 
   // We only send the necessary fields for display
   const searchData = posts.map((post) => ({
     slug: post.slug,
-    title: post.title,
-    tags: post.tags,
-    created: post.created,
+    title: post.frontmatter.title,
+    tags: post.frontmatter.tags ?? [],
+    created: post.frontmatter.created,
   }));
 
   const { Document } = await import('flexsearch');

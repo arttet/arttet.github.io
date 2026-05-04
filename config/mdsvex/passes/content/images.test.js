@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DIAGNOSTIC_CODES } from '../../constants.js';
-import { createDiagnostics } from '../../engine/diagnostics.js';
-import { markdownComponentRegistry } from '../../engine/registry.js';
+import { createBuildContext } from '../../engine/context.js';
 import { imagesGuardPass } from './images.js';
 
 /**
@@ -20,21 +19,16 @@ function imageNode(url, alt = '') {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownMode} [mode]
- * @returns {import('../../engine/index.js').MarkdownPipelineContext}
+ * @param {import('../../engine/context.js').MarkdownMode} [mode]
+ * @returns {import('../../engine/context.js').BuildContext}
  */
-function createContext(mode = 'warn') {
-  return {
-    mode,
-    diagnostics: createDiagnostics(),
-    registry: markdownComponentRegistry,
-    state: {},
-  };
+function createTestContext(mode = 'warn') {
+  return createBuildContext(mode);
 }
 
 describe('images guard pass', () => {
   it('allows images with alt text', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     const plugins = /** @type {any} */ (imagesGuardPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
     if (typeof plugin !== 'function') {
@@ -47,7 +41,7 @@ describe('images guard pass', () => {
   });
 
   it('reports images missing alt text', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     const plugins = /** @type {any} */ (imagesGuardPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
     if (typeof plugin !== 'function') {
@@ -63,18 +57,18 @@ describe('images guard pass', () => {
       code: DIAGNOSTIC_CODES.IMAGE_MISSING_ALT,
       file: 'post.md',
       severity: 'critical',
-      step: 'images',
+      pass: 'images',
     });
     expect(diagnostics[1]).toMatchObject({
       code: DIAGNOSTIC_CODES.IMAGE_MISSING_ALT,
       file: 'post.md',
       severity: 'critical',
-      step: 'images',
+      pass: 'images',
     });
   });
 
   it('ignores non-image nodes', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     const plugins = /** @type {any} */ (imagesGuardPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
     if (typeof plugin !== 'function') {
