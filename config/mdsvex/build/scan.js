@@ -4,6 +4,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve, relative } from 'node:path';
 import { createPostContext } from '../engine/context.js';
 import { createDiagnostics } from '../engine/diagnostics.js';
+import { COMPUTED_FRONTMATTER_KEYS } from '../constants.js';
 import { validateFrontmatterSchema } from './frontmatter-schema.js';
 import { computeCacheKey, loadCachedPost, saveCachedPost } from './cache.js';
 
@@ -88,7 +89,11 @@ export async function scanPosts(build, config) {
 				/** @type {Record<string, unknown>} */ (data?.fm ?? {})
 			);
 
-			const schemaErrors = validateFrontmatterSchema(fm, filePath);
+			const rawFm = { ...fm };
+			for (const key of COMPUTED_FRONTMATTER_KEYS) {
+				delete rawFm[key];
+			}
+			const schemaErrors = validateFrontmatterSchema(rawFm, filePath);
 			if (schemaErrors.length > 0) {
 				// Schema violations are surfaced as build-time diagnostics.
 				for (const message of schemaErrors) {
