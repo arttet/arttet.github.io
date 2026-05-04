@@ -5,6 +5,7 @@ import { join, resolve, relative } from 'node:path';
 import { createPostContext } from '../engine/context.js';
 import { createDiagnostics } from '../engine/diagnostics.js';
 import { validateFrontmatterSchema } from './frontmatter-schema.js';
+import { computeCacheKey, loadCachedPost, saveCachedPost } from './cache.js';
 
 import { DIAGNOSTIC_CODES, RESOURCE_LIMITS, SEVERITY, VALIDATION_MODE } from '../constants.js';
 
@@ -72,6 +73,15 @@ export async function scanPosts(build, config) {
 				});
 			}
 
+			const cacheKey = computeCacheKey(rel, content);
+			const cached = await loadCachedPost(cacheKey);
+			if (cached) {
+				for (const d of cached.diagnostics) {
+					postCtx.diagnostics.add(d);
+				}
+				return { post: cached.post, filePath };
+			}
+
 			const result = await compile(content, config);
 			const data = result?.data;
 			const fm = normalizeFrontmatter(
@@ -105,6 +115,8 @@ export async function scanPosts(build, config) {
 					})
 				)
 			);
+
+			await saveCachedPost(cacheKey, post, postCtx.diagnostics.list());
 			return { post, filePath };
 		})
 	);
