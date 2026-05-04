@@ -11,13 +11,29 @@
 ![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat&logo=playwright&logoColor=white)
 [![codecov](https://codecov.io/gh/arttet/arttet.github.io/graph/badge.svg?token=H5YZVPX9CK)](https://codecov.io/gh/arttet/arttet.github.io)
 
-My personal blog about the little stuff I know.
+A personal publishing platform that looks like a static blog and behaves like a compiler.
 
-## 🛠 Management & Development
+| Resource      | URL                                          | What                                        |
+| ------------- | -------------------------------------------- | ------------------------------------------- |
+| Live site     | [arttet.dev](https://arttet.dev)             | Production blog                             |
+| Platform docs | [docs.arttet.dev](https://docs.arttet.dev)   | Writer guide, developer guide, architecture |
+| Infra reports | [infra.arttet.dev](https://infra.arttet.dev) | Playwright, Lighthouse, bundle, coverage    |
 
-This project uses `just` as the primary task runner for managing development workflows and project utilities.
+## Requirements
 
-### ⚡ Justfile Commands
+- [Git](https://git-scm.com/downloads)
+- [Node.js](https://nodejs.org/) (v24 or higher)
+- [Bun](https://bun.sh/) (latest stable)
+- [Just](https://github.com/casey/just#installation) (v1.50.0 or higher)
+
+## Install
+
+```bash
+bun install
+bunx lefthook install
+```
+
+## Just Commands
 
 ```text
 $ just help
@@ -51,124 +67,27 @@ Available recipes:
         lhci        # Run Lighthouse CI
         bundle      # Run bundle budget
 
+    [Documentation]
+    docs:
+        dev     # Serve docs
+        build   # Build docs
+        preview # Preview docs
+
     [Baselines]
     baseline:
         bundle    # Update bundle baseline
         snapshots # Update testing snapshots
         ci        # Update testing snapshots for CI
 
+    [Pull Requests]
+    pr:
+        create      # Create a new Pull Request
+        review n="" # Ask Gemini to review the Pull Request
+        view n=""   # View comments for the Pull Request
+
     [Deployment]
     deploy:
         list        # List Cloudflare Pages projects
         create name # Create a Cloudflare Pages project
         delete name # Delete a Cloudflare Pages project
-```
-
-## Requirements
-
-To build and work on this project locally, you need the following tools installed:
-
-- [Git](https://git-scm.com/downloads)
-- [Node.js](https://nodejs.org/) (v24 or higher)
-- [Bun](https://bun.sh/) (latest stable)
-- [Just](https://github.com/casey/just#installation) (v1.50.0 or higher)
-
-## Installation
-
-Install project dependencies:
-
-```bash
-bun install
-```
-
-For Playwright, the first local run may also require:
-
-```bash
-bunx playwright install
-```
-
-## Lefthook Setup
-
-`lefthook` manages Git hooks. After `bun install`, enable the hooks with:
-
-```bash
-bunx lefthook install
-```
-
-You do not need a global `lefthook` installation. The local project version is enough.
-
-The hook configuration lives in `lefthook.yml`.
-
-### Hooks
-
-- **`pre-commit`** — runs sequentially on every commit:
-
-| Check                    | Files                              |
-| ------------------------ | ---------------------------------- |
-| `oxfmt --write`          | `*.{js,ts,svelte,json,css,yml,md}` |
-| `oxlint --deny-warnings` | `*.{js,ts,svelte}`                 |
-| `stylelint --fix`        | `*.{css,svelte}`                   |
-| `markdownlint --fix`     | `content/**/*.md`                  |
-| `cspell`                 | `*.{md,svelte,ts}`                 |
-| `bun audit`              | —                                  |
-
-- **`commit-msg`** — validates conventional commit format via `commitlint`.
-- **`pre-push`** — runs security scans (`gitleaks`) against staged content.
-
-## Testing
-
-### Unit tests
-
-Fast unit tests:
-
-```sh
-just test unit
-```
-
-This runs Vitest with `VITEST_FAST=true` for a quick development feedback loop.
-
-Full unit suite with coverage:
-
-```sh
-just test coverage
-```
-
-Use coverage before opening a PR when component behavior changed. Coverage must stay at or above 90%.
-
-### Playwright tests
-
-Run Playwright integration/E2E tests:
-
-```sh
-just test integration
-```
-
-Direct Playwright command for the desktop Chrome project:
-
-```sh
-bunx playwright test --project chrome-desktop --no-deps --reporter=list
-```
-
-### All local tests
-
-Run unit, Playwright integration, and coverage:
-
-```sh
-just test all
-```
-
-### Snapshot testing
-
-Visual regression tests use Playwright `toHaveScreenshot`. Current post snapshots live under the Playwright snapshot folders and are validated on `chrome-desktop`.
-
-Update local snapshots:
-
-```sh
-just baseline snapshots
-```
-
-Update CI snapshots through Docker:
-
-```sh
-just baseline ci
 ```

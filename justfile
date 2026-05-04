@@ -5,10 +5,10 @@ set dotenv-path := ".envrc"
 # Project Settings
 # ==============================================================================
 
-export BUILD_DIR := justfile_directory() / "target"
-
 build_dir := "target"
 site_name := "arttet.github.io"
+
+export BUILD_DIR := justfile_directory() / build_dir
 
 # ==============================================================================
 # Help
@@ -38,6 +38,7 @@ new title:
     set -C
     sd '__TITLE__' "$title" < misc/templates/post.md.template | sd '__DATE__' "$date" > "$target"
     echo "✅ Created: $target"
+
 [doc('Spell check')]
 [group('Authoring')]
 spell:
@@ -46,6 +47,7 @@ spell:
     @echo "🔍 Running Markdownlint..."
     bunx --bun markdownlint-cli2 --fix "content/**/*.md"
     @echo "✅ Spell check complete!"
+
 # ==============================================================================
 # Development
 # ==============================================================================
@@ -56,18 +58,21 @@ install:
     @echo "📦 Installing dependencies..."
     bun install --frozen-lockfile
     @echo "✅ Dependencies installed!"
+
 [doc('Update dependencies')]
 [group('Development')]
 update:
     @echo "⬆️  Updating dependencies..."
     bun update -i
     @echo "✅ Dependencies updated!"
+
 [doc('Audit dependencies')]
 [group('Development')]
 audit:
     @echo "🔍 Auditing dependencies..."
     bun audit
     @echo "✅ Audit complete!"
+
 [doc('Format code')]
 [group('Development')]
 fmt:
@@ -76,6 +81,7 @@ fmt:
     @echo "🔍 Running Oxfmt..."
     bunx oxfmt --write .
     @echo "✅ Code formatted!"
+
 [doc('Type check')]
 [group('Development')]
 check:
@@ -89,6 +95,7 @@ check:
     @echo "🔍 Checking lefthook..."
     bunx --bun lefthook validate
     @echo "✅ Passed!"
+
 [doc('Run linters')]
 [group('Development')]
 lint:
@@ -101,32 +108,38 @@ lint:
     @echo "🔍 Running ESLint..."
     bunx --bun eslint "**/*.{js,ts,svelte}" --fix --max-warnings=0
     @echo "✅ Linting complete!"
+
 [doc('Build production build')]
 [group('Development')]
 build:
     @echo "🔨 Building {{ site_name }}..."
     bun run --bun build
     @echo "✅ Built: {{ build_dir }}/"
+
 [doc('Start production server')]
 [group('Development')]
 preview: build
     @echo "👁  Previewing {{ site_name }}..."
     bun run --bun preview
+
 [doc('Start development server')]
 [group('Development')]
 dev:
     @echo "🚀 Starting dev server..."
     bun run --bun dev --open
+
 [doc('Remove build artifacts')]
 [group('Development')]
 clean:
     @echo "🧹 Cleaning..."
     rm -rf {{ build_dir }} .lighthouseci .svelte-kit node_modules
     @echo "✅ Cleaned!"
+
 [doc('Run CI pipeline')]
 [group('Development')]
 ci: audit fmt check spell lint build
     @echo "🚀 All systems go! Ready to push."
+
 # ==============================================================================
 # Testing
 # ==============================================================================
@@ -141,6 +154,13 @@ alias ti := test::integration
 alias tc := test::coverage
 
 # ==============================================================================
+# Documentation
+# ==============================================================================
+
+[group: 'Documentation']
+mod docs 'misc/justfiles/docs.just'
+
+# ==============================================================================
 # Baselines
 # ==============================================================================
 
@@ -149,17 +169,6 @@ mod baseline 'misc/justfiles/baseline.just'
 
 alias bb := baseline::bundle
 alias bs := baseline::snapshots
-
-# ==============================================================================
-# Deployment
-# ==============================================================================
-
-[group: 'Deployment']
-mod deploy 'misc/justfiles/deployment.just'
-
-alias dl := deploy::list
-alias dc := deploy::create
-alias dd := deploy::delete
 
 # ==============================================================================
 # Pull Requests
@@ -171,3 +180,14 @@ mod pr 'misc/justfiles/pr.just'
 alias prc := pr::create
 alias prr := pr::review
 alias prv := pr::view
+
+# ==============================================================================
+# Deployment
+# ==============================================================================
+
+[group: 'Deployment']
+mod deploy 'misc/justfiles/deployment.just'
+
+alias dl := deploy::list
+alias dc := deploy::create
+alias dd := deploy::delete
