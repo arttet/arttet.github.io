@@ -165,6 +165,9 @@ jobs:
           ANALYZE: true
         run: bun --bun run build
 
+      - name: Build docs
+        run: bun --bun run --cwd docs docs:build
+
       - name: Upload Cloudflare Pages artifact
         uses: actions/upload-artifact@v7
         if: ${{ !cancelled() && hashFiles('target/build/**') != '' }}
@@ -184,6 +187,13 @@ jobs:
         with:
           name: github-pages
           path: ./target/build
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() && hashFiles('docs/.vitepress/dist/**') != '' }}
+        with:
+          name: cloudflare-docs-pages
+          path: docs/.vitepress/dist/
 
   playwright:
     name: Playwright
@@ -479,12 +489,15 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CF_PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT }}
       CF_INFRA_PAGES_PROJECT: ${{ vars.CF_INFRA_PAGES_PROJECT }}
+      CF_DOCS_PAGES_PROJECT: ${{ vars.CF_DOCS_PAGES_PROJECT }}
       CF_SITE_BRANCH: pr-${{ github.event.pull_request.number }}
       CF_INFRA_BRANCH: pr-${{ github.event.pull_request.number }}
+      CF_DOCS_BRANCH: pr-${{ github.event.pull_request.number }}
       HAS_CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
       HAS_CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
       HAS_CF_SITE_PROJECT: ${{ vars.CF_PAGES_PROJECT != '' }}
       HAS_CF_INFRA_PROJECT: ${{ vars.CF_INFRA_PAGES_PROJECT != '' }}
+      HAS_CF_DOCS_PROJECT: ${{ vars.CF_DOCS_PAGES_PROJECT != '' }}
 
     steps:
       - name: Checkout
@@ -523,6 +536,14 @@ jobs:
         with:
           name: cloudflare-pages
           path: target/build
+
+      - name: Download docs artifact
+        if: ${{ steps.artifacts.outputs.has_cloudflare_docs_pages == 'true' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: cloudflare-docs-pages
+          path: docs/.vitepress/dist
 
       - name: Download Chrome desktop report
         if: ${{ steps.artifacts.outputs.has_pw_chrome_desktop == 'true' }}
@@ -616,6 +637,23 @@ jobs:
           steps.artifacts.outputs.has_cloudflare_pages == 'true' }}
         run: bunx wrangler pages deploy ./target/build --project-name "$CF_PAGES_PROJECT"
 
+      - name: Deploy docs preview to Cloudflare Pages
+        if:
+          ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && env.HAS_CF_TOKEN ==
+          'true' && env.HAS_CF_ACCOUNT == 'true' && env.HAS_CF_DOCS_PROJECT == 'true' &&
+          steps.artifacts.outputs.has_cloudflare_docs_pages == 'true' }}
+        id: cf_docs_preview
+        run: |
+          bunx wrangler pages deploy ./docs/.vitepress/dist --project-name "$CF_DOCS_PAGES_PROJECT" --branch "$CF_DOCS_BRANCH"
+          echo "docs_preview_url=https://${CF_DOCS_BRANCH}.${CF_DOCS_PAGES_PROJECT}.pages.dev" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy docs production to Cloudflare Pages
+        if:
+          ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_CF_TOKEN == 'true' &&
+          env.HAS_CF_ACCOUNT == 'true' && env.HAS_CF_DOCS_PROJECT == 'true' &&
+          steps.artifacts.outputs.has_cloudflare_docs_pages == 'true' }}
+        run: bunx wrangler pages deploy ./docs/.vitepress/dist --project-name "$CF_DOCS_PAGES_PROJECT"
+
       - name: Publish infra links
         id: links
         run: |
@@ -660,6 +698,7 @@ jobs:
         id: body
         env:
           APP_PREVIEW_URL: ${{ steps.cf_site_preview.outputs.preview_url }}
+          DOCS_PREVIEW_URL: ${{ steps.cf_docs_preview.outputs.docs_preview_url }}
           INFRA_ROOT_URL: ${{ steps.links.outputs.infra_url }}
           PLAYWRIGHT_URL: ${{ steps.links.outputs.playwright_url }}
           LIGHTHOUSE_URL: ${{ steps.links.outputs.lighthouse_url }}

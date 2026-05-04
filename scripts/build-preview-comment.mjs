@@ -2,6 +2,7 @@ import { appendFileSync } from 'node:fs';
 
 const entries = [
   ['App Preview', process.env.APP_PREVIEW_URL],
+  ['Docs Preview', process.env.DOCS_PREVIEW_URL],
   ['Infra Root', process.env.INFRA_ROOT_URL],
   ['Playwright Report', process.env.PLAYWRIGHT_URL],
   ['Lighthouse Report', process.env.LIGHTHOUSE_URL],

@@ -34,6 +34,7 @@ const expectedArtifacts = [
   ['lighthouse-report-chrome-desktop', 'has_lh_chrome_desktop'],
   ['lighthouse-report-chrome-mobile', 'has_lh_chrome_mobile'],
   ['bundle-report', 'has_bundle_report'],
+  ['cloudflare-docs-pages', 'has_cloudflare_docs_pages'],
 ];
 
 const lines = expectedArtifacts.map(

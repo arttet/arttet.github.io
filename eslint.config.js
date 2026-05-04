@@ -30,10 +30,12 @@ export default [
   },
   {
     ignores: [
-      'target/',
       '.svelte-kit/',
-      'node_modules/',
       'content/**',
+      'docs/.vitepress/cache/',
+      'docs/.vitepress/dist/',
+      'node_modules/',
+      'target/',
       'tests/playwright/**-snapshots/',
     ],
   },
