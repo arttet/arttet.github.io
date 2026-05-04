@@ -53,27 +53,7 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 500,
     minify: 'esbuild',
     esbuild: mode === 'production' ? { drop: ['console', 'debugger'] } : undefined,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules/katex')) {
-            return 'markdown-katex';
-          }
-          if (id.includes('node_modules/mermaid')) {
-            return 'markdown-mermaid';
-          }
-          if (id.includes('src/shared/markdown')) {
-            return 'markdown-runtime';
-          }
-          if (id.includes('src/shared/lib/actions/mermaid')) {
-            return 'markdown-mermaid-runtime';
-          }
-          if (id.includes('src/shared/lib/actions/codeTabs')) {
-            return 'markdown-code-tabs-runtime';
-          }
-        },
-      },
-    },
+    rollupOptions: {},
   },
 
   worker: {

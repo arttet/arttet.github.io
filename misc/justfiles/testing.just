@@ -43,5 +43,6 @@ lhci:
 [no-cd]
 bundle:
     @echo "📦 Checking bundle budget..."
+    ANALYZE=true just build
     bun scripts/bundle-report.mjs check --stats target/bundle/stats.json --baseline misc/bundle-baseline.json --threshold "{{ bundle_budget_threshold }}" --summary target/bundle/summary.md --json target/bundle/summary.json
     @echo "✅ Bundle budget passed!"
