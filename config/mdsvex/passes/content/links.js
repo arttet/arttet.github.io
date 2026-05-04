@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
-import { resolvePassContext } from '../../engine/context.js';
+import { resolvePassContext, stateRead, stateWrite } from '../../engine/context.js';
 
 import { walk } from '../_internal/walk.js';
 
@@ -24,8 +24,8 @@ export function linksPass(options = {}) {
       const metadata = options.knownSlugs
         ? { knownSlugs: options.knownSlugs, draftSlugs: new Set() }
         : getSlugMetadata();
-      build.state.knownSlugs = metadata.knownSlugs;
-      build.state.draftSlugs = metadata.draftSlugs;
+      stateWrite(build.state, 'knownSlugs', metadata.knownSlugs);
+      stateWrite(build.state, 'draftSlugs', metadata.draftSlugs);
     },
     mdsvex(build) {
       return {
@@ -106,7 +106,7 @@ function createLinksRemarkPlugin(build) {
 
 /**
  * @param {MarkdownNode} node
- * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics>; state: Record<string, unknown> }} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics>; state: import('../../engine/context.js').PipelineState }} ctx
  * @param {{ path?: string; history?: string[] }} file
  */
 function validateLinkUrl(node, ctx, file) {
@@ -115,8 +115,8 @@ function validateLinkUrl(node, ctx, file) {
 
   if (url.startsWith(BLOG_PATH_PREFIX)) {
     const slug = url.slice(BLOG_PATH_PREFIX.length).split(/[/?#]/)[0];
-    const knownSlugs = /** @type {Set<string>} */ (ctx.state.knownSlugs);
-    const draftSlugs = /** @type {Set<string>} */ (ctx.state.draftSlugs);
+    const knownSlugs = /** @type {Set<string>} */ (stateRead(ctx.state, 'knownSlugs'));
+    const draftSlugs = /** @type {Set<string>} */ (stateRead(ctx.state, 'draftSlugs'));
     if (slug && !knownSlugs.has(slug)) {
       addDiagnostic(ctx, {
         code: DIAGNOSTIC_CODES.BROKEN_INTERNAL_LINK,

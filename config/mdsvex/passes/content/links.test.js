@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createBuildContext } from '../../engine/context.js';
+import { createBuildContext, stateWrite } from '../../engine/context.js';
 import { linksPass } from './links.js';
 
 /**
@@ -37,8 +37,8 @@ function createTestContext(mode = 'warn') {
  */
 function getRemarkPlugin(knownSlugs, draftSlugs = new Set()) {
   const build = createTestContext();
-  build.state.knownSlugs = knownSlugs;
-  build.state.draftSlugs = draftSlugs;
+  stateWrite(build.state, 'knownSlugs', knownSlugs);
+  stateWrite(build.state, 'draftSlugs', draftSlugs);
   const plugins = /** @type {any} */ (linksPass({ knownSlugs }).mdsvex)(build).remarkPlugins;
   const plugin = /** @type {any} */ (plugins?.[0]);
   if (typeof plugin !== 'function') {
@@ -57,7 +57,7 @@ describe('links pass', () => {
 
   it('reports broken internal blog links', () => {
     const build = createTestContext();
-    build.state.knownSlugs = new Set(['existing-post']);
+    stateWrite(build.state, 'knownSlugs', new Set(['existing-post']));
     const plugins = /** @type {any} */ (
       linksPass({ knownSlugs: new Set(['existing-post']) }).mdsvex
     )(build).remarkPlugins;
@@ -103,7 +103,7 @@ describe('links pass', () => {
 
   it('ignores external links', () => {
     const build = createTestContext();
-    build.state.knownSlugs = new Set();
+    stateWrite(build.state, 'knownSlugs', new Set());
     const plugins = /** @type {any} */ (linksPass({ knownSlugs: new Set() }).mdsvex)(
       build
     ).remarkPlugins;
@@ -120,7 +120,7 @@ describe('links pass', () => {
 
   it('ignores relative page links', () => {
     const build = createTestContext();
-    build.state.knownSlugs = new Set();
+    stateWrite(build.state, 'knownSlugs', new Set());
     const plugins = /** @type {any} */ (linksPass({ knownSlugs: new Set() }).mdsvex)(
       build
     ).remarkPlugins;
@@ -137,8 +137,8 @@ describe('links pass', () => {
 
   it('reports links to draft posts', () => {
     const build = createTestContext();
-    build.state.knownSlugs = new Set(['draft-post']);
-    build.state.draftSlugs = new Set(['draft-post']);
+    stateWrite(build.state, 'knownSlugs', new Set(['draft-post']));
+    stateWrite(build.state, 'draftSlugs', new Set(['draft-post']));
     const plugins = /** @type {any} */ (linksPass({ knownSlugs: new Set(['draft-post']) }).mdsvex)(
       build
     ).remarkPlugins;
