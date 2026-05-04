@@ -1,34 +1,36 @@
-import { getPosts } from '$entities/post/api.server';
+import { getManifestPosts } from '$lib/manifest';
 import { site } from '$shared/config/site';
 import { escXml } from '$shared/lib/escXml';
 
 export const prerender = true;
 
 export function GET() {
-  const posts = getPosts();
+  const posts = getManifestPosts();
 
   // Use the most recent post's date as the feed updated date, or current date if no posts
   const feedUpdated =
     posts.length > 0
       ? new Date(
-          Math.max(...posts.map((p) => new Date(p.updated || p.created).getTime()))
+          Math.max(
+            ...posts.map((p) => new Date(p.frontmatter.updated || p.frontmatter.created).getTime())
+          )
         ).toUTCString()
       : new Date().toUTCString();
 
   const entries = posts
     .map((post) => {
       const postUrl = `${site.url}/blog/${post.slug}`;
-      const pubDate = new Date(post.created).toUTCString();
+      const pubDate = new Date(post.frontmatter.created).toUTCString();
 
       return `
-	<item>
-		<title>${escXml(post.title)}</title>
-		<link>${postUrl}</link>
-		<guid isPermaLink="true">${postUrl}</guid>
-		<pubDate>${pubDate}</pubDate>
-		${post.summary ? `<description>${escXml(post.summary)}</description>` : ''}
-		${post.tags.map((t) => `<category>${escXml(t)}</category>`).join('\n\t\t')}
-	</item>`;
+		<item>
+			<title>${escXml(post.frontmatter.title)}</title>
+			<link>${postUrl}</link>
+			<guid isPermaLink="true">${postUrl}</guid>
+			<pubDate>${pubDate}</pubDate>
+			${post.frontmatter.description ? `<description>${escXml(post.frontmatter.description)}</description>` : ''}
+			${(post.frontmatter.tags ?? []).map((t) => `<category>${escXml(t)}</category>`).join('\n\t\t')}
+		</item>`;
     })
     .join('');
 

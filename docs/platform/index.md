@@ -7,6 +7,12 @@ Last Updated: 2026-05-04
 
 [arttet.dev](https://arttet.dev) is a personal publishing platform that feels like a static blog but works like a compiler.
 
+| Resource      | URL                                          | What                                        |
+| ------------- | -------------------------------------------- | ------------------------------------------- |
+| Live site     | [arttet.dev](https://arttet.dev)             | My personal blog                            |
+| Platform docs | [docs.arttet.dev](https://docs.arttet.dev)   | Writer guide, developer guide, architecture |
+| Infra reports | [infra.arttet.dev](https://infra.arttet.dev) | Playwright, Lighthouse, bundle, coverage    |
+
 You write Markdown with math, diagrams, and interactive components. The platform takes care of the rest. It validates your content, optimizes it, and turns everything into clean, deterministic HTML. There is no runtime CMS and no hydration overhead, because everything is resolved ahead of time.
 
 Under the hood, the platform is built with SvelteKit and compiled using Bun. Features like math, diagrams, and syntax highlighting are processed during the build, so the final result stays fast and predictable. Any runtime code is only loaded when it is actually needed.

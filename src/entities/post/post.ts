@@ -5,6 +5,8 @@ export interface PostFrontmatter {
   updated?: string;
   draft?: boolean;
   summary?: string;
+  description?: string;
+  canonical?: string;
   toc?: boolean;
   hasMath?: boolean;
   hasMermaid?: boolean;

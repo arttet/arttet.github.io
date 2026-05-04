@@ -12,14 +12,14 @@ describe('markdown diagnostics', () => {
     diagnostics.add({
       code: 'MDX003_RAW_HTML',
       severity: 'critical',
-      step: 'raw-html-guard',
+      pass: 'raw-html-guard',
       message: 'Raw HTML is blocked.',
       file: 'b.md',
     });
     diagnostics.add({
       code: 'MDX001_UNKNOWN_COMPONENT',
       severity: 'warning',
-      step: 'component-guard',
+      pass: 'component-guard',
       message: 'Unknown component.',
       file: 'a.md',
       line: 2,
@@ -27,7 +27,7 @@ describe('markdown diagnostics', () => {
     diagnostics.add({
       code: 'MDX001_UNKNOWN_COMPONENT',
       severity: 'info',
-      step: 'component-guard',
+      pass: 'component-guard',
       message: 'Unknown component.',
       file: 'a.md',
       line: 1,
@@ -55,7 +55,7 @@ describe('markdown diagnostics', () => {
     diagnostics.add({
       code: 'MDX001_UNKNOWN_COMPONENT',
       severity: 'info',
-      step: 'component-guard',
+      pass: 'component-guard',
       message: 'Unknown component.',
       file: 'a.md',
       line: 1,
@@ -64,7 +64,7 @@ describe('markdown diagnostics', () => {
     diagnostics.add({
       code: 'MDX003_RAW_HTML',
       severity: 'critical',
-      step: 'raw-html-guard',
+      pass: 'raw-html-guard',
       message: 'Raw HTML is blocked.',
       file: 'a.md',
       line: 1,
@@ -83,7 +83,7 @@ describe('markdown diagnostics', () => {
         {
           code: 'MDX004_IMAGE_MISSING_ALT',
           severity: 'warning',
-          step: 'image-guard',
+          pass: 'image-guard',
           message: 'Image alt text is required.',
           file: 'post.md',
           line: 8,
@@ -92,7 +92,7 @@ describe('markdown diagnostics', () => {
         {
           code: 'MDX003_RAW_HTML',
           severity: 'critical',
-          step: 'raw-html-guard',
+          pass: 'raw-html-guard',
           message: 'Raw HTML is blocked.',
           file: 'post.md',
           line: 2,
@@ -114,7 +114,7 @@ describe('markdown diagnostics', () => {
         {
           code: 'MDX003_RAW_HTML',
           severity: 'critical',
-          step: 'raw-html-guard',
+          pass: 'raw-html-guard',
           message: 'Raw HTML is blocked.',
           file: 'post.md',
           line: 2,
@@ -123,7 +123,7 @@ describe('markdown diagnostics', () => {
         {
           code: 'MDX004_IMAGE_MISSING_ALT',
           severity: 'warning',
-          step: 'image-guard',
+          pass: 'image-guard',
           message: 'Image alt text is required.',
           file: 'post.md',
           line: 8,
@@ -146,7 +146,7 @@ describe('markdown diagnostics', () => {
         {
           code: 'MDX003_RAW_HTML',
           severity: 'critical',
-          step: 'raw-html-guard',
+          pass: 'raw-html-guard',
           message: 'Raw HTML is blocked.',
           file: 'post.md',
           line: 2,
@@ -180,7 +180,7 @@ describe('markdown diagnostics', () => {
     diagnostics.add({
       code: 'MDX001',
       severity: 'warning',
-      step: 'test',
+      pass: 'test',
       message: 'Test',
     });
     expect(diagnostics.has('warning')).toBe(true);

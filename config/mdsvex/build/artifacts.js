@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 import { ARTIFACTS } from '../constants.js';
 import { renderDiagnosticsMarkdown } from '../engine/diagnostics.js';
 
@@ -44,11 +44,23 @@ export function createGeneratedArtifacts(input) {
  * @param {GeneratedArtifact[]} artifacts
  * @param {{ outputDir?: string }=} options
  */
+/**
+ * @param {string} p
+ * @returns {string}
+ */
+function toPosixPath(p) {
+  return p.split(sep).join('/');
+}
+
+/**
+ * @param {GeneratedArtifact[]} artifacts
+ * @param {{ outputDir?: string }} [options]
+ */
 export async function writeGeneratedArtifacts(artifacts, options = {}) {
   const outputDir = options.outputDir ?? generatedArtifactsDir;
 
   for (const artifact of artifacts) {
-    const outputPath = join(outputDir, artifact.path);
+    const outputPath = toPosixPath(join(outputDir, artifact.path));
     // Writes are intentionally sequential for deterministic filesystem traces.
     // oxlint-disable-next-line no-await-in-loop
     await mkdir(dirname(outputPath), { recursive: true });

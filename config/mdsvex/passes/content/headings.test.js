@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createDiagnostics } from '../../engine/diagnostics.js';
-import { markdownComponentRegistry } from '../../engine/registry.js';
+import { createBuildContext } from '../../engine/context.js';
 import { headingsPass } from './headings.js';
 
 /**
@@ -26,21 +25,16 @@ function headingNode(depth, line = 1, column = 1, text = `Heading ${depth}`) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownMode} [mode]
- * @returns {import('../../engine/index.js').MarkdownPipelineContext}
+ * @param {import('../../engine/context.js').MarkdownMode} [mode]
+ * @returns {import('../../engine/context.js').BuildContext}
  */
-function createContext(mode = 'warn') {
-  return {
-    mode,
-    diagnostics: createDiagnostics(),
-    registry: markdownComponentRegistry,
-    state: {},
-  };
+function createTestContext(mode = 'warn') {
+  return createBuildContext(mode);
 }
 
 describe('headings pass', () => {
   it('allows valid heading hierarchy', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     const plugins = /** @type {any} */ (headingsPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
     if (typeof plugin !== 'function') {
@@ -53,7 +47,7 @@ describe('headings pass', () => {
   });
 
   it('reports multiple h1 headings', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     const plugins = /** @type {any} */ (headingsPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
     if (typeof plugin !== 'function') {
@@ -76,7 +70,7 @@ describe('headings pass', () => {
   });
 
   it('reports heading hierarchy skip', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     const plugins = /** @type {any} */ (headingsPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
     if (typeof plugin !== 'function') {
@@ -96,7 +90,7 @@ describe('headings pass', () => {
   });
 
   it('allows same-level headings', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     const plugins = /** @type {any} */ (headingsPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
     if (typeof plugin !== 'function') {
@@ -112,7 +106,7 @@ describe('headings pass', () => {
   });
 
   it('reports duplicate heading text', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
     const plugins = /** @type {any} */ (headingsPass().mdsvex)(ctx).remarkPlugins;
     const plugin = plugins?.[0];
     if (typeof plugin !== 'function') {

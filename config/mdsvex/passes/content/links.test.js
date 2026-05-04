@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createDiagnostics } from '../../engine/diagnostics.js';
-import { markdownComponentRegistry } from '../../engine/registry.js';
+import { createBuildContext } from '../../engine/context.js';
 import { linksPass } from './links.js';
 
 /**
@@ -24,16 +23,11 @@ function linkNode(url, line = 1, column = 1) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownMode} [mode]
- * @returns {import('../../engine/index.js').MarkdownPipelineContext}
+ * @param {import('../../engine/context.js').MarkdownMode} [mode]
+ * @returns {import('../../engine/context.js').BuildContext}
  */
-function createContext(mode = 'warn') {
-  return {
-    mode,
-    diagnostics: createDiagnostics(),
-    registry: markdownComponentRegistry,
-    state: {},
-  };
+function createTestContext(mode = 'warn') {
+  return createBuildContext(mode);
 }
 
 /**
@@ -42,10 +36,10 @@ function createContext(mode = 'warn') {
  * @returns {(tree: import('./links.js').MarkdownNode, file: { path?: string }) => void}
  */
 function getRemarkPlugin(knownSlugs, draftSlugs = new Set()) {
-  const ctx = createContext();
-  ctx.state.knownSlugs = knownSlugs;
-  ctx.state.draftSlugs = draftSlugs;
-  const plugins = /** @type {any} */ (linksPass({ knownSlugs }).mdsvex)(ctx).remarkPlugins;
+  const build = createTestContext();
+  build.state.knownSlugs = knownSlugs;
+  build.state.draftSlugs = draftSlugs;
+  const plugins = /** @type {any} */ (linksPass({ knownSlugs }).mdsvex)(build).remarkPlugins;
   const plugin = /** @type {any} */ (plugins?.[0]);
   if (typeof plugin !== 'function') {
     throw new Error('Expected remark plugin to be a function');
@@ -62,11 +56,11 @@ describe('links pass', () => {
   });
 
   it('reports broken internal blog links', () => {
-    const ctx = createContext();
-    ctx.state.knownSlugs = new Set(['existing-post']);
+    const build = createTestContext();
+    build.state.knownSlugs = new Set(['existing-post']);
     const plugins = /** @type {any} */ (
       linksPass({ knownSlugs: new Set(['existing-post']) }).mdsvex
-    )(ctx).remarkPlugins;
+    )(build).remarkPlugins;
     const plugin = /** @type {any} */ (plugins?.[0]);
     if (typeof plugin !== 'function') {
       throw new Error('Expected remark plugin to be a function');
@@ -75,7 +69,7 @@ describe('links pass', () => {
 
     transformer(root([linkNode('/blog/missing-post', 3, 5)]), { path: 'post.md' });
 
-    expect(ctx.diagnostics.list()).toEqual([
+    expect(build.diagnostics.list()).toEqual([
       expect.objectContaining({
         code: 'MDX011_BROKEN_INTERNAL_LINK',
         message: expect.stringContaining('/blog/missing-post'),
@@ -87,9 +81,9 @@ describe('links pass', () => {
   });
 
   it('reports empty anchor links', () => {
-    const ctx = createContext();
+    const build = createTestContext();
     const plugins = /** @type {any} */ (linksPass({ knownSlugs: new Set() }).mdsvex)(
-      ctx
+      build
     ).remarkPlugins;
     const plugin = /** @type {any} */ (plugins?.[0]);
     if (typeof plugin !== 'function') {
@@ -99,7 +93,7 @@ describe('links pass', () => {
 
     transformer(root([linkNode('#', 2, 1)]), { path: 'post.md' });
 
-    expect(ctx.diagnostics.list()).toEqual([
+    expect(build.diagnostics.list()).toEqual([
       expect.objectContaining({
         code: 'MDX012_EMPTY_ANCHOR',
         message: expect.stringContaining('Empty anchor'),
@@ -108,10 +102,10 @@ describe('links pass', () => {
   });
 
   it('ignores external links', () => {
-    const ctx = createContext();
-    ctx.state.knownSlugs = new Set();
+    const build = createTestContext();
+    build.state.knownSlugs = new Set();
     const plugins = /** @type {any} */ (linksPass({ knownSlugs: new Set() }).mdsvex)(
-      ctx
+      build
     ).remarkPlugins;
     const plugin = /** @type {any} */ (plugins?.[0]);
     if (typeof plugin !== 'function') {
@@ -121,14 +115,14 @@ describe('links pass', () => {
 
     transformer(root([linkNode('https://example.com')]), { path: 'post.md' });
 
-    expect(ctx.diagnostics.list()).toEqual([]);
+    expect(build.diagnostics.list()).toEqual([]);
   });
 
   it('ignores relative page links', () => {
-    const ctx = createContext();
-    ctx.state.knownSlugs = new Set();
+    const build = createTestContext();
+    build.state.knownSlugs = new Set();
     const plugins = /** @type {any} */ (linksPass({ knownSlugs: new Set() }).mdsvex)(
-      ctx
+      build
     ).remarkPlugins;
     const plugin = /** @type {any} */ (plugins?.[0]);
     if (typeof plugin !== 'function') {
@@ -138,15 +132,15 @@ describe('links pass', () => {
 
     transformer(root([linkNode('/about'), linkNode('/rss.xml')]), { path: 'post.md' });
 
-    expect(ctx.diagnostics.list()).toEqual([]);
+    expect(build.diagnostics.list()).toEqual([]);
   });
 
   it('reports links to draft posts', () => {
-    const ctx = createContext();
-    ctx.state.knownSlugs = new Set(['draft-post']);
-    ctx.state.draftSlugs = new Set(['draft-post']);
+    const build = createTestContext();
+    build.state.knownSlugs = new Set(['draft-post']);
+    build.state.draftSlugs = new Set(['draft-post']);
     const plugins = /** @type {any} */ (linksPass({ knownSlugs: new Set(['draft-post']) }).mdsvex)(
-      ctx
+      build
     ).remarkPlugins;
     const plugin = /** @type {any} */ (plugins?.[0]);
     if (typeof plugin !== 'function') {
@@ -156,7 +150,7 @@ describe('links pass', () => {
 
     transformer(root([linkNode('/blog/draft-post', 4, 2)]), { path: 'post.md' });
 
-    expect(ctx.diagnostics.list()).toEqual([
+    expect(build.diagnostics.list()).toEqual([
       expect.objectContaining({
         code: 'MDX009_LINK_TO_HIDDEN',
         message: expect.stringContaining('draft-post'),

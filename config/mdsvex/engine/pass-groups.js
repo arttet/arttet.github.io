@@ -13,6 +13,7 @@ import { rehypeHeadingsPass } from '../passes/content/rehype-headings.js';
 import { extractionPass } from '../passes/optimization/extraction.js';
 import { tocPass } from '../passes/content/toc.js';
 import { imagesPass } from '../passes/optimization/images.js';
+import { resourceLimitsPass } from '../passes/security/resource-limits.js';
 import { securityGuardsPass } from '../passes/security/security-guards.js';
 
 /**
@@ -48,5 +49,5 @@ export function contentPasses() {
  * @returns {readonly import('./index.js').MarkdownPass[]}
  */
 export function securityPasses() {
-  return Object.freeze([securityGuardsPass()]);
+  return Object.freeze([securityGuardsPass(), resourceLimitsPass()]);
 }

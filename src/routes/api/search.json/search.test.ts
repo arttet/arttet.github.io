@@ -1,15 +1,17 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('$entities/post/api.server', () => ({
-  getPosts: () => [
+vi.mock('$lib/manifest', () => ({
+  getManifestPosts: () => [
     {
       slug: 'post-1',
-      title: 'Post 1',
-      tags: ['t1'],
-      created: '2026-04-21',
-      summary: 'Summary 1',
-      readingTime: 5,
+      frontmatter: {
+        title: 'Post 1',
+        tags: ['t1'],
+        created: '2026-04-21',
+      },
+      flags: {},
+      extracted: {},
     },
   ],
 }));

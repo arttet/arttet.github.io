@@ -1,19 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { createDiagnostics } from '../../engine/diagnostics.js';
-import { markdownComponentRegistry } from '../../engine/registry.js';
+import { createBuildContext } from '../../engine/context.js';
 import { validateMarkdownTree } from './security-guards.js';
 
 /**
- * @param {import('../../engine/index.js').MarkdownMode} [mode]
- * @returns {import('../../engine/index.js').MarkdownPipelineContext}
+ * @param {import('../../engine/context.js').MarkdownMode} [mode]
+ * @returns {import('../../engine/context.js').BuildContext}
  */
-function createContext(mode = 'warn') {
-  return {
-    mode,
-    diagnostics: createDiagnostics(),
-    registry: markdownComponentRegistry,
-    state: {},
-  };
+function createTestContext(mode = 'warn') {
+  return createBuildContext(mode);
 }
 
 /**
@@ -38,7 +32,7 @@ function root(children) {
 
 describe('security guards pass', () => {
   it('reports unsafe raw HTML as warning in warn mode', () => {
-    const ctx = createContext('warn');
+    const ctx = createTestContext('warn');
 
     validateMarkdownTree(root([htmlNode('<SCRIPT>alert(1)</SCRIPT>')]), ctx, 'post.md');
 
@@ -55,7 +49,7 @@ describe('security guards pass', () => {
   });
 
   it('reports unsafe raw HTML as critical in strict mode', () => {
-    const ctx = createContext('strict');
+    const ctx = createTestContext('strict');
 
     validateMarkdownTree(root([htmlNode('<SCRIPT>alert(1)</SCRIPT>')]), ctx, 'post.md');
 
@@ -72,7 +66,7 @@ describe('security guards pass', () => {
   });
 
   it('reports event handlers separated by a slash', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
 
     validateMarkdownTree(
       root([htmlNode('<button/onclick=alert(1)>Click</button>')]),
@@ -89,7 +83,7 @@ describe('security guards pass', () => {
   });
 
   it('reports unsafe urls in markdown links', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
 
     validateMarkdownTree(
       root([
@@ -111,7 +105,7 @@ describe('security guards pass', () => {
   });
 
   it('reports unsafe urls within raw html tags', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
 
     validateMarkdownTree(
       root([htmlNode('<a href="javascript:alert(1)">Click</a>')]),
@@ -127,7 +121,7 @@ describe('security guards pass', () => {
   });
 
   it('allows safe URLs', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
 
     validateMarkdownTree(
       root([
@@ -145,7 +139,7 @@ describe('security guards pass', () => {
   });
 
   it('reports unknown markdown components', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
 
     validateMarkdownTree(root([htmlNode('<ChartBlock value={1} />')]), ctx, 'post.md');
 
@@ -158,7 +152,7 @@ describe('security guards pass', () => {
   });
 
   it('reports unknown props on registered markdown components', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
 
     validateMarkdownTree(
       root([htmlNode('<MathCopy display={true} unsafe={true} />')]),
@@ -175,7 +169,7 @@ describe('security guards pass', () => {
   });
 
   it('allows registered generated components with known props', () => {
-    const ctx = createContext();
+    const ctx = createTestContext();
 
     validateMarkdownTree(
       root([

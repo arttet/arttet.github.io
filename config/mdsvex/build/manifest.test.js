@@ -29,14 +29,14 @@ describe('content manifest', () => {
     expect(manifest.posts.map((post) => post.slug)).toEqual(['a', 'b']);
     expect(manifest.posts[0]).toEqual({
       slug: 'a',
-      title: 'A',
-      summary: 'Summary',
-      created: '2026-04-21',
-      updated: '2026-04-22',
-      tags: ['a', 'z'],
-      readingTime: 1,
-      metadataHash: expect.stringMatching(/^[a-f0-9]{64}$/),
-      features: {
+      frontmatter: {
+        title: 'A',
+        created: '2026-04-21',
+        updated: '2026-04-22',
+        tags: ['a', 'z'],
+        description: 'Summary',
+      },
+      flags: {
         hasMath: true,
         hasMermaid: false,
         hasCode: true,
@@ -47,9 +47,14 @@ describe('content manifest', () => {
         hasImageLightbox: false,
         hasInteractiveBlocks: false,
       },
-      assets: [],
+      extracted: expect.objectContaining({
+        readingTime: 1,
+        metadataHash: expect.stringMatching(/^[a-f0-9]{64}$/),
+        assets: [],
+        hasMath: true,
+      }),
     });
-    expect(manifest.posts[1].features).toEqual({
+    expect(manifest.posts[1].flags).toEqual({
       hasMath: false,
       hasMermaid: false,
       hasCode: false,
@@ -103,7 +108,7 @@ describe('content manifest', () => {
       },
     ]).posts;
 
-    expect(first.metadataHash).not.toBe(second.metadataHash);
+    expect(first.extracted.metadataHash).not.toBe(second.extracted.metadataHash);
   });
 
   it('changes metadata hash when contentHash changes', () => {
@@ -128,6 +133,6 @@ describe('content manifest', () => {
       },
     ]).posts;
 
-    expect(first.metadataHash).not.toBe(second.metadataHash);
+    expect(first.extracted.metadataHash).not.toBe(second.extracted.metadataHash);
   });
 });

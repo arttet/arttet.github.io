@@ -71,7 +71,7 @@ function createInput() {
         {
           code: 'MDX003_RAW_HTML',
           severity: 'critical',
-          step: 'raw-html-guard',
+          pass: 'raw-html-guard',
           message: 'Raw HTML is blocked.',
           file: 'a.md',
           line: 1,

@@ -1,10 +1,9 @@
 import { deepFreeze, VALIDATION_MODE } from '../constants.js';
-import { createContext } from './context.js';
+import { createBuildContext } from './context.js';
 
 /**
  * @typedef {import('./context.js').MarkdownMode} MarkdownMode
- * @typedef {import('./context.js').MarkdownPipelineContext} MarkdownPipelineContext
- * @typedef {import('./context.js').PassContext} PassContext
+ * @typedef {import('./context.js').BuildContext} BuildContext
  * @typedef {import('./context.js').MarkdownPass} MarkdownPass
  * @typedef {import('./diagnostics.js').Diagnostic} Diagnostic
  * @typedef {import('mdsvex').MdsvexOptions} MdsvexOptions
@@ -35,20 +34,20 @@ export function createMarkdownEngine(options = {}) {
     },
 
     /**
-     * @returns {Promise<{ config: MdsvexOptions; ctx: MarkdownPipelineContext }>}
+     * @returns {Promise<{ config: MdsvexOptions; build: BuildContext }>}
      */
     async toMdsvexConfig() {
       const orderedPasses = orderPasses([...passes]);
       Object.freeze(passes);
-      const ctx = createContext(options.mode ?? VALIDATION_MODE.STRICT);
+      const build = createBuildContext(options.mode ?? VALIDATION_MODE.STRICT);
 
       for (const pass of orderedPasses) {
         // Pass setup follows dependency order; later passes may rely on earlier setup state.
         // oxlint-disable-next-line no-await-in-loop
-        await pass.setup?.(ctx);
+        await pass.setup?.(build);
       }
 
-      return { config: mergeMdsvexOptions(orderedPasses, ctx), ctx };
+      return { config: mergeMdsvexOptions(orderedPasses, build), build };
     },
   };
 }
@@ -98,10 +97,10 @@ function orderPasses(passes) {
 
 /**
  * @param {MarkdownPass[]} passes
- * @param {MarkdownPipelineContext} ctx
+ * @param {BuildContext} build
  * @returns {MdsvexOptions}
  */
-function mergeMdsvexOptions(passes, ctx) {
+function mergeMdsvexOptions(passes, build) {
   /** @type {MdsvexOptions} */
   const config = {
     extensions: ['.md'],
@@ -110,7 +109,7 @@ function mergeMdsvexOptions(passes, ctx) {
   };
 
   for (const pass of passes) {
-    const partial = pass.mdsvex?.(ctx);
+    const partial = pass.mdsvex?.(build);
     if (!partial) {
       continue;
     }

@@ -1,4 +1,5 @@
 import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+import { resolvePassContext } from '../../engine/context.js';
 
 /**
  * @typedef {Object} MarkdownNode
@@ -32,10 +33,10 @@ export function frontmatterPass() {
   return {
     name: 'frontmatter',
     phase: PASS_PHASES.VALIDATE,
-    mdsvex(ctx) {
+    mdsvex(build) {
       return {
         remarkPlugins: /** @type {import('mdsvex').MdsvexOptions['remarkPlugins']} */ ([
-          createFrontmatterRemarkPlugin(ctx),
+          createFrontmatterRemarkPlugin(build),
         ]),
       };
     },
@@ -43,22 +44,24 @@ export function frontmatterPass() {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/context.js').BuildContext} build
  */
-function createFrontmatterRemarkPlugin(ctx) {
+function createFrontmatterRemarkPlugin(build) {
   return function frontmatterAttacher() {
     /**
      * @param {MarkdownNode} _tree
      * @param {{ path?: string; history?: string[]; data?: { fm?: Record<string, unknown> } }} file
      */
     return function frontmatterTransformer(_tree, file) {
-      validateFrontmatter(ctx, file.data?.fm, file.path ?? file.history?.[0]);
+      const filePath = file.path ?? file.history?.[0];
+      const ctx = resolvePassContext(build, filePath);
+      validateFrontmatter(ctx, file.data?.fm, filePath);
     };
   };
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {unknown} fm
  * @param {string=} file
  */
@@ -76,16 +79,17 @@ export function validateFrontmatter(ctx, fm, file) {
   const data = /** @type {Record<string, unknown>} */ (fm);
 
   validateRequiredString(ctx, data, 'title', file);
-  validateStringArray(ctx, data, 'tags', file);
   validateIsoDate(ctx, data, 'created', true, file);
   validateIsoDate(ctx, data, 'updated', false, file);
+  validateOptionalString(ctx, data, 'description', file);
+  validateOptionalString(ctx, data, 'canonical', file);
   validateOptionalBoolean(ctx, data, 'draft', file);
   validateOptionalString(ctx, data, 'summary', file);
-  validateOptionalBoolean(ctx, data, 'toc', file);
+  validateStringArray(ctx, data, 'tags', file);
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {Record<string, unknown>} data
  * @param {string} key
  * @param {string=} file
@@ -102,13 +106,16 @@ function validateRequiredString(ctx, data, key, file) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {Record<string, unknown>} data
  * @param {string} key
  * @param {string=} file
  */
 function validateStringArray(ctx, data, key, file) {
   const value = data[key];
+  if (value === undefined) {
+    return;
+  }
   if (
     !Array.isArray(value) ||
     value.length === 0 ||
@@ -123,7 +130,7 @@ function validateStringArray(ctx, data, key, file) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {Record<string, unknown>} data
  * @param {string} key
  * @param {boolean} required
@@ -151,7 +158,7 @@ function validateIsoDate(ctx, data, key, required, file) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {Record<string, unknown>} data
  * @param {string} key
  * @param {string=} file
@@ -168,7 +175,7 @@ function validateOptionalString(ctx, data, key, file) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {Record<string, unknown>} data
  * @param {string} key
  * @param {string=} file
@@ -185,14 +192,14 @@ function validateOptionalBoolean(ctx, data, key, file) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {{ code: string; message: string; file?: string }} diagnostic
  */
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
     severity: ctx.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
-    step: 'frontmatter',
+    pass: 'frontmatter',
     message:
       ctx.mode === VALIDATION_MODE.WARN
         ? `${diagnostic.message} This post would be skipped in strict mode.`

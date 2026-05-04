@@ -6,63 +6,111 @@ export const pipelineVersion = PIPELINE_VERSION;
 /**
  * @typedef {Object} ContentManifestPost
  * @property {string} slug
- * @property {string} title
- * @property {string=} summary
- * @property {string} created
- * @property {string=} updated
- * @property {string[]} tags
- * @property {number} readingTime
- * @property {string=} contentHash
- * @property {string} metadataHash
- * @property {Record<string, boolean>} features
- * @property {string[]} assets
+ * @property {import('./frontmatter-schema.js').frontmatterSchema} frontmatter
+ * @property {Record<string, boolean>} flags
+ * @property {Object} extracted
+ * @property {number} extracted.readingTime
+ * @property {string} [extracted.contentHash]
+ * @property {string} extracted.metadataHash
+ * @property {string[]} extracted.assets
+ * @property {string[]} [extracted.headings]
+ * @property {string[]} [extracted.codeLangs]
+ * @property {string[]} [extracted.images]
+ * @property {string[]} [extracted.links]
+ * @property {boolean} [extracted.hasMath]
+ * @property {boolean} [extracted.hasMermaid]
  */
 
 /**
  * @typedef {Object} ContentManifest
  * @property {string} pipelineVersion
+ * @property {number} [buildEpoch]
  * @property {ContentManifestPost[]} posts
  */
 
 /**
  * @param {import('../../../src/entities/post/post').Post[]} posts
+ * @param {{ buildEpoch?: number }} [options]
  * @returns {ContentManifest}
  */
-export function createContentManifest(posts) {
-  return {
+export function createContentManifest(posts, options = {}) {
+  /** @type {ContentManifest} */
+  const manifest = {
     pipelineVersion,
     posts: posts
-      .map((post) => {
-        const entry = {
-          slug: post.slug,
-          title: post.title,
-          summary: post.summary,
-          created: post.created,
-          updated: post.updated,
-          tags: [...post.tags].toSorted((a, b) => a.localeCompare(b)),
-          readingTime: post.readingTime,
-          contentHash: post.contentHash,
-        };
-
-        return {
-          ...entry,
-          metadataHash: hashMetadata(entry),
-          features: createFeatures(post),
-          assets: [],
-        };
-      })
+      .map((post) => createManifestPost(post))
       .toSorted((a, b) => {
-        const date = b.created.localeCompare(a.created);
+        const date = b.frontmatter.created.localeCompare(a.frontmatter.created);
         if (date !== 0) {
-return date;
-}
+          return date;
+        }
         return a.slug.localeCompare(b.slug);
       }),
+  };
+
+  if (options.buildEpoch !== undefined) {
+    manifest.buildEpoch = options.buildEpoch;
+  }
+
+  return manifest;
+}
+
+/**
+ * @param {import('../../../src/entities/post/post').Post} post
+ * @returns {ContentManifestPost}
+ */
+function createManifestPost(post) {
+  const frontmatter = {
+    title: post.title,
+    created: post.created,
+    ...(post.summary !== undefined && { description: post.summary }),
+    ...(post.description !== undefined && { description: post.description }),
+    ...(post.updated !== undefined && { updated: post.updated }),
+    ...(post.draft !== undefined && { draft: post.draft }),
+    ...(post.tags !== undefined && { tags: [...post.tags].toSorted((a, b) => a.localeCompare(b)) }),
+    ...(post.canonical !== undefined && { canonical: post.canonical }),
+  };
+
+  const extracted = {
+    readingTime: post.readingTime,
+    contentHash: post.contentHash,
+    metadataHash: hashMetadata({
+      slug: post.slug,
+      title: post.title,
+      description: post.description ?? post.summary,
+      created: post.created,
+      updated: post.updated,
+      tags: post.tags,
+      readingTime: post.readingTime,
+      contentHash: post.contentHash,
+    }),
+    assets: [],
+    ...(post.extracted?.headings !== undefined && { headings: post.extracted.headings }),
+    ...(post.extracted?.codeLangs !== undefined && { codeLangs: post.extracted.codeLangs }),
+    ...(post.extracted?.images !== undefined && { images: post.extracted.images }),
+    ...(post.extracted?.links !== undefined && { links: post.extracted.links }),
+    ...(post.extracted?.hasMath !== undefined && { hasMath: post.extracted.hasMath }),
+    ...(post.extracted?.hasMermaid !== undefined && { hasMermaid: post.extracted.hasMermaid }),
+  };
+
+  return {
+    slug: post.slug,
+    frontmatter,
+    flags: createFeatures(post),
+    extracted,
   };
 }
 
 /**
- * @param {Pick<ContentManifestPost, 'slug' | 'title' | 'summary' | 'created' | 'updated' | 'tags' | 'readingTime' | 'contentHash'>} entry
+ * @param {Object} entry
+ * @param {string} entry.slug
+ * @param {string} entry.title
+ * @param {string|undefined} entry.description
+ * @param {string} entry.created
+ * @param {string|undefined} entry.updated
+ * @param {string[]|undefined} entry.tags
+ * @param {number} entry.readingTime
+ * @param {string|undefined} entry.contentHash
  */
 function hashMetadata(entry) {
   return createHash('sha256').update(JSON.stringify(entry)).digest('hex');

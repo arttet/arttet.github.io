@@ -1,4 +1,5 @@
 import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+import { resolvePassContext } from '../../engine/context.js';
 
 import { walk } from '../_internal/walk.js';
 
@@ -13,10 +14,10 @@ export function imagesGuardPass() {
   return {
     name: 'images-guard',
     phase: PASS_PHASES.VALIDATE,
-    mdsvex(ctx) {
+    mdsvex(build) {
       return {
         remarkPlugins: /** @type {import('mdsvex').MdsvexOptions['remarkPlugins']} */ ([
-          createImagesRemarkPlugin(ctx),
+          createImagesRemarkPlugin(build),
         ]),
       };
     },
@@ -24,9 +25,9 @@ export function imagesGuardPass() {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/context.js').BuildContext} build
  */
-function createImagesRemarkPlugin(ctx) {
+function createImagesRemarkPlugin(build) {
   return function imagesAttacher() {
     /**
      * @param {MarkdownNode} tree
@@ -34,6 +35,7 @@ function createImagesRemarkPlugin(ctx) {
      */
     return function imagesTransformer(tree, file) {
       const filePath = file.path ?? file.history?.[0];
+      const ctx = resolvePassContext(build, filePath);
       walk(tree, (node) => {
         if (node.type === 'image' && (!node.alt || node.alt.trim().length === 0)) {
           addDiagnostic(ctx, {
@@ -48,14 +50,14 @@ function createImagesRemarkPlugin(ctx) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {{ code: string; message: string; file?: string }} diagnostic
  */
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
     severity: SEVERITY.CRITICAL,
-    step: 'images',
+    pass: 'images',
     message:
       ctx.mode === VALIDATION_MODE.WARN
         ? `${diagnostic.message} This post would be skipped in strict mode.`

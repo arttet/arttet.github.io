@@ -15,7 +15,7 @@ A personal publishing platform that looks like a static blog and behaves like a 
 
 | Resource      | URL                                          | What                                        |
 | ------------- | -------------------------------------------- | ------------------------------------------- |
-| Live site     | [arttet.dev](https://arttet.dev)             | Production blog                             |
+| Live site     | [arttet.dev](https://arttet.dev)             | My personal blog                            |
 | Platform docs | [docs.arttet.dev](https://docs.arttet.dev)   | Writer guide, developer guide, architecture |
 | Infra reports | [infra.arttet.dev](https://infra.arttet.dev) | Playwright, Lighthouse, bundle, coverage    |
 

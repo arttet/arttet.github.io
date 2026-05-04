@@ -1,4 +1,5 @@
 import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+import { resolvePassContext } from '../../engine/context.js';
 
 import { walk } from '../_internal/walk.js';
 
@@ -13,10 +14,10 @@ export function headingsPass() {
   return {
     name: 'headings',
     phase: PASS_PHASES.VALIDATE,
-    mdsvex(ctx) {
+    mdsvex(build) {
       return {
         remarkPlugins: /** @type {import('mdsvex').MdsvexOptions['remarkPlugins']} */ ([
-          createHeadingsRemarkPlugin(ctx),
+          createHeadingsRemarkPlugin(build),
         ]),
       };
     },
@@ -24,9 +25,9 @@ export function headingsPass() {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {import('../../engine/context.js').BuildContext} build
  */
-function createHeadingsRemarkPlugin(ctx) {
+function createHeadingsRemarkPlugin(build) {
   return function headingsAttacher() {
     /**
      * @param {MarkdownNode} tree
@@ -35,6 +36,7 @@ function createHeadingsRemarkPlugin(ctx) {
     return function headingsTransformer(tree, file) {
       const headings = collectHeadings(tree);
       const filePath = file.path ?? file.history?.[0];
+      const ctx = resolvePassContext(build, filePath);
       validateHeadingHierarchy(ctx, headings, filePath);
       validateDuplicateHeadings(ctx, tree, filePath);
     };
@@ -60,7 +62,7 @@ function collectHeadings(node, acc = []) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {{ depth: number; position: { line: number; column: number } }[]} headings
  * @param {string=} file
  */
@@ -95,7 +97,7 @@ function validateHeadingHierarchy(ctx, headings, file) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {MarkdownNode} tree
  * @param {string=} file
  */
@@ -141,14 +143,14 @@ function extractText(node) {
 }
 
 /**
- * @param {import('../../engine/index.js').MarkdownPipelineContext} ctx
+ * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
  * @param {{ code: string; message: string; file?: string; position: { line: number; column: number } }} diagnostic
  */
 function addDiagnostic(ctx, diagnostic) {
   ctx.diagnostics.add({
     code: diagnostic.code,
     severity: SEVERITY.CRITICAL,
-    step: 'headings',
+    pass: 'headings',
     message:
       ctx.mode === VALIDATION_MODE.WARN
         ? `${diagnostic.message} This post would be skipped in strict mode.`
