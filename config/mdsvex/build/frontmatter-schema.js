@@ -1,90 +1,58 @@
-/**
- * JSON Schema describing the expected shape of blog post frontmatter.
- * Used for static validation and IDE autocompletion.
- */
-export const frontmatterSchema = Object.freeze({
-	$schema: 'http://json-schema.org/draft-07/schema#',
-	type: 'object',
-	required: ['title', 'created'],
-	properties: Object.freeze({
-		title: Object.freeze({ type: 'string', minLength: 1 }),
-		created: Object.freeze({
-			type: 'string',
-			pattern: '^\\d{4}-\\d{2}-\\d{2}',
-			description: 'ISO 8601 date (YYYY-MM-DD)',
-		}),
-		updated: Object.freeze({
-			type: 'string',
-			pattern: '^\\d{4}-\\d{2}-\\d{2}',
-			description: 'ISO 8601 date (YYYY-MM-DD)',
-		}),
-		description: Object.freeze({ type: 'string' }),
-		draft: Object.freeze({ type: 'boolean' }),
-		tags: Object.freeze({
-			type: 'array',
-			minItems: 1,
-			items: Object.freeze({ type: 'string', minLength: 1 }),
-		}),
-		canonical: Object.freeze({ type: 'string', minLength: 1 }),
-		// Alias for description — kept during a one-release transition.
-		summary: Object.freeze({ type: 'string' }),
-	}),
-	additionalProperties: false,
-});
+import { z } from 'zod';
 
 /**
- * Lightweight schema validator that checks required fields and basic types.
- * Does not need an external JSON Schema engine.
+ * Zod schema describing the expected shape of blog post frontmatter.
+ * Used for runtime validation and native JSON Schema export via z.toJSONSchema().
+ */
+export const frontmatterSchema = z
+	.object({
+		title: z.string().min(1),
+		created: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
+		updated: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional(),
+		description: z.string().optional(),
+		draft: z.boolean().optional(),
+		tags: z.array(z.string().min(1)).min(1).optional(),
+		canonical: z.string().min(1).optional(),
+		summary: z.string().optional(),
+	})
+	.strict();
+
+/**
+ * @typedef {import('zod').infer<typeof frontmatterSchema>} FrontmatterInput
+ */
+
+/**
+ * Generate a JSON Schema representation for IDE autocompletion and docs.
+ * Uses Zod 4 native JSON Schema conversion.
+ *
+ * @returns {Record<string, unknown>}
+ */
+export function getFrontmatterJSONSchema() {
+	return z.toJSONSchema(frontmatterSchema);
+}
+
+/**
+ * Validate raw frontmatter data against the Zod schema.
  *
  * @param {unknown} data
  * @param {string} [_filePath]
  * @returns {string[]}
  */
 export function validateFrontmatterSchema(data, _filePath = '') {
-	/** @type {string[]} */
-	const errors = [];
-
 	if (!data || typeof data !== 'object') {
-		errors.push('Frontmatter must be an object.');
-		return errors;
+		return ['Frontmatter must be an object.'];
 	}
 
-	/** @type {Record<string, unknown>} */
-	const obj = /** @type {Record<string, unknown>} */ (data);
-
-	for (const key of frontmatterSchema.required) {
-		if (!(key in obj)) {
-			errors.push(`Missing required frontmatter field: "${key}".`);
-		}
+	const result = frontmatterSchema.safeParse(data);
+	if (result.success) {
+		return [];
 	}
 
-	for (const key of Object.keys(obj)) {
-		if (!Object.hasOwn(frontmatterSchema.properties, key)) {
-			errors.push(`Unknown frontmatter field: "${key}".`);
+	return result.error.issues.map((issue) => {
+		const path = issue.path.join('.');
+		if (path) {
+			return `${path}: ${issue.message}`;
 		}
-	}
-
-	for (const [key, spec] of Object.entries(frontmatterSchema.properties)) {
-		const value = obj[key];
-		if (value === undefined) {
-			continue;
-		}
-
-		if (spec.type === 'string' && typeof value !== 'string') {
-			errors.push(`Frontmatter "${key}" must be a string.`);
-		} else if (spec.type === 'boolean' && typeof value !== 'boolean') {
-			errors.push(`Frontmatter "${key}" must be a boolean.`);
-		} else if (spec.type === 'array' && !Array.isArray(value)) {
-			errors.push(`Frontmatter "${key}" must be an array.`);
-		} else if (
-			spec.type === 'array' &&
-			Array.isArray(value) &&
-			spec.items?.type === 'string' &&
-			value.some((v) => typeof v !== 'string' || v.length === 0)
-		) {
-			errors.push(`Frontmatter "${key}" must be an array of non-empty strings.`);
-		}
-	}
-
-	return errors;
+		return issue.message;
+	});
 }

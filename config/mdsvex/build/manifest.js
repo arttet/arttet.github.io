@@ -6,7 +6,7 @@ export const pipelineVersion = PIPELINE_VERSION;
 /**
  * @typedef {Object} ContentManifestPost
  * @property {string} slug
- * @property {import('./frontmatter-schema.js').frontmatterSchema} frontmatter
+ * @property {import('./frontmatter-schema.js').FrontmatterInput} frontmatter
  * @property {Record<string, boolean>} flags
  * @property {Object} extracted
  * @property {number} extracted.readingTime
