@@ -1,4 +1,4 @@
-import { getHighlighter, LANGS } from '../../../../src/lib/highlighter.config.js';
+import { getHighlighter, highlightCode, LANG_SET } from '../../../../src/lib/highlighter.config.js';
 import { escapeHtml, escapeJsTemplateLiteral } from '../_internal/preprocess-utils.js';
 
 /**
@@ -30,7 +30,7 @@ async function renderCodeTabs(block, themes, groupIndex) {
     return block;
   }
 
-  const panels = await Promise.all(tabs.map((tab) => renderCodeTabPanel(tab, themes)));
+  const panels = await Promise.all(tabs.map((tab) => renderCodeTabPanel(tab)));
   const groupId = `code-tabs-${hashString(block)}-${groupIndex}`;
   const buttons = tabs
     .map((tab, index) => {
@@ -52,7 +52,7 @@ async function renderCodeTabs(block, themes, groupIndex) {
     .join('');
   const html = `<div class="not-prose my-6 rounded-lg border border-[--color-border] overflow-hidden" data-code-tabs><div role="tablist" aria-label="Code examples" class="flex items-center bg-[--code-bg] border-b border-[--color-border] px-1">${buttons}</div>${panel}</div>`;
 
-  return `\n\n{@html \`${escapeJsTemplateLiteral(html)}\`}\n\n`;
+  return `\n\n<div>{@html \`${escapeJsTemplateLiteral(html)}\`}</div>\n\n`;
 }
 
 /**
@@ -88,16 +88,12 @@ function parseCodeTabsBlock(block) {
 
 /**
  * @param {{ lang: string; label: string; code: string }} tab
- * @param {Record<string, string>} themes
  */
-async function renderCodeTabPanel(tab, themes) {
-  const safeLang = LANGS.includes(tab.lang) ? tab.lang : 'text';
+async function renderCodeTabPanel(tab) {
+  const safeLang = LANG_SET.has(tab.lang) ? tab.lang : 'text';
   try {
-    const highlighter = await getHighlighter();
-    return enhancePre(
-      highlighter.codeToHtml(tab.code.trim(), { lang: safeLang, themes, defaultColor: false }),
-      safeLang
-    );
+    await getHighlighter();
+    return enhancePre(highlightCode(tab.code.trim(), safeLang), safeLang);
   } catch (e) {
     console.error('CodeTabs highlighting failed:', e);
     return `<pre tabindex="-1" class="shiki m-0 font-mono" data-language="${safeLang}"><code>${escapeHtml(tab.code.trim())}</code></pre>`;

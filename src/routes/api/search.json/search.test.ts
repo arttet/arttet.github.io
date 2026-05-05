@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/manifest', () => ({
+vi.mock('$lib/markdown/core/manifest', () => ({
   getManifestPosts: () => [
     {
       slug: 'post-1',

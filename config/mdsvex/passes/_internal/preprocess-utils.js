@@ -1,6 +1,13 @@
 /**
  * @param {string} str
  */
+export function escapeJsTemplateLiteral(str) {
+  return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+}
+
+/**
+ * @param {string} str
+ */
 export function utf8ToBase64(str) {
   return Buffer.from(str).toString('base64');
 }
@@ -14,13 +21,6 @@ export function escapeHtml(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
-}
-
-/**
- * @param {string} str
- */
-export function escapeJsTemplateLiteral(str) {
-  return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
 }
 
 /**

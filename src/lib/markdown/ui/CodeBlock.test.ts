@@ -7,7 +7,7 @@ const hlMock = {
   highlight: vi.fn(),
 };
 
-vi.mock('$shared/lib/highlighter.svelte', () => ({
+vi.mock('../core/useHighlighter.svelte', () => ({
   useHighlighter: () => hlMock,
 }));
 

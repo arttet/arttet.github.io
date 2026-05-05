@@ -29,7 +29,7 @@ const rawRegistry = /** @type {Record<string, RegistryEntry>} */ ({
     allowedProps: ['display', 'b64Latex', 'b64Html'],
     runtime: {
       detect: 'MathCopy',
-      import: '$shared/ui/MathCopy.svelte',
+      import: '$lib/markdown/ui/MathCopy.svelte',
     },
   },
   KaTeXStyles: {

@@ -77,7 +77,7 @@ const home = '$HOME';
     const result = await markup({ content, filename: 'test.md' });
 
     expect(result?.code).not.toContain("import CodeTabs from '$shared/ui/CodeTabs.svelte';");
-    expect(result?.code).toContain("import MathCopy from '$shared/ui/MathCopy.svelte';");
+    expect(result?.code).toContain("import MathCopy from '$lib/markdown/ui/MathCopy.svelte';");
     expect(result?.code).toContain('Inline math: <MathCopy display={false}');
     expect(result?.code).toContain('const count = $state(0);');
     expect(result?.code).toContain("const home = '$HOME';");
@@ -122,7 +122,7 @@ Inline math: $E = mc^2$`;
     const result = await markup({ content, filename: 'test.md' });
 
     expect(result?.code).toContain(
-      '<SCRIPT lang="js" generics="T">\n  import MathCopy from \'$shared/ui/MathCopy.svelte\';'
+      '<SCRIPT lang="js" generics="T">\n  import MathCopy from \'$lib/markdown/ui/MathCopy.svelte\';'
     );
     expect(result?.code).not.toContain('<script>');
   });
@@ -134,7 +134,7 @@ Inline math: $E = mc^2$`;
     const result = await markup({ content, filename: 'test.md' });
 
     expect(result?.code).toContain(
-      "<script>\n  import MathCopy from '$shared/ui/MathCopy.svelte';"
+      "<script>\n  import MathCopy from '$lib/markdown/ui/MathCopy.svelte';"
     );
     expect(result?.code).toContain('<script src="https://example.com/x.js"></script>');
   });
@@ -148,7 +148,7 @@ Inline math: $E = mc^2$`;
     const result = await markup({ content, filename: 'test.md' });
 
     expect(result?.code).toContain(
-      "<script>\n  import MathCopy from '$shared/ui/MathCopy.svelte';"
+      "<script>\n  import MathCopy from '$lib/markdown/ui/MathCopy.svelte';"
     );
     expect(result?.code).toContain('<script module>');
   });
@@ -168,7 +168,7 @@ Inline math: $E = mc^2$`;
     const result = await markup({ content, filename: 'test.md' });
 
     expect(result?.code).toContain(
-      '<script title="actual">\n  import MathCopy from \'$shared/ui/MathCopy.svelte\';'
+      '<script title="actual">\n  import MathCopy from \'$lib/markdown/ui/MathCopy.svelte\';'
     );
     expect(result?.code).toContain('<!-- <script></script> -->');
     expect(result?.code).toContain('```html\n<script></script>\n```');
@@ -183,7 +183,7 @@ Inline math: $E = mc^2$`;
     const result = await markup({ content, filename: 'test.md' });
 
     expect(result?.code).toContain(
-      '<script title="> src is mentioned here">\n  import MathCopy from \'$shared/ui/MathCopy.svelte\';'
+      '<script title="> src is mentioned here">\n  import MathCopy from \'$lib/markdown/ui/MathCopy.svelte\';'
     );
   });
 });

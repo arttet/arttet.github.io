@@ -48,5 +48,5 @@
     "svgo",
     "vitepress"
   ],
-  "ignore": ["src/app.d.ts", "src/shared/ui/KaTeXStyles.svelte", "src/shared/ui/StaticHtml.svelte"]
+  "ignore": ["src/app.d.ts"]
 }

@@ -1,15 +1,15 @@
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('$shared/lib/actions/copy', () => ({
+vi.mock('$lib/markdown/actions/copy', () => ({
   copy: vi.fn(() => ({ destroy: vi.fn() })),
 }));
 
-vi.mock('$shared/lib/actions/codeTabs', () => ({
+vi.mock('$lib/markdown/actions/codeTabs', () => ({
   codeTabs: vi.fn(() => ({ destroy: vi.fn() })),
 }));
 
-vi.mock('$shared/lib/actions/mermaid', () => ({
+vi.mock('$lib/markdown/actions/mermaid', () => ({
   mermaid: vi.fn(() => ({ destroy: vi.fn() })),
 }));
 

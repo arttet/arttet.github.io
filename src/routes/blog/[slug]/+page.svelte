@@ -1,19 +1,19 @@
 <script lang="ts">
   import '@fontsource-variable/jetbrains-mono';
-  import '$shared/styles/content.css';
+  import '$lib/markdown/styles/content.css';
   import type { PageData } from './$types';
   import { theme } from '$features/theme/model/theme.svelte';
   import { site } from '$shared/config/site';
-  import { articleFocusPolicy } from '$shared/lib/actions/articleFocusPolicy';
-  import { codeTabs } from '$shared/lib/actions/codeTabs';
-  import { copy } from '$shared/lib/actions/copy';
-  import { mermaid } from '$shared/lib/actions/mermaid';
+  import { articleFocusPolicy } from '$lib/markdown/actions/articleFocusPolicy';
+  import { codeTabs } from '$lib/markdown/actions/codeTabs';
+  import { copy } from '$lib/markdown/actions/copy';
+  import { mermaid } from '$lib/markdown/actions/mermaid';
   import Seo from '$shared/ui/Seo.svelte';
   import PostFooter from '$widgets/post/ui/PostFooter.svelte';
   import PostHeader from '$widgets/post/ui/PostHeader.svelte';
   import TableOfContents from '$widgets/post/ui/TableOfContents.svelte';
   import CodeThemeManager from '$widgets/theme/ui/CodeThemeManager.svelte';
-  import KaTeXStyles from '$shared/ui/KaTeXStyles.svelte';
+  import KaTeXStyles from '$lib/markdown/ui/KaTeXStyles.svelte';
 
   const { data } = $props<{ data: PageData }>();
 </script>

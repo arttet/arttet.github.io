@@ -46,7 +46,7 @@ vi.mock('$features/theme/model/readingMode.svelte', () => ({
   readingMode: readingModeState,
 }));
 
-vi.mock('$lib/highlighter', () => ({
+vi.mock('$lib/markdown/core/highlighter', () => ({
   setThemes: setThemesMock,
 }));
 
