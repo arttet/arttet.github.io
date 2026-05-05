@@ -1,4 +1,10 @@
-import { getHighlighter, LANGS, setThemes } from '../../../../src/lib/highlighter.config.js';
+import {
+  getHighlighter,
+  highlightCode,
+  LANGS,
+  LANG_SET,
+  setThemes,
+} from '../../../../src/lib/highlighter.config.js';
 import { codeThemes } from '../../../../src/shared/config/codeThemes.js';
 
 /**
@@ -6,8 +12,7 @@ import { codeThemes } from '../../../../src/shared/config/codeThemes.js';
  * @typedef {Parameters<MarkdownHighlighter['loadLanguage']>[0]} ShikiLanguageLoader
  */
 
-const allowedLangs = new Set(LANGS);
-const themes = Object.fromEntries(codeThemes.map((theme) => [theme.id, theme.id]));
+const allowedLangs = LANG_SET;
 /** @type {MarkdownHighlighter | null} */
 let hl = null;
 /** @type {Record<string, ShikiLanguageLoader> | null} */
@@ -53,17 +58,7 @@ async function setupHighlighter() {
 }
 
 /**
- * @returns {MarkdownHighlighter}
- */
-function getConfiguredHighlighter() {
-  if (!hl) {
-    throw new Error('Markdown highlighter used before codeStep setup.');
-  }
-
-  return hl;
-}
-
-/**
+ *
  * @param {MarkdownHighlighter} highlighter
  * @param {Record<string, ShikiLanguageLoader>} languages
  */
@@ -149,18 +144,14 @@ function renderMermaidBlock(code) {
 function renderHighlightedCode(code, lang) {
   try {
     const safeLang = normalizeLang(lang);
-    const html = getConfiguredHighlighter().codeToHtml(code, {
-      lang: safeLang,
-      themes,
-      defaultColor: false,
-      transformers: [
-        {
-          pre(node) {
-            node.properties['data-language'] = safeLang;
-          },
+    const html = highlightCode(code, safeLang, [
+      {
+        /** @param {any} node */
+        pre(node) {
+          node.properties['data-language'] = safeLang;
         },
-      ],
-    });
+      },
+    ]);
 
     return trustedSvelteHtml(html);
   } catch (e) {

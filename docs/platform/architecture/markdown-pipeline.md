@@ -9,7 +9,7 @@ related:
   - ../writer/frontmatter.md
 ---
 
-# Markdown Pipeline <Badge type="danger">beta</Badge>
+# Markdown Pipeline <Badge type="tip" text="v1" />
 
 The Markdown pipeline is a secure, extensible, AST-first build-time system designed for SvelteKit and MDsveX. It operates as a deterministic compiler, transforming raw Markdown content into rich, interactive posts while enforcing strict security boundaries, SEO constraints, and resource limits.
 

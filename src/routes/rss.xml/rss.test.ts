@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 // Mock post fetching
-vi.mock('$lib/manifest', () => ({
+vi.mock('$lib/markdown/core/manifest', () => ({
   getManifestPosts: () => [
     {
       slug: 'post-1',

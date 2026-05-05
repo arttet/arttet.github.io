@@ -1,22 +1,34 @@
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 
+function escapeHtml(str: string) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 // Global mock for Shiki highlighter to avoid heavy processing during unit tests
-vi.mock('$lib/highlighter', () => ({
+vi.mock('$lib/markdown/core/highlighter', () => ({
   getHighlighter: vi.fn().mockImplementation(() =>
     Promise.resolve({
       getLoadedLanguages: vi.fn().mockReturnValue(['typescript']),
       loadLanguage: vi.fn().mockResolvedValue(undefined),
       codeToHtml: vi
         .fn()
-        .mockImplementation((code: string) => `<pre class="shiki"><code>${code}</code></pre>`),
+        .mockImplementation(
+          (code: string) => `<pre class="shiki"><code>${escapeHtml(code)}</code></pre>`
+        ),
     })
   ),
   loadLanguage: vi.fn().mockImplementation(() => Promise.resolve()),
   setThemes: vi.fn(),
   highlightCode: vi
     .fn()
-    .mockImplementation((code: string) => `<pre class="shiki"><code>${code}</code></pre>`),
+    .mockImplementation(
+      (code: string) => `<pre class="shiki"><code>${escapeHtml(code)}</code></pre>`
+    ),
   LANGS: ['typescript', 'go', 'rust'],
 }));
 

@@ -1,4 +1,4 @@
-import { getManifestPosts } from '$lib/manifest';
+import { getManifestPosts } from '$lib/markdown/core/manifest';
 import { site } from '$shared/config/site';
 
 export const prerender = true;

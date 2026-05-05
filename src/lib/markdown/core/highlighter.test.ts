@@ -18,12 +18,12 @@ describe('highlighter logic', () => {
 
   beforeEach(async () => {
     vi.resetModules();
-    vi.doUnmock('$lib/highlighter');
+    vi.doUnmock('./highlighter');
     mockHl.getLoadedLanguages.mockReturnValue(['typescript']);
     mockHl.loadLanguage.mockClear();
     mockHl.codeToHtml.mockClear();
 
-    hlModule = await import('$lib/highlighter');
+    hlModule = await import('./highlighter');
   });
 
   it('escapes HTML when no highlighter is ready', () => {

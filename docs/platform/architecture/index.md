@@ -133,7 +133,7 @@ arttet.github.io/
 │   ├── features/                   # background (shaders, simulation), search, theme
 │   ├── entities/                   # post, codeTheme (with UI)
 │   ├── shared/                     # ui, config, styles, lib (actions, utils, webgpu)
-│   └── lib/                        # cross-cutting (highlighter, assets)
+│   └── lib/                        # cross-cutting (markdown, assets)
 │
 ├── static/                         # static assets
 │   └── robots.txt

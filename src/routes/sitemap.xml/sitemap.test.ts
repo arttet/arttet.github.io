@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 // Mock the api.server getPosts at the top level
-vi.mock('$lib/manifest', () => ({
+vi.mock('$lib/markdown/core/manifest', () => ({
   getManifestPosts: () => [
     {
       slug: 'post-1',

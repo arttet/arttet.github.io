@@ -3,15 +3,23 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import CodeTabs from './CodeTabs.svelte';
 
 // Mock highlighter locally
-vi.mock('$lib/highlighter', () => ({
-  getHighlighter: vi.fn().mockImplementation(() => Promise.resolve({})),
-  loadLanguage: vi.fn().mockImplementation(() => Promise.resolve()),
-  setThemes: vi.fn(),
-  highlightCode: vi
+vi.mock('../core/highlighter', () => {
+  const highlightCode = vi
     .fn()
-    .mockImplementation((code: string) => `<pre class="shiki"><code>${code}</code></pre>`),
-  LANGS: ['ts', 'go'],
-}));
+    .mockImplementation((code: string) => `<pre class="shiki"><code>${code}</code></pre>`);
+  return {
+    getHighlighter: vi.fn().mockImplementation(() => Promise.resolve({})),
+    loadLanguage: vi.fn().mockImplementation(() => Promise.resolve()),
+    setThemes: vi.fn(),
+    highlightCode,
+    highlightOnDemand: vi
+      .fn()
+      .mockImplementation((code: string, lang: string) =>
+        Promise.resolve(highlightCode(code, lang))
+      ),
+    LANGS: ['ts', 'go'],
+  };
+});
 
 describe('CodeTabs', () => {
   const tabs = [
@@ -88,7 +96,7 @@ describe('CodeTabs', () => {
   });
 
   it('updates highlighting when switching tabs', async () => {
-    const { highlightCode } = await import('$lib/highlighter');
+    const { highlightCode } = await import('../core/highlighter');
     render(CodeTabs, { tabs });
 
     // Wait for initial render highlight

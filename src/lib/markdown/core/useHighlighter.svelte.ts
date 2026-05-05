@@ -1,4 +1,4 @@
-import { highlightOnDemand } from './highlight';
+import { highlightOnDemand } from './highlighter';
 
 export function useHighlighter() {
   let highlighted = $state<string>('');

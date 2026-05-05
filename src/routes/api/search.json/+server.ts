@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { getManifestPosts } from '$lib/manifest';
+import { getManifestPosts } from '$lib/markdown/core/manifest';
 
 export const prerender = true;
 

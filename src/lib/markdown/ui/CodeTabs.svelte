@@ -1,5 +1,5 @@
 <script lang="ts">
-import { useHighlighter } from '$shared/lib/highlighter.svelte';
+import { useHighlighter } from '../core/useHighlighter.svelte';
 import CopyButton from './CopyButton.svelte';
 
 interface Tab {
