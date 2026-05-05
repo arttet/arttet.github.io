@@ -64,21 +64,26 @@ export async function getHighlighter() {
  * @param {string} s
  * @returns {string}
  */
-function escHtml(s) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+export function escapeHtml(s) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /**
- * Deterministic hash for a style string.
+ * Deterministic hash for a string.
  * @param {string} str
  * @returns {string}
  */
-function hashStyle(str) {
+export function hashString(str) {
   let h = 5381;
   for (let i = 0; i < str.length; i += 1) {
     h = (h * 33) ^ str.charCodeAt(i);
   }
-  return 'shiki-' + (h >>> 0).toString(36);
+  return (h >>> 0).toString(36);
 }
 
 /**
@@ -93,7 +98,7 @@ function dedupeInlineStyles(html) {
   const seen = new Set();
 
   const body = html.replace(/<span([^>]*) style="([^"]*)"([^>]*)>/g, (match, pre, style, post) => {
-    const cls = hashStyle(style);
+    const cls = 'shiki-' + hashString(style);
     if (!seen.has(cls)) {
       seen.add(cls);
       rules.push('.' + cls + '{' + style + '}');
@@ -127,7 +132,7 @@ export async function loadLanguage(lang) {
  */
 export function highlightCode(code, lang, transformers) {
   if (!hl || themeIds.length === 0) {
-    return escHtml(code);
+    return escapeHtml(code);
   }
 
   const safeLang = LANG_SET.has(lang) ? lang : 'text';

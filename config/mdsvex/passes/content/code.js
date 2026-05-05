@@ -6,6 +6,7 @@ import {
   setThemes,
 } from '../../../../src/lib/highlighter.config.js';
 import { codeThemes } from '../../../../src/shared/config/codeThemes.js';
+import { escapeHtml } from '../_internal/preprocess-utils.js';
 
 /**
  * @typedef {Awaited<ReturnType<typeof getHighlighter>>} MarkdownHighlighter
@@ -75,19 +76,6 @@ async function preloadLanguages(highlighter, languages) {
       return highlighter.loadLanguage(loader);
     })
   );
-}
-
-/**
- * @param {string} str
- * @returns {string}
- */
-function escapeHtml(str) {
-  return str
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
 }
 
 /**
