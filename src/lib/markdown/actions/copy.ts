@@ -1,30 +1,8 @@
-async function writeClipboard(content: string) {
-  try {
-    await navigator.clipboard.writeText(content);
-    return;
-  } catch (error) {
-    const textarea = document.createElement('textarea');
-    textarea.value = content;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'fixed';
-    textarea.style.top = '-9999px';
-    document.body.appendChild(textarea);
-    textarea.select();
-    if (typeof document.execCommand !== 'function') {
-      textarea.remove();
-      throw error;
-    }
-    document.execCommand('copy');
-    textarea.remove();
-  }
-}
+import { copyToClipboard } from '../core/clipboard.js';
+import { decodeBase64Utf8 } from '../core/base64.js';
 
 function decodeCopyContent(encoded: string) {
-  try {
-    return decodeURIComponent(escape(atob(encoded)));
-  } catch {
-    return atob(encoded);
-  }
+  return decodeBase64Utf8(encoded);
 }
 
 export function copy(node: HTMLElement) {
@@ -54,7 +32,7 @@ export function copy(node: HTMLElement) {
 
     const clickHandler = async () => {
       try {
-        await writeClipboard(content);
+        await copyToClipboard(content);
         btn.innerHTML = inline ? checkIcon : `${checkIcon}<span>Copied!</span>`;
         btn.dataset.copied = '';
         btn.style.color = 'var(--color-accent)';

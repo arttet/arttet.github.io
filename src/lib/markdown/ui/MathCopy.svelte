@@ -1,5 +1,6 @@
 <script lang="ts">
 import { useCopy } from '$shared/lib/copy.svelte';
+import { decodeBase64Utf8 } from '$lib/markdown/core/base64.js';
 import CopyButton from './CopyButton.svelte';
 
 const {
@@ -17,10 +18,8 @@ function decode(b64: string) {
     return '';
   }
   try {
-    // atob() with escape/decodeURIComponent for robust UTF-8 handling
-    return decodeURIComponent(escape(atob(b64)));
+    return decodeBase64Utf8(b64);
   } catch (e) {
-     
     console.error('Base64 decode failed:', e);
     return '';
   }

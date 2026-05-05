@@ -1,5 +1,6 @@
 import { browser } from '$app/environment';
 import { site } from '$shared/config/site';
+import { decodeBase64Utf8 } from '../core/base64.js';
 
 type MermaidLib = (typeof import('mermaid'))['default'];
 
@@ -21,11 +22,6 @@ function configure(mermaidLib: MermaidLib, theme: 'dark' | 'light') {
     maxTextSize: site.mermaid.maxTextSize,
   });
   configuredTheme = theme;
-}
-
-function decodeBase64Utf8(content: string) {
-  const bytes = Uint8Array.from(atob(content), (char) => char.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
 }
 
 function reset(node: HTMLElement) {

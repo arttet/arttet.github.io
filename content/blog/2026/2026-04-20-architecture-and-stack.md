@@ -1,8 +1,8 @@
 ---
 title: Architecture and Tech Stack
 tags: [architecture, blog, sveltekit, webgpu, documentation]
-created: 2026-04-20
-updated: 2026-04-21
+created: '2026-04-20'
+updated: '2026-04-21'
 summary: 'Internal documentation for the site: the stack, the project structure, the WebGPU pipeline, and the decisions that make the codebase maintainable.'
 ---
 
