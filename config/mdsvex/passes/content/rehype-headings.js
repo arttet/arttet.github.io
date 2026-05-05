@@ -32,6 +32,7 @@ function getRehypePlugins() {
           test: ['h2'],
           properties: {
             className: ['anchor'],
+            'data-heading-anchor': '',
             ariaHidden: true,
           },
           content: {

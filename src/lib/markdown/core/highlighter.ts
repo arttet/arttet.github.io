@@ -1,12 +1,12 @@
+export { setThemes } from './shiki-config.js';
 export {
   LANGS,
   LANG_SET,
-  setThemes,
   getHighlighter,
   loadLanguage,
   highlightCode,
   highlightOnDemand,
-} from '../../highlighter.config.js';
+} from './shiki-engine.js';
 
 export type SupportedLang =
   | 'javascript'

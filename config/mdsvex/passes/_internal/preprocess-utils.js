@@ -12,7 +12,7 @@ export function utf8ToBase64(str) {
   return Buffer.from(str).toString('base64');
 }
 
-export { escapeHtml } from '../../../../src/lib/highlighter.config.js';
+export { escapeHtml } from '../../../../src/lib/markdown/core/shiki-engine.js';
 
 /**
  * @param {string} content

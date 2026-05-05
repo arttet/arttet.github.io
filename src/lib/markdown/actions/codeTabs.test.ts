@@ -6,8 +6,8 @@ function setup() {
   node.innerHTML = `
     <div data-code-tabs>
       <div role="tablist" aria-label="Code examples">
-        <button type="button" role="tab" id="tab-0" aria-controls="panel-0" aria-selected="true" tabindex="0">Go</button>
-        <button type="button" role="tab" id="tab-1" aria-controls="panel-1" aria-selected="false" tabindex="0">Rust</button>
+        <button type="button" role="tab" id="tab-0" aria-controls="panel-0" aria-selected="true" tabindex="0" data-code-tab>Go</button>
+        <button type="button" role="tab" id="tab-1" aria-controls="panel-1" aria-selected="false" tabindex="0" data-code-tab>Rust</button>
       </div>
       <div role="tabpanel" id="panel-0" data-code-tabs-content><pre><code>go</code></pre></div>
       <div role="tabpanel" id="panel-1" data-code-tabs-content hidden><pre><code>rust</code></pre></div>
@@ -15,8 +15,8 @@ function setup() {
   `;
   document.body.appendChild(node);
   const action = codeTabs(node);
-  const tabs = Array.from(node.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
-  const panels = Array.from(node.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+  const tabs = Array.from(node.querySelectorAll<HTMLButtonElement>('[data-code-tab]'));
+  const panels = Array.from(node.querySelectorAll<HTMLElement>('[data-code-tabs-content]'));
 
   return { action, node, panels, tabs };
 }
@@ -111,7 +111,7 @@ describe('codeTabs action', () => {
     node.innerHTML = `
       <div data-code-tabs>
         <div role="tablist" aria-label="Code examples">
-          <button type="button" role="tab" id="tab-0" aria-controls="panel-0">Go</button>
+          <button type="button" role="tab" id="tab-0" aria-controls="panel-0" data-code-tab>Go</button>
         </div>
       </div>
     `;

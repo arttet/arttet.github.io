@@ -15,7 +15,7 @@
 
   function focusHeadingAnchor(id: string) {
     const heading = document.getElementById(id);
-    const anchor = heading?.querySelector<HTMLAnchorElement>('.anchor[href]');
+    const anchor = heading?.querySelector<HTMLAnchorElement>('[data-heading-anchor][href]');
     anchor?.focus({ preventScroll: true });
   }
 
@@ -75,7 +75,7 @@
 
     headings = nodes.map((node) => {
       const clone = node.cloneNode(true) as HTMLElement;
-      clone.querySelector('.anchor')?.remove();
+      clone.querySelector('[data-heading-anchor]')?.remove();
       return {
         id: node.id,
         text: clone.textContent?.trim() ?? '',

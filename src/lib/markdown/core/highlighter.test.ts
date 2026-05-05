@@ -2,15 +2,33 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockHl = vi.hoisted(() => ({
-  getLoadedLanguages: vi.fn().mockReturnValue(['typescript']),
   loadLanguage: vi.fn().mockResolvedValue(undefined),
+  loadTheme: vi.fn().mockResolvedValue(undefined),
   codeToHtml: vi
     .fn()
     .mockImplementation((code: string) => `<pre class="shiki"><code>${code}</code></pre>`),
 }));
 
-vi.mock('shiki', () => ({
-  createHighlighter: vi.fn().mockResolvedValue(mockHl),
+const mockEngine = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+
+vi.mock('shiki/core', () => ({
+  createHighlighterCore: vi.fn().mockResolvedValue(mockHl),
+}));
+
+vi.mock('shiki/engine/oniguruma', () => ({
+  createOnigurumaEngine: vi.fn().mockReturnValue(mockEngine),
+}));
+
+vi.mock('shiki/wasm', () => ({
+  default: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('@shikijs/langs/rust', () => ({
+  default: { id: 'rust', name: 'Rust' },
+}));
+
+vi.mock('@shikijs/themes/github-dark', () => ({
+  default: { name: 'github-dark', bg: '#0d1117', fg: '#c9d1d9', settings: [] },
 }));
 
 describe('highlighter logic', () => {
@@ -19,9 +37,10 @@ describe('highlighter logic', () => {
   beforeEach(async () => {
     vi.resetModules();
     vi.doUnmock('./highlighter');
-    mockHl.getLoadedLanguages.mockReturnValue(['typescript']);
     mockHl.loadLanguage.mockClear();
+    mockHl.loadTheme.mockClear();
     mockHl.codeToHtml.mockClear();
+    mockEngine.mockClear();
 
     hlModule = await import('./highlighter');
   });
@@ -35,8 +54,7 @@ describe('highlighter logic', () => {
     await hlModule.getHighlighter();
     await hlModule.loadLanguage('rust');
 
-    expect(mockHl.getLoadedLanguages).toHaveBeenCalled();
-    expect(mockHl.loadLanguage).toHaveBeenCalledWith('rust');
+    expect(mockHl.loadLanguage).toHaveBeenCalledWith(expect.objectContaining({ id: 'rust' }));
   });
 
   it('highlights code when highlighter is ready', async () => {

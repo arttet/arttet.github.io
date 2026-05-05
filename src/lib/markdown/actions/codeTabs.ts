@@ -12,8 +12,8 @@ export function codeTabs(node: HTMLElement, enabled = true) {
   const cleanups: (() => void)[] = [];
 
   function initGroup(group: HTMLElement) {
-    const tabs = Array.from(group.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
-    const panels = Array.from(group.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+    const tabs = Array.from(group.querySelectorAll<HTMLButtonElement>('[data-code-tab]'));
+    const panels = Array.from(group.querySelectorAll<HTMLElement>('[data-code-tabs-content]'));
 
     if (tabs.length === 0 || tabs.length !== panels.length) {
       return;

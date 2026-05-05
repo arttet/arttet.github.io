@@ -11,7 +11,7 @@
   import Seo from '$shared/ui/Seo.svelte';
   import PostFooter from '$widgets/post/ui/PostFooter.svelte';
   import PostHeader from '$widgets/post/ui/PostHeader.svelte';
-  import TableOfContents from '$widgets/post/ui/TableOfContents.svelte';
+  import TableOfContents from '$lib/markdown/ui/TableOfContents.svelte';
   import CodeThemeManager from '$widgets/theme/ui/CodeThemeManager.svelte';
   import KaTeXStyles from '$lib/markdown/ui/KaTeXStyles.svelte';
 
