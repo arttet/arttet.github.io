@@ -94,6 +94,17 @@ export const RESOURCE_LIMITS = Object.freeze({
   MAX_PASS_DURATION_MS: 2_000,
 });
 
+/** Known computed fields injected by remark/rehype passes; excluded from strict frontmatter validation. */
+export const COMPUTED_FRONTMATTER_KEYS = Object.freeze([
+  'readingTime',
+  'hasMermaid',
+  'hasCode',
+  'hasCodeTabs',
+  'extracted',
+  'tocHeadings',
+  'hasMath',
+]);
+
 /**
  * Tags that may never appear as raw HTML in markdown output.
  * Consumed by both the registry (allowlist negative) and the security guard.

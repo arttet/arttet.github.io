@@ -25,10 +25,6 @@ export default defineConfig(({ mode }) => ({
     {
       name: 'markdown-artifacts',
       async buildStart() {
-        if (process.env.MARKDOWN_DEBUG === 'true') {
-          // oxlint-disable-next-line no-console
-          console.log('[markdown-artifacts] Generating artifacts...');
-        }
         await generateMarkdownArtifacts(markdownBuild, markdownConfig);
       },
     },

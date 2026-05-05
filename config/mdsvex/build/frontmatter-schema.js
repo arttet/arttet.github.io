@@ -17,6 +17,8 @@ export const frontmatterSchema = z
 	})
 	.strict();
 
+
+
 /**
  * @typedef {import('zod').infer<typeof frontmatterSchema>} FrontmatterInput
  */
