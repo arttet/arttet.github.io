@@ -3,8 +3,9 @@ import {
   highlightCode,
   LANGS,
   LANG_SET,
-  setThemes,
-} from '../../../../src/lib/highlighter.config.js';
+  loadLanguage,
+} from '../../../../src/lib/markdown/core/shiki-engine.js';
+import { setThemes } from '../../../../src/lib/markdown/core/shiki-config.js';
 import { codeThemes } from '../../../../src/shared/config/codeThemes.js';
 import { escapeHtml } from '../_internal/preprocess-utils.js';
 
@@ -16,8 +17,6 @@ import { escapeHtml } from '../_internal/preprocess-utils.js';
 const allowedLangs = LANG_SET;
 /** @type {MarkdownHighlighter | null} */
 let hl = null;
-/** @type {Record<string, ShikiLanguageLoader> | null} */
-let shikiLanguages = null;
 
 export function codePass() {
   return {
@@ -49,33 +48,7 @@ export function codePass() {
 async function setupHighlighter() {
   setThemes(codeThemes.map((theme) => theme.id));
   hl ??= await getHighlighter();
-
-  if (!shikiLanguages) {
-    const shiki = await import('shiki');
-    shikiLanguages = /** @type {Record<string, ShikiLanguageLoader>} */ (shiki.bundledLanguages);
-  }
-
-  await preloadLanguages(hl, shikiLanguages);
-}
-
-/**
- *
- * @param {MarkdownHighlighter} highlighter
- * @param {Record<string, ShikiLanguageLoader>} languages
- */
-async function preloadLanguages(highlighter, languages) {
-  await Promise.all(
-    LANGS.map((lang) => {
-      const loader = languages[lang];
-
-      if (!loader) {
-        console.warn(`Unknown Shiki language configured for markdown: ${lang}`);
-        return Promise.resolve();
-      }
-
-      return highlighter.loadLanguage(loader);
-    })
-  );
+  await Promise.all(LANGS.map((lang) => loadLanguage(lang)));
 }
 
 /**

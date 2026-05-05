@@ -13,7 +13,8 @@ describe('articleFocusPolicy action', () => {
 
   it('keeps heading anchors in keyboard tab order', () => {
     const node = document.createElement('div');
-    node.innerHTML = '<h2><a class="anchor" href="#section" tabindex="-1">#</a>Section</h2>';
+    node.innerHTML =
+      '<h2><a data-heading-anchor="" href="#section" tabindex="-1">#</a>Section</h2>';
 
     articleFocusPolicy(node);
 
@@ -37,10 +38,12 @@ describe('articleFocusPolicy action', () => {
     });
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
     const node = document.createElement('div');
-    node.innerHTML = '<h2><a class="anchor" href="#section">#</a>Section</h2>';
+    node.innerHTML = '<h2><a data-heading-anchor="" href="#section">#</a>Section</h2>';
     document.body.appendChild(node);
     const action = articleFocusPolicy(node);
-    const anchor = node.querySelector<HTMLAnchorElement>('.anchor') as HTMLAnchorElement;
+    const anchor = node.querySelector<HTMLAnchorElement>(
+      '[data-heading-anchor]'
+    ) as HTMLAnchorElement;
 
     anchor.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
 
@@ -74,7 +77,7 @@ describe('articleFocusPolicy action', () => {
   it('ignores Enter if target is not an anchor element', () => {
     const raf = vi.spyOn(window, 'requestAnimationFrame');
     const node = document.createElement('div');
-    node.innerHTML = '<button class="anchor">Button</button>';
+    node.innerHTML = '<button data-heading-anchor="">Button</button>';
     const action = articleFocusPolicy(node);
     const btn = node.querySelector('button') as HTMLButtonElement;
 
@@ -85,7 +88,7 @@ describe('articleFocusPolicy action', () => {
     raf.mockRestore();
   });
 
-  it('ignores Enter on anchor without the anchor class', () => {
+  it('ignores Enter on anchor without the data-heading-anchor attribute', () => {
     const raf = vi.spyOn(window, 'requestAnimationFrame');
     const node = document.createElement('div');
     node.innerHTML = '<a href="#section">Link</a>';
@@ -106,10 +109,10 @@ describe('articleFocusPolicy action', () => {
     });
     const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
     const node = document.createElement('div');
-    node.innerHTML = '<a class="anchor" href="">#</a>';
+    node.innerHTML = '<a data-heading-anchor="" href="">#</a>';
     document.body.appendChild(node);
     const action = articleFocusPolicy(node);
-    const link = node.querySelector('.anchor') as HTMLAnchorElement;
+    const link = node.querySelector('[data-heading-anchor]') as HTMLAnchorElement;
 
     link.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
 

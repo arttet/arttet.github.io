@@ -3,7 +3,7 @@ import {
   highlightCode,
   LANG_SET,
   hashString,
-} from '../../../../src/lib/highlighter.config.js';
+} from '../../../../src/lib/markdown/core/shiki-engine.js';
 import { escapeHtml, escapeJsTemplateLiteral } from '../_internal/preprocess-utils.js';
 
 /**

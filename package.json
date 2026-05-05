@@ -42,6 +42,8 @@
     "@commitlint/config-conventional": "^20.5.3",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.59.1",
+    "@shikijs/langs": "^4.0.2",
+    "@shikijs/themes": "^4.0.2",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/enhanced-img": "^0.10.4",
     "@sveltejs/kit": "^2.59.0",

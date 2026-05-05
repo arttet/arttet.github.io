@@ -110,12 +110,12 @@ describe('TableOfContents', () => {
       return 0;
     });
     prose.innerHTML =
-      '<h2 id="intro"><a class="anchor" href="#intro">#</a>Intro</h2><h2 id="outro"><a class="anchor" href="#outro">#</a>Outro</h2>';
+      '<h2 id="intro"><a data-heading-anchor="" href="#intro">#</a>Intro</h2><h2 id="outro"><a data-heading-anchor="" href="#outro">#</a>Outro</h2>';
     render(TableOfContents);
 
     await fireEvent.keyDown(screen.getByRole('link', { name: 'Intro' }), { key: 'Enter' });
 
-    expect(prose.querySelector<HTMLAnchorElement>('h2#intro .anchor')).toHaveFocus();
+    expect(prose.querySelector<HTMLAnchorElement>('h2#intro [data-heading-anchor]')).toHaveFocus();
     raf.mockRestore();
   });
 

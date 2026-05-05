@@ -3,7 +3,7 @@ function onKeyDown(event: KeyboardEvent) {
     return;
   }
   const link = event.target instanceof HTMLAnchorElement ? event.target : null;
-  if (!link?.classList.contains('anchor')) {
+  if (!link?.hasAttribute('data-heading-anchor')) {
     return;
   }
 
@@ -19,7 +19,7 @@ function onKeyDown(event: KeyboardEvent) {
 export function articleFocusPolicy(node: HTMLElement) {
   function sync() {
     for (const link of node.querySelectorAll<HTMLAnchorElement>('a[href]')) {
-      if (link.classList.contains('anchor')) {
+      if (link.hasAttribute('data-heading-anchor')) {
         link.removeAttribute('tabindex');
         continue;
       }

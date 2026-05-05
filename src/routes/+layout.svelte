@@ -11,7 +11,7 @@ import type { ModeName } from '$features/background/core/BackgroundScene';
 import { backgroundState } from '$features/background/model/background.svelte';
 import { searchModel } from '$features/search/model/searchModel.svelte';
 import { readingMode } from '$features/theme/model/readingMode.svelte';
-import { setThemes } from '$lib/markdown/core/highlighter';
+import { setThemes } from '$lib/markdown/core/shiki-config';
 import { site } from '$shared/config/site';
 import { focusBoundary } from '$shared/lib/actions/focusBoundary';
 import { viewport } from '$shared/lib/viewport.svelte';

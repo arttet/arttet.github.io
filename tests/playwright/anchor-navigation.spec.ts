@@ -12,7 +12,7 @@ test.describe('Anchor Navigation', () => {
     const h2Id = await h2.getAttribute('id');
     expect(h2Id).toBeTruthy();
 
-    const anchor = h2.locator('a.anchor');
+    const anchor = h2.locator('a[data-heading-anchor]');
     await anchor.click();
 
     await expect(page).toHaveURL(new RegExp(`#${h2Id}$`));
