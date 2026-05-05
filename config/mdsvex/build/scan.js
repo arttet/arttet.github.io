@@ -16,7 +16,7 @@ const contentDir = 'content/blog';
  * @param {Record<string, unknown>} fm
  * @returns {Record<string, unknown>}
  */
-function normalizeFrontmatter(fm) {
+export function normalizeFrontmatter(fm) {
 	const normalized = { ...fm };
 	if (normalized.created instanceof Date) {
 		normalized.created = normalized.created.toISOString().slice(0, 10);
