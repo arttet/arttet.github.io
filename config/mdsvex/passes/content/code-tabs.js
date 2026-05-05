@@ -1,4 +1,9 @@
-import { getHighlighter, highlightCode, LANG_SET } from '../../../../src/lib/highlighter.config.js';
+import {
+  getHighlighter,
+  highlightCode,
+  LANG_SET,
+  hashString,
+} from '../../../../src/lib/highlighter.config.js';
 import { escapeHtml, escapeJsTemplateLiteral } from '../_internal/preprocess-utils.js';
 
 /**
@@ -153,15 +158,4 @@ function enhancePre(html, lang) {
 
     return `<pre tabindex="-1" data-language="${lang}"${nextAttrs}>`;
   });
-}
-
-/**
- * @param {string} str
- */
-function hashString(str) {
-  let hash = 5381;
-  for (let i = 0; i < str.length; i += 1) {
-    hash = (hash * 33) ^ str.charCodeAt(i);
-  }
-  return (hash >>> 0).toString(36);
 }

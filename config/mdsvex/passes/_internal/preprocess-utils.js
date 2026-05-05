@@ -12,16 +12,7 @@ export function utf8ToBase64(str) {
   return Buffer.from(str).toString('base64');
 }
 
-/**
- * @param {string} str
- */
-export function escapeHtml(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+export { escapeHtml } from '../../../../src/lib/highlighter.config.js';
 
 /**
  * @param {string} content
