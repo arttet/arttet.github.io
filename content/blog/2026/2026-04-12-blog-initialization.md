@@ -1,8 +1,8 @@
 ---
 title: Content Pipeline Is Ready
 tags: [blog, content, documentation, markdown, sveltekit]
-created: 2026-04-12
-updated: 2026-04-21
+created: '2026-04-12'
+updated: '2026-04-21'
 summary: A quick overview of the writing tools and formatting features that are now ready for future posts.
 draft: false
 ---

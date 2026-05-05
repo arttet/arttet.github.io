@@ -1,23 +1,4 @@
-async function writeClipboard(text: string) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return;
-  } catch (error) {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'fixed';
-    textarea.style.top = '-9999px';
-    document.body.appendChild(textarea);
-    textarea.select();
-    if (typeof document.execCommand !== 'function') {
-      textarea.remove();
-      throw error;
-    }
-    document.execCommand('copy');
-    textarea.remove();
-  }
-}
+import { copyToClipboard } from '$lib/markdown/core/clipboard.js';
 
 export function useCopy() {
   let copied = $state(false);
@@ -30,7 +11,7 @@ export function useCopy() {
     }
 
     try {
-      await writeClipboard(text);
+      await copyToClipboard(text);
       copied = true;
       error = null;
 
