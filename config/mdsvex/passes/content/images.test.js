@@ -56,10 +56,31 @@ describe('images guard pass', () => {
     expect(diagnostics[0]).toMatchObject({
       code: DIAGNOSTIC_CODES.IMAGE_MISSING_ALT,
       file: 'post.md',
-      severity: 'critical',
+      severity: 'warning',
       pass: 'images',
     });
     expect(diagnostics[1]).toMatchObject({
+      code: DIAGNOSTIC_CODES.IMAGE_MISSING_ALT,
+      file: 'post.md',
+      severity: 'warning',
+      pass: 'images',
+    });
+  });
+
+  it('reports images missing alt text in strict mode', () => {
+    const ctx = createTestContext('strict');
+    const plugins = /** @type {any} */ (imagesGuardPass().mdsvex)(ctx).remarkPlugins;
+    const plugin = plugins?.[0];
+    if (typeof plugin !== 'function') {
+      throw new Error('Expected remark plugin to be a function');
+    }
+    plugin.call(/** @type {any} */ (null))(root([imageNode('/img.png', '')]), {
+      path: 'post.md',
+    });
+
+    const diagnostics = ctx.diagnostics.list();
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0]).toMatchObject({
       code: DIAGNOSTIC_CODES.IMAGE_MISSING_ALT,
       file: 'post.md',
       severity: 'critical',

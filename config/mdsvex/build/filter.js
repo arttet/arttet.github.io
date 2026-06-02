@@ -1,5 +1,6 @@
 import { basename } from 'node:path';
 import { DIAGNOSTIC_CODES, SEVERITY, VALIDATION_MODE } from '../constants.js';
+import { emitDiagnostic } from '../engine/diagnostics.js';
 
 /**
  * Emit a critical diagnostic for every post slug that appears more than once
@@ -13,16 +14,16 @@ export function validateDuplicateSlugs(posts, fileMap, build) {
   const seen = new Map();
   for (const post of posts) {
     if (seen.has(post.slug)) {
-      build.diagnostics.add({
-        code: DIAGNOSTIC_CODES.DUPLICATE_SLUG,
-        severity: SEVERITY.CRITICAL,
-        pass: 'slug-guard',
-        message:
-          build.mode === VALIDATION_MODE.WARN
-            ? `Duplicate post slug detected: "${post.slug}". This post would be skipped in strict mode.`
-            : `Duplicate post slug detected: "${post.slug}".`,
-        file: fileMap.get(post.slug),
-      });
+      emitDiagnostic(
+        { mode: build.mode, diagnostics: build.diagnostics },
+        {
+          code: DIAGNOSTIC_CODES.DUPLICATE_SLUG,
+          pass: 'slug-guard',
+          severity: SEVERITY.CRITICAL,
+          message: `Duplicate post slug detected: "${post.slug}".`,
+          file: fileMap.get(post.slug),
+        }
+      );
     }
     seen.set(post.slug, true);
   }
@@ -67,16 +68,16 @@ export function validateCanonicalUniqueness(posts, fileMap, build) {
   for (const post of posts) {
     const canonical = post.canonical ?? `/blog/${post.slug}`;
     if (seen.has(canonical)) {
-      build.diagnostics.add({
-        code: DIAGNOSTIC_CODES.DUPLICATE_CANONICAL,
-        severity: SEVERITY.CRITICAL,
-        pass: 'canonical-guard',
-        message:
-          build.mode === VALIDATION_MODE.WARN
-            ? `Duplicate canonical URL detected: "${canonical}". This post would be skipped in strict mode.`
-            : `Duplicate canonical URL detected: "${canonical}".`,
-        file: fileMap.get(post.slug),
-      });
+      emitDiagnostic(
+        { mode: build.mode, diagnostics: build.diagnostics },
+        {
+          code: DIAGNOSTIC_CODES.DUPLICATE_CANONICAL,
+          pass: 'canonical-guard',
+          severity: SEVERITY.CRITICAL,
+          message: `Duplicate canonical URL detected: "${canonical}".`,
+          file: fileMap.get(post.slug),
+        }
+      );
     } else {
       seen.set(canonical, post.slug);
     }

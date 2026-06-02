@@ -1,4 +1,5 @@
-import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+import { DIAGNOSTIC_CODES, PASS_PHASES } from '../../constants.js';
+import { emitDiagnostic } from '../../engine/diagnostics.js';
 import { resolvePassContext } from '../../engine/context.js';
 
 /**
@@ -67,7 +68,8 @@ function createFrontmatterRemarkPlugin(build) {
  */
 export function validateFrontmatter(ctx, fm, file) {
   if (!fm || typeof fm !== 'object') {
-    addDiagnostic(ctx, {
+    emitDiagnostic(ctx, {
+      pass: 'frontmatter',
       code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: 'Frontmatter is missing or not an object.',
       file,
@@ -97,7 +99,8 @@ export function validateFrontmatter(ctx, fm, file) {
 function validateRequiredString(ctx, data, key, file) {
   const value = data[key];
   if (typeof value !== 'string' || value.trim().length === 0) {
-    addDiagnostic(ctx, {
+    emitDiagnostic(ctx, {
+      pass: 'frontmatter',
       code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a non-empty string.`,
       file,
@@ -121,7 +124,8 @@ function validateStringArray(ctx, data, key, file) {
     value.length === 0 ||
     value.some((v) => typeof v !== 'string' || v.trim().length === 0)
   ) {
-    addDiagnostic(ctx, {
+    emitDiagnostic(ctx, {
+      pass: 'frontmatter',
       code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a non-empty array of non-empty strings.`,
       file,
@@ -140,7 +144,8 @@ function validateIsoDate(ctx, data, key, required, file) {
   const value = data[key];
   if (value === undefined) {
     if (required) {
-      addDiagnostic(ctx, {
+      emitDiagnostic(ctx, {
+        pass: 'frontmatter',
         code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
         message: `Frontmatter "${key}" is required and must be a valid ISO 8601 date (YYYY-MM-DD).`,
         file,
@@ -149,7 +154,8 @@ function validateIsoDate(ctx, data, key, required, file) {
     return;
   }
   if (!isValidDateString(value)) {
-    addDiagnostic(ctx, {
+    emitDiagnostic(ctx, {
+      pass: 'frontmatter',
       code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a valid ISO 8601 date (YYYY-MM-DD).`,
       file,
@@ -166,7 +172,8 @@ function validateIsoDate(ctx, data, key, required, file) {
 function validateOptionalString(ctx, data, key, file) {
   const value = data[key];
   if (value !== undefined && typeof value !== 'string') {
-    addDiagnostic(ctx, {
+    emitDiagnostic(ctx, {
+      pass: 'frontmatter',
       code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a string when provided.`,
       file,
@@ -183,27 +190,11 @@ function validateOptionalString(ctx, data, key, file) {
 function validateOptionalBoolean(ctx, data, key, file) {
   const value = data[key];
   if (value !== undefined && typeof value !== 'boolean') {
-    addDiagnostic(ctx, {
+    emitDiagnostic(ctx, {
+      pass: 'frontmatter',
       code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
       message: `Frontmatter "${key}" must be a boolean when provided.`,
       file,
     });
   }
-}
-
-/**
- * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
- * @param {{ code: string; message: string; file?: string }} diagnostic
- */
-function addDiagnostic(ctx, diagnostic) {
-  ctx.diagnostics.add({
-    code: diagnostic.code,
-    severity: ctx.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
-    pass: 'frontmatter',
-    message:
-      ctx.mode === VALIDATION_MODE.WARN
-        ? `${diagnostic.message} This post would be skipped in strict mode.`
-        : diagnostic.message,
-    file: diagnostic.file,
-  });
 }

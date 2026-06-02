@@ -1,10 +1,5 @@
-import {
-  DIAGNOSTIC_CODES,
-  PASS_PHASES,
-  RESOURCE_LIMITS,
-  SEVERITY,
-  VALIDATION_MODE,
-} from '../../constants.js';
+import { DIAGNOSTIC_CODES, PASS_PHASES, RESOURCE_LIMITS } from '../../constants.js';
+import { emitDiagnostic } from '../../engine/diagnostics.js';
 import { resolvePassContext } from '../../engine/context.js';
 import { walk } from '../_internal/walk.js';
 
@@ -44,7 +39,8 @@ function createResourceLimitsRemarkPlugin(build) {
 
       const nodeCount = countNodes(tree);
       if (nodeCount > RESOURCE_LIMITS.MAX_AST_NODES) {
-        addDiagnostic(ctx, {
+        emitDiagnostic(ctx, {
+          pass: 'resource-limits',
           code: DIAGNOSTIC_CODES.RESOURCE_AST_NODES,
           message: `AST node count (${nodeCount}) exceeds limit of ${RESOURCE_LIMITS.MAX_AST_NODES}.`,
           file: filePath,
@@ -53,7 +49,8 @@ function createResourceLimitsRemarkPlugin(build) {
 
       const imageCount = countImages(tree);
       if (imageCount > RESOURCE_LIMITS.MAX_IMAGES) {
-        addDiagnostic(ctx, {
+        emitDiagnostic(ctx, {
+          pass: 'resource-limits',
           code: DIAGNOSTIC_CODES.RESOURCE_IMAGE_COUNT,
           message: `Image count (${imageCount}) exceeds limit of ${RESOURCE_LIMITS.MAX_IMAGES}.`,
           file: filePath,
@@ -62,7 +59,8 @@ function createResourceLimitsRemarkPlugin(build) {
 
       const maxHeadingDepth = findMaxHeadingDepth(tree);
       if (maxHeadingDepth > RESOURCE_LIMITS.MAX_HEADING_DEPTH) {
-        addDiagnostic(ctx, {
+        emitDiagnostic(ctx, {
+          pass: 'resource-limits',
           code: DIAGNOSTIC_CODES.RESOURCE_HEADING_DEPTH,
           message: `Heading depth (${maxHeadingDepth}) exceeds limit of h${RESOURCE_LIMITS.MAX_HEADING_DEPTH}.`,
           file: filePath,
@@ -110,21 +108,4 @@ function findMaxHeadingDepth(node) {
     }
   });
   return maxDepth;
-}
-
-/**
- * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
- * @param {{ code: string; message: string; file?: string }} diagnostic
- */
-function addDiagnostic(ctx, diagnostic) {
-  ctx.diagnostics.add({
-    code: diagnostic.code,
-    severity: ctx.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
-    pass: 'resource-limits',
-    message:
-      ctx.mode === VALIDATION_MODE.WARN
-        ? `${diagnostic.message} This post would be skipped in strict mode.`
-        : diagnostic.message,
-    file: diagnostic.file,
-  });
 }
