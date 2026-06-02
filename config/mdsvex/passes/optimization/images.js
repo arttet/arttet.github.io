@@ -29,8 +29,8 @@ function createImagesRehypePlugin() {
       if (node.type === 'element' && node.tagName === 'img') {
         /** @type {Record<string, unknown>} */
         const props = node.properties ?? {};
-        props.loading = 'lazy';
-        props.decoding = 'async';
+        props.loading ??= 'lazy';
+        props.decoding ??= 'async';
         node.properties = props;
       }
     });

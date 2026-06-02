@@ -52,14 +52,14 @@ fn main() {}
 
     expect(result?.code).not.toContain("import CodeTabs from '$shared/ui/CodeTabs.svelte';");
     expect(result?.code).not.toContain('<CodeTabs tabs={[');
-    expect(result?.code).toContain('role="tablist"');
-    expect(result?.code).toContain('role="tab"');
-    expect(result?.code).toContain('role="tabpanel"');
-    expect(result?.code).toContain('aria-selected="true"');
-    expect(result?.code).toContain('aria-controls=');
+    expect(result?.code).toContain('role=\\"tablist\\"');
+    expect(result?.code).toContain('role=\\"tab\\"');
+    expect(result?.code).toContain('role=\\"tabpanel\\"');
+    expect(result?.code).toContain('aria-selected=\\"true\\"');
+    expect(result?.code).toMatch(/aria-controls=\\?"code-tabs-[^"]+"\\?/);
     expect(result?.code).toContain('data-code-tabs-content');
-    expect(result?.code).toContain('data-language="go"');
-    expect(result?.code).toContain('data-language="rust"');
+    expect(result?.code).toContain('data-language=\\"go\\"');
+    expect(result?.code).toContain('data-language=\\"rust\\"');
     expect(result?.code).toContain('func');
     expect(result?.code).toContain('main');
     expect(result?.code).toContain('Rust');

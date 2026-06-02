@@ -36,10 +36,6 @@ const rawRegistry = /** @type {Record<string, RegistryEntry>} */ ({
     kind: COMPONENT_KIND.BLOCK,
     allowedProps: [],
   },
-  StaticHtml: {
-    kind: COMPONENT_KIND.BLOCK,
-    allowedProps: ['html'],
-  },
 });
 
 export const markdownComponentRegistry = /** @type {Record<string, RegistryEntry>} */ (

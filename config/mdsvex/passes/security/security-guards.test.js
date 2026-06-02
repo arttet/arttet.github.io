@@ -174,7 +174,6 @@ describe('security guards pass', () => {
     validateMarkdownTree(
       root([
         htmlNode('<MathCopy display={true} b64Latex="abc" b64Html="def" />'),
-        htmlNode('<StaticHtml html={`<p>safe generated output</p>`} />'),
         htmlNode('<KaTeXStyles />'),
       ]),
       ctx,

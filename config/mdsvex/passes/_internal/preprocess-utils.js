@@ -1,18 +1,22 @@
 /**
  * @param {string} str
  */
-export function escapeJsTemplateLiteral(str) {
-  return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
-}
-
-/**
- * @param {string} str
- */
 export function utf8ToBase64(str) {
   return Buffer.from(str).toString('base64');
 }
 
 export { escapeHtml } from '../../../../src/lib/markdown/core/shiki-engine.js';
+
+/**
+ * Wrap raw HTML so mdsvex injects it via `{@html}` at runtime.
+ * Uses JSON.stringify for safe quoting (no template-literal escaping needed).
+ *
+ * @param {string} html
+ * @returns {string}
+ */
+export function trustedSvelteHtml(html) {
+  return `{@html ${JSON.stringify(html)}}`;
+}
 
 /**
  * @param {string} content
