@@ -4,7 +4,7 @@ import {
   LANG_SET,
   hashString,
 } from '../../../../src/lib/markdown/core/shiki-engine.js';
-import { escapeHtml, escapeJsTemplateLiteral } from '../_internal/preprocess-utils.js';
+import { escapeHtml, trustedSvelteHtml } from '../_internal/preprocess-utils.js';
 
 /**
  * @param {string} content
@@ -57,7 +57,7 @@ async function renderCodeTabs(block, themes, groupIndex) {
     .join('');
   const html = `<div class="not-prose my-6 rounded-lg border border-[--color-border] overflow-hidden" data-code-tabs><div role="tablist" aria-label="Code examples" class="flex items-center bg-[--code-bg] border-b border-[--color-border] px-1">${buttons}</div>${panel}</div>`;
 
-  return `\n\n<div>{@html \`${escapeJsTemplateLiteral(html)}\`}</div>\n\n`;
+  return `\n\n<div>${trustedSvelteHtml(html)}</div>\n\n`;
 }
 
 /**

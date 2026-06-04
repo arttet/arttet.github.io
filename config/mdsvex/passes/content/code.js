@@ -7,7 +7,7 @@ import {
 } from '../../../../src/lib/markdown/core/shiki-engine.js';
 import { setThemes } from '../../../../src/lib/markdown/core/shiki-config.js';
 import { codeThemes } from '../../../../src/shared/config/codeThemes.js';
-import { escapeHtml } from '../_internal/preprocess-utils.js';
+import { escapeHtml, trustedSvelteHtml } from '../_internal/preprocess-utils.js';
 
 /**
  * @typedef {Awaited<ReturnType<typeof getHighlighter>>} MarkdownHighlighter
@@ -57,14 +57,6 @@ async function setupHighlighter() {
  */
 function encodeBase64(value) {
   return Buffer.from(value).toString('base64');
-}
-
-/**
- * @param {string} html
- * @returns {string}
- */
-function trustedSvelteHtml(html) {
-  return `{@html ${JSON.stringify(html)}}`;
 }
 
 /**

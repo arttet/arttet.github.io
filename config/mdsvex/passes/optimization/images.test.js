@@ -60,6 +60,17 @@ describe('images pass', () => {
     });
   });
 
+  it('preserves existing loading and decoding attributes', () => {
+    const node = imgNode('/priority.png', 'priority', { loading: 'eager', decoding: 'sync' });
+    getRehypePlugin()(root([node]));
+    expect(node.properties).toEqual({
+      src: '/priority.png',
+      alt: 'priority',
+      loading: 'eager',
+      decoding: 'sync',
+    });
+  });
+
   it('ignores non-img elements', () => {
     const node = { type: 'element', tagName: 'div', properties: {}, children: [] };
     getRehypePlugin()(root([node]));
