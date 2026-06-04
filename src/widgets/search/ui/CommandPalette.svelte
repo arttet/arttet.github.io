@@ -11,41 +11,39 @@ import SearchTags from './SearchTags.svelte';
 
 let inputEl: HTMLInputElement | undefined = $state();
 
+const onKey = async (e: KeyboardEvent) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    if (searchModel.open) {
+      searchModel.close();
+    } else {
+      await searchModel.openPalette();
+    }
+  }
+  if (!searchModel.open) {
+    return;
+  }
+  if (e.key === 'Escape') {
+    searchModel.close();
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    searchModel.selected = Math.min(searchModel.selected + 1, searchModel.results.length - 1);
+  }
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    searchModel.selected = Math.max(searchModel.selected - 1, 0);
+  }
+  if (e.key === 'Enter' && searchModel.results[searchModel.selected]) {
+    await goto(resolve('/blog/[slug]', { slug: searchModel.results[searchModel.selected].slug }));
+    searchModel.close();
+  }
+};
+
 $effect(() => {
   if (!browser) {
     return;
   }
-
-  const onKey = async (e: KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-      e.preventDefault();
-      if (searchModel.open) {
-        searchModel.close();
-      } else {
-        await searchModel.openPalette();
-      }
-    }
-    if (!searchModel.open) {
-      return;
-    }
-    if (e.key === 'Escape') {
-      searchModel.close();
-    }
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      searchModel.selected = Math.min(searchModel.selected + 1, searchModel.results.length - 1);
-    }
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      searchModel.selected = Math.max(searchModel.selected - 1, 0);
-    }
-    if (e.key === 'Enter' && searchModel.results[searchModel.selected]) {
-      await goto(
-        resolve('/blog/[slug]', { slug: searchModel.results[searchModel.selected].slug })
-      );
-      searchModel.close();
-    }
-  };
 
   window.addEventListener('keydown', onKey);
   return () => window.removeEventListener('keydown', onKey);
