@@ -3,12 +3,12 @@ import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve, relative } from 'node:path';
 import { createPostContext } from '../engine/context.js';
-import { createDiagnostics } from '../engine/diagnostics.js';
+import { createDiagnostics, emitDiagnostic } from '../engine/diagnostics.js';
 import { COMPUTED_FRONTMATTER_KEYS } from '../constants.js';
 import { validateFrontmatterSchema } from './frontmatter-schema.js';
 import { computeCacheKey, loadCachedPost, saveCachedPost } from './cache.js';
 
-import { DIAGNOSTIC_CODES, RESOURCE_LIMITS, SEVERITY, VALIDATION_MODE } from '../constants.js';
+import { DIAGNOSTIC_CODES, RESOURCE_LIMITS } from '../constants.js';
 
 const contentDir = 'content/blog';
 
@@ -65,13 +65,15 @@ export async function scanPosts(build, config) {
 			const content = (await readFile(filePath, 'utf8')).replace(/\r\n/g, '\n');
 
 			if (Buffer.byteLength(content, 'utf8') > RESOURCE_LIMITS.MAX_FILE_BYTES) {
-				postCtx.diagnostics.add({
-					code: DIAGNOSTIC_CODES.RESOURCE_FILE_SIZE,
-					severity: build.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
-					pass: 'resource-limits',
-					message: `File size exceeds limit of ${RESOURCE_LIMITS.MAX_FILE_BYTES} bytes.`,
-					file: filePath,
-				});
+				emitDiagnostic(
+					{ mode: build.mode, diagnostics: postCtx.diagnostics },
+					{
+						code: DIAGNOSTIC_CODES.RESOURCE_FILE_SIZE,
+						pass: 'resource-limits',
+						message: `File size exceeds limit of ${RESOURCE_LIMITS.MAX_FILE_BYTES} bytes.`,
+						file: filePath,
+					}
+				);
 			}
 
 			const cacheKey = computeCacheKey(rel, content);
@@ -97,13 +99,15 @@ export async function scanPosts(build, config) {
 			if (schemaErrors.length > 0) {
 				// Schema violations are surfaced as build-time diagnostics.
 				for (const message of schemaErrors) {
-					postCtx.diagnostics.add({
-						code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
-						severity: build.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
-						pass: 'frontmatter-schema',
-						message,
-						file: filePath,
-					});
+					emitDiagnostic(
+						{ mode: build.mode, diagnostics: postCtx.diagnostics },
+						{
+							code: DIAGNOSTIC_CODES.INVALID_FRONTMATTER,
+							pass: 'frontmatter-schema',
+							message,
+							file: filePath,
+						}
+					);
 				}
 			}
 

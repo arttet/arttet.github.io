@@ -1,7 +1,8 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+import { DIAGNOSTIC_CODES, PASS_PHASES } from '../../constants.js';
+import { emitDiagnostic } from '../../engine/diagnostics.js';
 import { resolvePassContext, stateRead, stateWrite } from '../../engine/context.js';
 
 import { walk } from '../_internal/walk.js';
@@ -118,14 +119,16 @@ function validateLinkUrl(node, ctx, file) {
     const knownSlugs = /** @type {Set<string>} */ (stateRead(ctx.state, 'knownSlugs'));
     const draftSlugs = /** @type {Set<string>} */ (stateRead(ctx.state, 'draftSlugs'));
     if (slug && !knownSlugs.has(slug)) {
-      addDiagnostic(ctx, {
+      emitDiagnostic(ctx, {
+        pass: 'links',
         code: DIAGNOSTIC_CODES.BROKEN_INTERNAL_LINK,
         message: `Broken internal link to unknown post: ${url}.`,
         file: filePath,
         node,
       });
     } else if (slug && draftSlugs.has(slug)) {
-      addDiagnostic(ctx, {
+      emitDiagnostic(ctx, {
+        pass: 'links',
         code: DIAGNOSTIC_CODES.LINK_TO_HIDDEN,
         message: `Internal link points to a draft post: ${url}.`,
         file: filePath,
@@ -137,7 +140,8 @@ function validateLinkUrl(node, ctx, file) {
 
   if (url.startsWith('#')) {
     if (url.length <= 1) {
-      addDiagnostic(ctx, {
+      emitDiagnostic(ctx, {
+        pass: 'links',
         code: DIAGNOSTIC_CODES.EMPTY_ANCHOR,
         message: 'Empty anchor link is not allowed.',
         file: filePath,
@@ -146,23 +150,4 @@ function validateLinkUrl(node, ctx, file) {
     }
     return;
   }
-}
-
-/**
- * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
- * @param {{ code: string; message: string; file?: string; node: MarkdownNode }} diagnostic
- */
-function addDiagnostic(ctx, diagnostic) {
-  ctx.diagnostics.add({
-    code: diagnostic.code,
-    severity: SEVERITY.CRITICAL,
-    pass: 'links',
-    message:
-      ctx.mode === VALIDATION_MODE.WARN
-        ? `${diagnostic.message} This post would be skipped in strict mode.`
-        : diagnostic.message,
-    file: diagnostic.file,
-    line: diagnostic.node.position?.start.line,
-    column: diagnostic.node.position?.start.column,
-  });
 }

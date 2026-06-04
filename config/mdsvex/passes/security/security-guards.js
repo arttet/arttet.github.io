@@ -3,9 +3,8 @@ import {
   DIAGNOSTIC_CODES,
   PASS_PHASES,
   SAFE_PROTOCOLS,
-  SEVERITY,
-  VALIDATION_MODE,
 } from '../../constants.js';
+import { emitDiagnostic } from '../../engine/diagnostics.js';
 import { resolvePassContext } from '../../engine/context.js';
 import { walk } from '../_internal/walk.js';
 import { RAW_HTML_PATTERNS } from './patterns.js';
@@ -70,7 +69,8 @@ function validateHtmlNode(node, ctx, file) {
 
   for (const rawHtml of RAW_HTML_PATTERNS) {
     if (rawHtml.pattern.test(value)) {
-      addDiagnostic(ctx, {
+      emitDiagnostic(ctx, {
+        pass: 'security-guards',
         code: rawHtml.code,
         message: `Unsafe raw HTML is not allowed in markdown: ${rawHtml.label}.`,
         file,
@@ -109,7 +109,8 @@ function validateHtmlUrls(value, node, ctx, file) {
       }
 
       if (!isSafeUrl(url)) {
-        addDiagnostic(ctx, {
+        emitDiagnostic(ctx, {
+          pass: 'security-guards',
           code: DIAGNOSTIC_CODES.UNSAFE_URL,
           message: `Unsafe URL is not allowed in markdown: ${url}.`,
           file,
@@ -128,7 +129,8 @@ function validateHtmlUrls(value, node, ctx, file) {
 function validateUrlNode(node, ctx, file) {
   const url = node.url ?? '';
   if (!isSafeUrl(url)) {
-    addDiagnostic(ctx, {
+    emitDiagnostic(ctx, {
+      pass: 'security-guards',
       code: DIAGNOSTIC_CODES.UNSAFE_URL,
       message: `Unsafe URL is not allowed in markdown: ${url}.`,
       file,
@@ -154,7 +156,8 @@ function validateComponents(value, node, ctx, file) {
     const component = getRegisteredComponent(ctx, name);
 
     if (!component) {
-      addDiagnostic(ctx, {
+      emitDiagnostic(ctx, {
+        pass: 'security-guards',
         code: DIAGNOSTIC_CODES.UNKNOWN_COMPONENT,
         message: `Unknown markdown component <${name}>.`,
         file,
@@ -165,7 +168,8 @@ function validateComponents(value, node, ctx, file) {
 
     for (const prop of readAttributeNames(attrs)) {
       if (!component.allowedProps.includes(prop)) {
-        addDiagnostic(ctx, {
+        emitDiagnostic(ctx, {
+          pass: 'security-guards',
           code: DIAGNOSTIC_CODES.UNKNOWN_COMPONENT_PROP,
           message: `Unknown prop "${prop}" on markdown component <${name}>.`,
           file,
@@ -226,25 +230,6 @@ function isSafeUrl(url) {
 
   // Allow specific safe protocols (whitelist)
   return SAFE_PROTOCOLS.some((p) => normalized.startsWith(p));
-}
-
-/**
- * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
- * @param {{ code: string; message: string; file?: string; node: MarkdownNode }} diagnostic
- */
-function addDiagnostic(ctx, diagnostic) {
-  ctx.diagnostics.add({
-    code: diagnostic.code,
-    severity: ctx.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING,
-    pass: 'security-guards',
-    message:
-      ctx.mode === VALIDATION_MODE.WARN
-        ? `${diagnostic.message} This post would be skipped in strict mode.`
-        : diagnostic.message,
-    file: diagnostic.file,
-    line: diagnostic.node.position?.start.line,
-    column: diagnostic.node.position?.start.column,
-  });
 }
 
 /**

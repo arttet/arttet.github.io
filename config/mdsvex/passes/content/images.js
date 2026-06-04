@@ -1,4 +1,5 @@
-import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+import { DIAGNOSTIC_CODES, PASS_PHASES } from '../../constants.js';
+import { emitDiagnostic } from '../../engine/diagnostics.js';
 import { resolvePassContext } from '../../engine/context.js';
 
 import { walk } from '../_internal/walk.js';
@@ -38,7 +39,8 @@ function createImagesRemarkPlugin(build) {
       const ctx = resolvePassContext(build, filePath);
       walk(tree, (node) => {
         if (node.type === 'image' && (!node.alt || node.alt.trim().length === 0)) {
-          addDiagnostic(ctx, {
+          emitDiagnostic(ctx, {
+            pass: 'images',
             code: DIAGNOSTIC_CODES.IMAGE_MISSING_ALT,
             message: 'Image is missing alt text.',
             file: filePath,
@@ -47,21 +49,4 @@ function createImagesRemarkPlugin(build) {
       });
     };
   };
-}
-
-/**
- * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
- * @param {{ code: string; message: string; file?: string }} diagnostic
- */
-function addDiagnostic(ctx, diagnostic) {
-  ctx.diagnostics.add({
-    code: diagnostic.code,
-    severity: SEVERITY.CRITICAL,
-    pass: 'images',
-    message:
-      ctx.mode === VALIDATION_MODE.WARN
-        ? `${diagnostic.message} This post would be skipped in strict mode.`
-        : diagnostic.message,
-    file: diagnostic.file,
-  });
 }

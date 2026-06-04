@@ -1,4 +1,5 @@
-import { DIAGNOSTIC_CODES, PASS_PHASES, SEVERITY, VALIDATION_MODE } from '../../constants.js';
+import { DIAGNOSTIC_CODES, PASS_PHASES } from '../../constants.js';
+import { emitDiagnostic } from '../../engine/diagnostics.js';
 import { resolvePassContext } from '../../engine/context.js';
 
 import { walk } from '../_internal/walk.js';
@@ -74,21 +75,25 @@ function validateHeadingHierarchy(ctx, headings, file) {
     if (heading.depth === 1) {
       h1Count += 1;
       if (h1Count > 1) {
-        addDiagnostic(ctx, {
+        emitDiagnostic(ctx, {
           code: DIAGNOSTIC_CODES.MULTIPLE_H1,
+          pass: 'headings',
           message: 'Multiple h1 headings are not allowed.',
           file,
-          position: heading.position,
+          line: heading.position.line,
+          column: heading.position.column,
         });
       }
     }
 
     if (previousDepth > 0 && heading.depth > previousDepth + 1) {
-      addDiagnostic(ctx, {
+      emitDiagnostic(ctx, {
         code: DIAGNOSTIC_CODES.HEADING_HIERARCHY_SKIP,
+        pass: 'headings',
         message: `Heading hierarchy skip detected: h${previousDepth} → h${heading.depth}.`,
         file,
-        position: heading.position,
+        line: heading.position.line,
+        column: heading.position.column,
       });
     }
 
@@ -117,13 +122,13 @@ function validateDuplicateHeadings(ctx, tree, file) {
     const key = text.trim().toLowerCase();
     if (seen.has(key)) {
       const first = seen.get(key);
-      addDiagnostic(ctx, {
+      emitDiagnostic(ctx, {
         code: DIAGNOSTIC_CODES.DUPLICATE_HEADING,
+        pass: 'headings',
         message: `Duplicate heading text detected: "${text.trim()}".`,
         file,
-        position: node.position
-          ? { line: node.position.start.line, column: node.position.start.column }
-          : /** @type {{ line: number; column: number }} */ (first),
+        line: node.position?.start?.line ?? first?.line,
+        column: node.position?.start?.column ?? first?.column,
       });
     } else if (node.position) {
       seen.set(key, { line: node.position.start.line, column: node.position.start.column });
@@ -140,23 +145,4 @@ function extractText(node) {
     return node.value;
   }
   return node.children?.map(extractText).join('') ?? '';
-}
-
-/**
- * @param {{ mode: import('../../engine/context.js').MarkdownMode; diagnostics: ReturnType<typeof import('../../engine/diagnostics.js').createDiagnostics> }} ctx
- * @param {{ code: string; message: string; file?: string; position: { line: number; column: number } }} diagnostic
- */
-function addDiagnostic(ctx, diagnostic) {
-  ctx.diagnostics.add({
-    code: diagnostic.code,
-    severity: SEVERITY.CRITICAL,
-    pass: 'headings',
-    message:
-      ctx.mode === VALIDATION_MODE.WARN
-        ? `${diagnostic.message} This post would be skipped in strict mode.`
-        : diagnostic.message,
-    file: diagnostic.file,
-    line: diagnostic.position.line,
-    column: diagnostic.position.column,
-  });
 }

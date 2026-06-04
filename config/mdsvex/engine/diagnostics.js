@@ -1,4 +1,4 @@
-import { SEVERITY } from '../constants.js';
+import { SEVERITY, VALIDATION_MODE } from '../constants.js';
 import { cwd } from 'node:process';
 
 const severityRank = {
@@ -69,8 +69,41 @@ function sortDiagnostics(diagnostics) {
 }
 
 /**
- * @param {Diagnostic[]} diagnostics
+ * @param {{ mode: import('./context.js').MarkdownMode; diagnostics: ReturnType<typeof createDiagnostics> }} ctx
+ * @param {Object} options
+ * @param {string} options.code
+ * @param {string} options.pass
+ * @param {string} options.message
+ * @param {string=} options.file
+ * @param {import('../constants.js').Severity=} options.severity
+ * @param {number=} options.line
+ * @param {number=} options.column
+ * @param {{ position?: { start?: { line?: number; column?: number } } }=} options.node
  */
+export function emitDiagnostic(ctx, options) {
+  if (!ctx?.diagnostics) {
+    return;
+  }
+  const severity =
+    options.severity ??
+    (ctx.mode === VALIDATION_MODE.STRICT ? SEVERITY.CRITICAL : SEVERITY.WARNING);
+  const message =
+    ctx.mode === VALIDATION_MODE.WARN
+      ? `${options.message} This post would be skipped in strict mode.`
+      : options.message;
+
+  ctx.diagnostics.add({
+    code: options.code,
+    severity,
+    pass: options.pass,
+    message,
+    file: options.file,
+    line: options.line ?? options.node?.position?.start?.line,
+    column: options.column ?? options.node?.position?.start?.column,
+  });
+}
+
+/** @param {Diagnostic[]} [diagnostics] */
 export function createDiagnostics(diagnostics = []) {
   return Object.freeze({
     /**
