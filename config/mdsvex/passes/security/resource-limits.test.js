@@ -3,21 +3,21 @@ import { resourceLimitsPass } from './resource-limits.js';
 import { createBuildContext } from '../../engine/context.js';
 import { VALIDATION_MODE, RESOURCE_LIMITS } from '../../constants.js';
 
-describe('resource limits pass', () => {
-  /**
-   * @param {any} tree
-   * @param {import('../../constants.js').ValidationMode} [mode]
-   */
-  function runPass(tree, mode = VALIDATION_MODE.STRICT) {
-    const build = createBuildContext(mode);
-    const pass = resourceLimitsPass();
-    const plugin = pass.mdsvex(build);
-    // @ts-ignore — testing internal plugin structure
-    const transformer = /** @type {Function} */ (plugin.remarkPlugins[0])();
-    transformer(tree, { path: '/test.md' });
-    return build.diagnostics.list();
-  }
+/**
+ * @param {any} tree
+ * @param {import('../../constants.js').ValidationMode} [mode]
+ */
+function runPass(tree, mode = VALIDATION_MODE.STRICT) {
+  const build = createBuildContext(mode);
+  const pass = resourceLimitsPass();
+  const plugin = pass.mdsvex(build);
+  // @ts-ignore — testing internal plugin structure
+  const transformer = /** @type {Function} */ (plugin.remarkPlugins[0])();
+  transformer(tree, { path: '/test.md' });
+  return build.diagnostics.list();
+}
 
+describe('resource limits pass', () => {
   it('adds no diagnostics for small trees', () => {
     const diagnostics = runPass({
       type: 'root',

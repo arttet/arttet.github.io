@@ -1,3 +1,6 @@
+# Keep in sync with @playwright/test in package.json
+playwright_version := "1.60.0"
+
 [doc('Update bundle baseline')]
 [no-cd]
 bundle:
@@ -26,6 +29,6 @@ ci:
         -e PLAYWRIGHT_SERVER_COMMAND="npx serve target/build -l 4173" \
         -e PLAYWRIGHT_SERVER_URL="http://localhost:4173" \
         -e PLAYWRIGHT_BASE_URL="http://localhost:4173" \
-        mcr.microsoft.com/playwright:v1.59.1 \
+        mcr.microsoft.com/playwright:v{{ playwright_version }} \
         bash -c "npm install && npx playwright test --config=playwright.ci.config.ts --update-snapshots --project=chrome-desktop"
     @echo "✅ Snapshots updated"
