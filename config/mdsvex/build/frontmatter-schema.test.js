@@ -59,4 +59,10 @@ describe('frontmatter schema', () => {
 		expect(errors[0].toLowerCase()).toContain('unrecognized');
 		expect(errors[0]).toContain('unknownField');
 	});
+
+	it('rejects non-object frontmatter', () => {
+		expect(validateFrontmatterSchema(null)).toEqual(['Frontmatter must be an object.']);
+		expect(validateFrontmatterSchema('string')).toEqual(['Frontmatter must be an object.']);
+		expect(validateFrontmatterSchema(42)).toEqual(['Frontmatter must be an object.']);
+	});
 });

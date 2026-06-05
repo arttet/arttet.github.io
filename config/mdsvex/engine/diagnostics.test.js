@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   createDiagnostics,
   createDiagnosticsReport,
+  emitDiagnostic,
   renderDiagnosticsMarkdown,
 } from './diagnostics.js';
 
@@ -185,5 +186,56 @@ describe('markdown diagnostics', () => {
     });
     expect(diagnostics.has('warning')).toBe(true);
     expect(diagnostics.has('error')).toBe(false);
+  });
+
+  it('sorts by column when file and line match', () => {
+    const diagnostics = createDiagnostics();
+    diagnostics.add({
+      code: 'A',
+      severity: 'warning',
+      pass: 'test',
+      message: 'M',
+      file: 'a.md',
+      line: 1,
+      column: 2,
+    });
+    diagnostics.add({
+      code: 'B',
+      severity: 'warning',
+      pass: 'test',
+      message: 'M',
+      file: 'a.md',
+      line: 1,
+      column: 1,
+    });
+    expect(diagnostics.list().map((d) => d.column)).toEqual([1, 2]);
+  });
+
+  it('returns early when ctx has no diagnostics', () => {
+    // @ts-expect-error testing nullish guard
+    expect(() => emitDiagnostic(null, { code: 'A', pass: 'test', message: 'M' })).not.toThrow();
+    // @ts-expect-error testing nullish guard
+    expect(() => emitDiagnostic({}, { code: 'A', pass: 'test', message: 'M' })).not.toThrow();
+  });
+
+  it('scrubs path when file is missing', () => {
+    const markdown = renderDiagnosticsMarkdown({
+      pipelineVersion: 'v1',
+      summary: { info: 0, warning: 1, error: 0, critical: 0 },
+      diagnostics: [{ code: 'A', severity: 'warning', pass: 'test', message: 'M' }],
+    });
+    expect(markdown).toContain('<unknown>:1:1');
+  });
+
+  it('scrubs path when file is absolute', () => {
+    const absoluteFile = process.cwd() + '/posts/test.md';
+    const markdown = renderDiagnosticsMarkdown({
+      pipelineVersion: 'v1',
+      summary: { info: 0, warning: 1, error: 0, critical: 0 },
+      diagnostics: [
+        { code: 'A', severity: 'warning', pass: 'test', message: 'M', file: absoluteFile },
+      ],
+    });
+    expect(markdown).toContain('posts/test.md');
   });
 });
